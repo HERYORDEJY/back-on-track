@@ -1,0 +1,8 @@
+# Codex log
+
+One row per task, newest last. This is the evidence for the pitch's "how Codex built it" segment: what was asked, what Codex did, and what a human changed.
+
+| Date | Day | Task | Asked | Codex did | Human changed |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-04 | Pre-build | Repository context review | Read all folders and files; ask where unclear, without assumptions | Inventoried every file, read all 11 Markdown documents and the docs checker, inspected Finder metadata, cross-reviewed engine/risk, AI/data and frontend/product requirements, and ran the docs checker successfully. Identified unresolved stakeholder inputs and cross-spec conflicts; no implementation or specification changes | Confirmed this documentation-only folder is the complete starting point |
+| 2026-10-04 | D1 preparation | Reconcile decisions and research real management material/MIVA | Read the supplied capstone brief and answers, research public course/partner information, apply the approved spec changes and accurately track progress | Recorded the approved scope, rounded scheduling checks, 20-second shared plan budget, sparse AI changes, privacy/deletion, bilingual/offline behavior, check-in provenance and risk edge cases. Researched primary sources in parallel, added a routed research record, extended the docs checker to the supplied brief, and recorded explicit pending choices. No dependencies installed, application built or commit created; docs validation completed | Set availability-based work starting today, estimated about two weeks to submission, supplied infrastructure, and resolved the original behavior questions; source/order/delayed-sync/same-day-re-plan and cache deletion choices remain pending |
