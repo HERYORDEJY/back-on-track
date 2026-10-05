@@ -8,10 +8,10 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Scaffold, CI, deploy | not started | |
+| Scaffold, CI, deploy | in progress | Local scaffold checked: 20 tests, types/lint/docs green; production webpack build passed. CI workflow written; remote CI and deploy pending |
 | Data model and seed (course, personas, cohort) | not started | |
 | Simulated clock and demo reset | not started | |
-| Languages (message files, switch) | not started | |
+| Languages (message files, switch) | in progress | Bilingual helpers and landing cookie control built; 4 helper tests pass; interactive persistence/phone widths and learner/offline switching pending |
 | Recovery engine | not started | |
 | AI calls, cache, `DEMO_MODE` | not started | |
 | Learner flow (intake, plan, check-in, re-plan) | not started | |
@@ -32,28 +32,31 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | Review complete starting folder | done | All original docs and the checker reviewed; docs check passed; complete starting point confirmed |
 | Read capstone brief and record maintainer decisions | done | Routed docs aligned with the supplied decisions; docs check and consistency review completed; remaining behavior questions explicitly listed below |
 | Research public management material and MIVA facts | done | Primary sources verified; candidates, licensing/access limits and unknowns recorded in `docs/RESEARCH.md`; source selection remains pending |
-| Application implementation | not started | No scaffold, package manifest, schema or tests yet |
-| Infrastructure access | pending | GitHub, Vercel, Neon and OpenAI resources identified by the maintainer; access and configuration not yet verified |
+| Local foundation scaffold | tested | [D1 foundation plan](plans/d1-foundation.md), approved dependencies/lockfile, strict Next/Tailwind/shadcn shell, 20 passing tests and lint boundaries, scripts and CI configuration. Production build passed; exact-width/interactive browser verification pending |
+| Infrastructure access | in progress | GitHub SSH and CLI auth verified; existing local docs commit preserved. Vercel browser timed out; Neon connection string absent, no database/deployment change |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
 | Source/demo mapping and remaining behavior choices | pending | Questions sent about source selection, ordering, delayed offline check-ins and same-day re-planning; cache deletion ownership still needs a decision |
 
 After each work session, record completed tasks, the current task, next steps, blockers, pending decisions and any cuts here and in `CODEX_LOG.md`. Do not erase deferred or abandoned work; keep its reason and date. No feature has been cut or abandoned yet.
 
-Next: prepare the D1 scaffold plan, verify the existing infrastructure, and request the dependency approval required by `AGENTS.md` before installation. Five clarification questions have been sent: source/demo adaptation, topic ordering, delayed offline check-ins, same-day re-planning and cache deletion. Await source selection before writing the course mapping; await the listed behavior choices before implementing their affected paths. The current folder still has no application code or local Git checkout; no commit has been created.
+Current task: finish D1's database/clock/reset/seed/deploy work after the local scaffold. Approved packages are installed; ESLint 9.39.5 was separately approved after the React lint plugin failed with 10.12.0. A clean offline `npm ci` succeeds. The landing renders in Chrome with labelled simulated personas; exact 375/1280 px and interactive language persistence remain unverified because browser automation repeatedly timed out. Database access needs `DATABASE_URL` in the ignored `.env`; the maintainer has been asked to configure it without posting secrets. Five earlier clarification questions remain pending: source/demo adaptation, topic ordering, delayed offline check-ins, same-day re-planning and cache deletion. The recovering seed cohort also requires the D2 fallback engine. D1's complete exit is still pending; no cut or abandoned feature is claimed.
+
+Follow-up: dependency audit reports 9 high-severity tooling-chain entries; no automatic incompatible fixes applied. ESLint 9 is a temporary compatibility pin. Details and upstream references are in [library notes](references/next-eslint.md).
 
 ## Build sequence
 
 ### D1: foundation and a live URL
 
-- [ ] Initialize the local Git checkout for the existing remote and commit these docs first; add the `package.json` scripts listed in `AGENTS.md`
-- [ ] Scaffold Next.js (App Router, TypeScript strict), Tailwind and shadcn/ui; connect Prisma to Neon
-- [ ] ESLint `no-restricted-imports` rules for the layers in `ARCHITECTURE.md`
+- [x] Preserve the existing local documentation commit, configure main/origin; add the `package.json` scripts listed in `AGENTS.md`
+- [x] Scaffold Next.js (App Router, TypeScript strict), Tailwind and shadcn/ui
+- [ ] Connect Prisma to Neon
+- [x] ESLint `no-restricted-imports` rules for the layers in `ARCHITECTURE.md`, with boundary tests
 - [ ] Vercel project with env vars; GitHub Actions running `npm ci` and `npm run check`
 - [ ] Prisma schema for every model; first migration
 - [ ] `lib/clock.ts`, `/api/clock` and ClockControl
 - [ ] Seed the course and personas (`specs/data.md`)
 - [ ] Build the cohort generator as a Codex skill; seed 300 students with time-stamped events
-- [ ] `lib/i18n.ts`, `messages/en.json`, `messages/pcm.json`, LanguageSwitch, `tests/i18n.test.ts`
+- [x] `lib/i18n.ts`, `messages/en.json`, `messages/pcm.json`, landing LanguageSwitch, `tests/i18n.test.ts` (learner switch waits for the learner flow)
 - [ ] Landing page with PersonaSwitcher, Start demo, advisor link, SimulatedBadge; `/api/demo/reset`
 
 Exit: the deployed URL shows the personas, the clock moves forward, Start demo resets, reseeding gives identical data, CI is green, and the landing page switches between English and Pidgin.
@@ -199,6 +202,8 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 | 2026-10-04 | Both sides see call priority, reasons, last activity and escalation; no numeric score; goal/context and outreach working notes stay private | Clarifies advisor transparency |
 | 2026-10-04 | Only today's sessions are editable; Progress records have check-in provenance; Mark contacted saves the edited message | Makes reversal precise without altering earlier course records |
 | 2026-10-04 | Define zero-capacity, never-active, missing-deadline and empty-adherence behavior in the risk spec | Maintainer resolved undefined risk edge cases |
+| 2026-10-05 | Approve the pinned D1 dependency set and the subsequent ESLint 9.39.5 replacement | Foundation packages approved explicitly; React plugin crashes with ESLint 10.12.0. Support/advisory limits recorded, no unrelated packages added |
+| 2026-10-05 | Use webpack dev/build and generate Next route types before typecheck; disable generated agent rules | Verified build mode in this environment and checks before the first build; preserve the repo's authored instruction map |
 
 ## Later
 

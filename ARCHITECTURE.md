@@ -27,6 +27,8 @@ Import rules, enforced with `no-restricted-imports` in the ESLint config:
 | `app` (server code) | `lib/services`, `lib/i18n`, `components` | `lib/db`, `lib/ai` directly |
 | Client components (`"use client"`) | `lib/i18n`, `lib/offline`, shared types | `lib/services`, `lib/db`, `lib/ai`, `lib/clock` |
 
+`eslint.config.mjs` checks aliases and relative layer imports. Client boundaries also use an AST restriction triggered by the `"use client"` directive; unit tests exercise both rejected and permitted imports. `lib/utils.ts` contains UI class-name helpers only and is not a domain dependency. Pure layers also reject I/O globals and Node/framework imports.
+
 ## Repo layout
 
 ```text
@@ -130,12 +132,14 @@ Removing sessions must preserve retained Progress records: clear their session p
 
 ## Existing infrastructure
 
-Maintainer-provided on 2026-10-04; access and configuration have not yet been verified:
+Maintainer-provided on 2026-10-04; verification updated on 2026-10-05:
 
-- GitHub: [HERYORDEJY/back-on-track](https://github.com/HERYORDEJY/back-on-track), SSH remote `git@github.com:HERYORDEJY/back-on-track.git`.
+- GitHub: [HERYORDEJY/back-on-track](https://github.com/HERYORDEJY/back-on-track), SSH remote `git@github.com:HERYORDEJY/back-on-track.git`. SSH access and GitHub CLI authentication verified; remote returned no refs. Existing local docs commit `81926f5` preserved on main; origin configured. No scaffold push yet.
 - Vercel: [back-on-track project](https://vercel.com/heryordejys-projects/back-on-track).
-- Neon project: `plain-wind-52121770`.
+- Neon project: `plain-wind-52121770`. Connection string absent locally; database access/migrations not verified.
 - OpenAI: API key created; configure secrets outside the repo. No model or spending budget confirmed yet.
+
+Vercel browser inspection timed out; no deployment or environment change is claimed. The local bilingual landing needs no secrets.
 
 ## Stack
 
@@ -145,7 +149,9 @@ Maintainer-provided on 2026-10-04; access and configuration have not yet been ve
 - OpenAI Responses API with Structured Outputs and zod schemas.
 - date-fns for dates, seedrandom for seed data, tsx for scripts.
 - Vitest for unit tests; one Playwright test for the demo path, run locally.
-- npm, Node 22 or newer. Deployed on Vercel.
+- npm, Node 24 pinned in `.nvmrc` and CI. Vercel is the deployment target; deployment is pending.
+
+Pinned foundation packages and maintainer approvals are in [the D1 plan](docs/plans/d1-foundation.md). Dev/build use Next's supported webpack mode because Turbopack's local CSS worker port is blocked here. Typecheck generates Next route types first. `agentRules: false` preserves the authored AGENTS.md. Compatibility/advisory follow-ups are in [the library notes](docs/references/next-eslint.md).
 
 ## Testing
 

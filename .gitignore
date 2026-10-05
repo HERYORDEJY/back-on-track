@@ -1,0 +1,20 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Runtime secrets; keep the documented example
+.env*
+!.env.example
+.vercel/
+
+# Generated Prisma client
+lib/generated/
+
+# Local files
+.DS_Store
+*.log

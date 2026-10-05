@@ -27,6 +27,8 @@ After any mutation or clock change, call `router.refresh()`.
 
 PersonaSwitcher, a Start demo button (calls demo reset, then opens Amaka), and a link to the advisor view.
 
+Current D1 shell: both message files, landing-cookie language control, SimulatedBadge and the three approved persona descriptions are implemented. Learner navigation, Start demo, advisor link and ClockControl await real services; the shell shows no inactive or invented demo actions. Helpers/key parity and server rendering are checked; exact 375/1280 px and interactive cookie persistence remain to verify because browser automation timed out. Pidgin copy still needs the maintainer's human review.
+
 ### Learner (`/learner/[studentId]`)
 
 No current plan: show the intake, prefilled from the student record.

@@ -45,7 +45,7 @@ Logins or auth, LMS integration, sending WhatsApp, SMS or email, more than one c
 | --- | --- |
 | `npm run dev` | Start locally |
 | `npm run build` | Production build |
-| `npm run typecheck` | `tsc --noEmit` |
+| `npm run typecheck` | `next typegen` then `tsc --noEmit` (works before the first build) |
 | `npm run lint` | `eslint .`, including the layer import rules in `ARCHITECTURE.md` |
 | `npm test` | `vitest run` |
 | `npm run docs:check` | `node scripts/docs-check.mjs`: doc links resolve, every spec is routed, this file stays under 120 lines |
