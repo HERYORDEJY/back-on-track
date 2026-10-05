@@ -18,7 +18,7 @@ NOUN's [official courseware repository](https://nou.edu.ng/ecourseware-faculty-o
 
 No reviewed source supplies our proposed 36 topics over 12 weeks, 60-100-minute estimates, topic exam weights, prerequisite graph or assessment dates. Selecting actual readings and approving a demo adaptation are separate decisions.
 
-The exact [reading mapping](plans/d1-course-mapping.md) and [implementation plan](plans/d1-course-personas.md) are prepared. Pure definitions preserve source titles and references without copying bodies/images. Of 36 selected sections, 29 opened directly through the research tool; seven were verified from public contents/indexed pages but direct opens failed. Those access limits are recorded with the mapping. The maintainer approved the exact mapping on 2026-10-05; database loading remains pending.
+The exact [reading mapping](plans/d1-course-mapping.md) and [implementation plan](plans/d1-course-personas.md) are prepared. Pure definitions preserve source titles and references without copying bodies/images. Of 36 selected sections, 29 opened directly through the research tool; seven were verified from public contents/indexed pages but direct opens failed. Those access limits are recorded with the mapping. The maintainer approved the exact mapping on 2026-10-05; complete course/persona/cohort seed is loaded and deterministic reseeding verified.
 
 - Keep source title, section identifiers, direct URLs and attribution with selected readings.
 - Preserve the institution/publisher's English course and topic titles.

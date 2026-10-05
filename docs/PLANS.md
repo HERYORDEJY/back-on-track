@@ -9,7 +9,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Area | Status | Notes |
 | --- | --- | --- |
 | Scaffold, CI, deploy | in progress | Local checks/build and remote CI pass (54 tests). Vercel deployment completed; generated URL redirects to SSO, so deployed runtime/public URL verification pending |
-| Data model and seed (course, personas, cohort) | in progress | Schema migrated; selected-source course/persona definitions pass 12 tests. Mapping approved; loading and engine-backed cohort pending |
+| Data model and seed (course, personas, cohort) | in progress | Schema migrated; selected-source course/persona definitions pass 12 tests. Complete 303-student seed loaded; 9 cohort tests and two identical reseeds/cache-retention verification pass |
 | Simulated clock and demo reset | in progress | Persisted forward clock, API and bilingual controls built; 32 clock/API tests pass and live concurrent advances verified. Reset awaits seed |
 | Languages (message files, switch) | in progress | Bilingual helpers and landing cookie control built; 4 helper tests pass; interactive persistence/phone widths and learner/offline switching pending |
 | Recovery engine | tested | Pure buildPlan/scheduler/protection/sparse validation/fallback/infeasible paths; 48 tests including all three persona outcomes. Service budget/live AI/browser exit pending |
@@ -34,15 +34,16 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | Research public management material and MIVA facts | done | Primary sources/licensing limits recorded in `docs/RESEARCH.md`; maintainer selected BCcampus/University of Minnesota on 2026-10-05 |
 | Local foundation scaffold | tested | [D1 foundation plan](plans/d1-foundation.md), approved dependencies/lockfile, strict Next/Tailwind/shadcn shell, 20 passing tests and lint boundaries, scripts and CI configuration. Production build passed; exact-width/interactive browser verification pending |
 | Database and simulated clock | tested | [Database/clock plan](plans/d1-database-clock.md), valid schema/client, applied additive migration, rolled-back provenance test, 32 clock/API tests, live forward/concurrent requests and production build. Exact-width/interactive UI verification pending |
-| Course and persona definitions | tested | [Task plan](plans/d1-course-personas.md), attributed [36-reading mapping](plans/d1-course-mapping.md), pure fresh typed definitions and 12 integrity tests. Mapping approved; engine outcomes pass; database loading pending |
+| Course and persona definitions | tested | [Task plan](plans/d1-course-personas.md), attributed [36-reading mapping](plans/d1-course-mapping.md), pure fresh typed definitions and 12 integrity tests. Mapping approved; engine outcomes pass; complete database loading/reseeding verified |
 | Pure recovery engine | tested | [Engine plan](plans/d2-engine.md), code-owned inherited deadline order and shared rounded placement; 48 tests including Amaka cut / Tunde infeasible / Zainab fit. Full suite 114 tests; service/AI/browser checks remain |
+| Complete cohort skill/seed | tested | [Task plan](plans/d1-cohort-seed.md), approved packages, pure generator with 9 tests, 303 simulated students loaded and two identical logical reseeds with cache retention verified; skill manually validated, stock validator needs PyYAML |
 | Infrastructure access | in progress | Commits through 255a6c1 pushed; [CI passed](https://github.com/HERYORDEJY/back-on-track/actions/runs/37252741926). Neon migration current; Vercel deployment succeeded but unauthenticated landing/API requests redirect to SSO |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
 | Demo mapping and remaining behavior choices | pending | Source and exact mapping approved. Delayed offline check-ins, same-day re-planning and cache deletion ownership still need decisions |
 
 After each work session, record completed tasks, the current task, next steps, blockers, pending decisions and any cuts here and in `CODEX_LOG.md`. Do not erase deferred or abandoned work; keep its reason and date. No feature has been cut or abandoned yet.
 
-Current task: complete D1's cohort skill/full seed/reset/deployment using the tested pure fallback and [cohort/seed plan](plans/d1-cohort-seed.md). The selected source and exact mapping are approved; all three persona fallback outcomes pass. Code owns ordering and AI output has no order field. Seedrandom 3.0.5 and development types 3.0.8 are approved for the cohort task. Delayed offline check-ins, same-day re-planning and cache deletion remain unanswered. `.env` remains ignored and migration is current. Live checks left the clock at Sunday 25 October; the future full seed/reset restores 19 October. Exact 375/1280 px and interactive browser verification remain pending after automation timeouts. D1's complete exit and D2's live-AI/browser exit remain pending; no feature was cut or abandoned.
+Current task: finish D1 demo reset, landing navigation and deployment using the complete verified seed. Source/mapping/order and seedrandom pins are approved. All 123 unit tests pass; two reseeds give identical logical rows and retain AiCache. The clock is restored to 19 October 18:00 Lagos. The [cohort skill](../skills/cohort-seed/SKILL.md) is manually validated; its stock validator needs unavailable PyYAML. Delayed offline check-ins, same-day re-planning and cache deletion remain unanswered. Exact 375/1280 px/interactive browser checks and public Vercel runtime verification remain pending. D1's complete exit and D2's live-AI/browser exit remain pending; no feature was cut or abandoned.
 
 Follow-up: dependency audit reports 9 high-severity tooling-chain entries; no automatic incompatible fixes applied. ESLint 9 is a temporary compatibility pin. Details and upstream references are in [library notes](references/next-eslint.md).
 
@@ -58,8 +59,8 @@ Follow-up: dependency audit reports 9 high-severity tooling-chain entries; no au
 - [ ] Vercel runtime/env verification and public showcase URL (deployment completed; generated URL protected by SSO)
 - [x] Prisma schema for every model; first migration
 - [x] `lib/clock.ts`, `/api/clock` and ClockControl (Reset awaits demo reset below)
-- [ ] Seed the course and personas (`specs/data.md`)
-- [ ] Build the cohort generator as a Codex skill; seed 300 students with time-stamped events
+- [x] Seed the course and personas (`specs/data.md`)
+- [x] Build the cohort generator as a Codex skill; seed 300 students with time-stamped events (manual skill validation; stock validator lacks PyYAML)
 - [x] `lib/i18n.ts`, `messages/en.json`, `messages/pcm.json`, landing LanguageSwitch, `tests/i18n.test.ts` (learner switch waits for the learner flow)
 - [ ] Landing page with PersonaSwitcher, Start demo, advisor link, SimulatedBadge; `/api/demo/reset`
 
@@ -210,6 +211,7 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 | 2026-10-05 | Approve the pinned D1 dependency set and the subsequent ESLint 9.39.5 replacement | Foundation packages approved explicitly; React plugin crashes with ESLint 10.12.0. Support/advisory limits recorded, no unrelated packages added |
 | 2026-10-05 | Use webpack dev/build and generate Next route types before typecheck; disable generated agent rules | Verified build mode in this environment and checks before the first build; preserve the repo's authored instruction map |
 | 2026-10-05 | Overshooting clock jumps stop at the specified limit; later day jumps stay there | Maintainer chose clamping rather than rejection before clock implementation |
+| 2026-10-05 | Approve seedrandom 3.0.5 and development types 3.0.8 | Isolated deterministic PRNG and strict types for the documented cohort generator |
 | 2026-10-05 | Approve the exact 36-reading mapping, simulated estimates/weights/prerequisites and assessment dates | Maintainer reviewed the concrete mapping before database loading |
 | 2026-10-05 | Use BCcampus / University of Minnesota Principles of Management for the labelled 36-topic, 12-week adaptation | Maintainer selected the researched source; exact mapping prepared separately for review, with published titles and attribution |
 | 2026-10-05 | Code owns prerequisite-first ordering, followed by inherited assessment deadline, exam weight and stable course order | Maintainer chose deterministic ordering for all feasibility checks, AI proposals and fallback; no AI order field |

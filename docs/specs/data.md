@@ -21,7 +21,7 @@ The simulated clock is the only "now". Everything time-stamped is read as of now
 
 Implemented D1: the first migration initialises Setting `clock` at demo start. `getNow()` rejects missing/corrupt clock data; updates take a row lock inside a transaction so concurrent jumps see each other's committed result. The API validates exactly one positive whole-day or future-week jump and returns no-store views; errors contain no database details. Week numbers are calendar weeks counted from 7 September; 30 November is Week 13, after the 12 teaching weeks. Header options stop at the clock limit.
 
-Verification: 19 clock tests and 13 API-contract tests pass. Live concurrent requests each advanced the persisted clock once. Live checks left it on 25 October; no standalone backward reset was used. `scripts/db-verify.ts` verifies progress retention/null provenance after session deletion with fixtures rolled back; it is a local database check, not a CI/e2e suite. Course/persona/cohort seeding, reset and Delete my data remain unimplemented.
+Verification: 19 clock tests and 13 API-contract tests pass. Live concurrent requests each advanced the persisted clock once. Live clock checks had left it on 25 October; the complete seed subsequently restored the specified demo start. No standalone backward reset was used. `scripts/db-verify.ts` verifies progress retention/null provenance after session deletion with fixtures rolled back; it is a local database check, not a CI/e2e suite. Course/persona/cohort seeding is verified; demo reset and Delete my data remain unimplemented.
 
 ## Course (`prisma/course.ts`)
 
@@ -30,7 +30,7 @@ Verification: 19 clock tests and 13 API-contract tests pass. Live concurrent req
 - Week 1 starts Monday 2026-09-07; 12 weeks; exam on Tuesday 2026-12-01.
 - Approved demo mapping (2026-10-05): 36 topics, 3 a week, ids `t01` to `t36` in course order. `estMinutes` 60-100 with a mean of about 80. `examWeight` 0.01-0.06 each, summing to 1. About one topic in four is a prerequisite of a later topic. These minutes, weights, prerequisites, dates and assessments are simulated demo metadata, not claims from a source book or MIVA. Keep published course/topic titles English; mark any locally added examples as demo adaptations. Source choice and the exact [mapping](../plans/d1-course-mapping.md) are approved; database loading is pending.
 
-Implemented D1 definitions: `getCourseSeed()` returns fresh typed course/topics/assessments; 2,880 total minutes, mean 80, normalized weights and nine prerequisite parents. Date-only academic boundaries use midnight Africa/Lagos. `getPersonaSeed()` preserves the fixed persona attributes below and provides stable academic record ids, null session provenance and completions on Tuesday/Thursday/Sunday at 21:00 Lagos of each completed teaching week. Only Zainab has a seeded a1 submission, at 21:00 Lagos on 2 October. Twelve definition tests cover data integrity and independent deterministic fixtures. Pure engine persona tests now pass Amaka cut / Tunde infeasible / Zainab fit at demo start with null triage, without tuning. These definitions have not been loaded into Neon; the complete seed/reset remain pending.
+Implemented D1 definitions: `getCourseSeed()` returns fresh typed course/topics/assessments; 2,880 total minutes, mean 80, normalized weights and nine prerequisite parents. Date-only academic boundaries use midnight Africa/Lagos. `getPersonaSeed()` preserves the fixed persona attributes below and provides stable academic record ids, null session provenance and completions on Tuesday/Thursday/Sunday at 21:00 Lagos of each completed teaching week. Only Zainab has a seeded a1 submission, at 21:00 Lagos on 2 October. Twelve definition tests cover data integrity and independent deterministic fixtures. Pure engine persona tests now pass Amaka cut / Tunde infeasible / Zainab fit at demo start with null triage, without tuning. The complete seed is loaded into Neon and reseeding identity is verified; demo reset remains pending.
 
 | Id | Title | Kind | Due | Weight | Covers |
 | --- | --- | --- | --- | --- | --- |
@@ -61,7 +61,7 @@ If a persona test fails, propose tuning topic `estMinutes`, `examWeight` or prer
 
 ## Cohort (`prisma/cohort.ts`)
 
-`generateCohort({ seed, count, shares })` is a deterministic function: 300 students with seed `back-on-track-2026` give the same rows on every run. Package it as a Codex skill (SKILL.md) so it can be re-run with another segment mix. Risk tests call it in memory.
+`await generateCohort({ seed, count, shares })` is a pure asynchronous deterministic function: 300 students with seed `back-on-track-2026` give the same rows on every run. Package it as a Codex skill (SKILL.md) so it can be re-run with another segment mix. Risk tests call it in memory.
 
 | Segment | Share | Done by the demo start | After the demo start | Coursework | Minutes per day | lastSeenAt |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -75,9 +75,13 @@ If a persona test fails, propose tuning topic `estMinutes`, `examWeight` or prer
 - Some students get different minutes on weekdays and weekends.
 - Every seeded student, personas included, has `isSimulated = true`. Cohort students have a `segment`; personas don't.
 
+Implemented D1: [cohort skill](../../skills/cohort-seed/SKILL.md), approved isolated seedrandom 3.0.5 and development types 3.0.8. Nine tests check stable rows/names/mix/hours/coursework, future events and real recovering final-piece provenance. Largest remainders allocate custom mixes; stable segment order breaks ties. Default language mix is exactly 90 Pidgin students. Initial progress is capped at pre-demo activity (recovering baseline before its 9 October plan); on-track Week-7 readers can read ahead. The skill frontmatter/links were manually verified; the stock skill-creator validator cannot run because PyYAML is absent.
+
 ## Seeding (`prisma/seed.ts`)
 
 Idempotent: clears every table except AiCache, inserts the course, personas and cohort, and sets the clock to the demo start. Every run produces the same rows and ids.
+
+Implemented transaction in `prisma/load-seed.ts`, invoked by the CLI runner without importing its side effects elsewhere. Verified on Neon: 303 students, 36 topics, 30 fallback plans and 1,360 sessions. `scripts/seed-verify.ts` compares every seeded model across two runs, retains an isolated AiCache fixture unchanged, removes only that fixture, and checks the demo clock. No reset/migration destruction was used.
 
 ## Demo reset (`lib/services/demo.ts`, `POST /api/demo/reset`)
 

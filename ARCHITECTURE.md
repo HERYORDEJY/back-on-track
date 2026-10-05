@@ -89,7 +89,7 @@ Service functions:
 
 Published course and topic titles remain English. Each selected reading has a source reference; demo weeks, study estimates, prerequisites, assessments and exam weights are labelled simulated. The source selection and adaptation are tracked in `docs/RESEARCH.md`.
 
-Pure `prisma/course.ts` and `prisma/personas.ts` export fresh deterministic seed definitions with generated Prisma input types imported as types only. No runner, database access or AI call occurs on import. The BCcampus/University of Minnesota source is selected; the exact mapping was approved on 2026-10-05; loading and complete cohort generation remain pending. The [mapping](docs/plans/d1-course-mapping.md) includes attribution and source-access limits.
+Pure `prisma/course.ts` and `prisma/personas.ts` export fresh deterministic seed definitions with generated Prisma input types imported as types only. No runner, database access or AI call occurs on import. The BCcampus/University of Minnesota source is selected; the exact mapping was approved on 2026-10-05; the complete 303-student seed is loaded and deterministic reseeding is verified. The [mapping](docs/plans/d1-course-mapping.md) includes attribution and source-access limits.
 
 | Model | Fields |
 | --- | --- |
@@ -141,7 +141,7 @@ Maintainer-provided on 2026-10-04; verification updated on 2026-10-05:
 
 - GitHub: [HERYORDEJY/back-on-track](https://github.com/HERYORDEJY/back-on-track), SSH remote `git@github.com:HERYORDEJY/back-on-track.git`. Existing docs/scaffold/database-clock commits `81926f5`, `d3943a7`, `255a6c1` preserved and pushed to main. [CI run for 255a6c1](https://github.com/HERYORDEJY/back-on-track/actions/runs/37252741926) passed.
 - Vercel: [back-on-track project](https://vercel.com/heryordejys-projects/back-on-track).
-- Neon project: `plain-wind-52121770`. Maintainer configured ignored `.env`; connectivity and initially empty public schema verified. Migration `20261005000000_foundation` applied with migrate deploy; migration status is current. Session deletion/progress retention verified with rolled-back fixtures; no course/persona/cohort seed yet.
+- Neon project: `plain-wind-52121770`. Maintainer configured ignored `.env`; connectivity and initially empty public schema verified. Migration `20261005000000_foundation` applied with migrate deploy; migration status is current. Session deletion/progress retention verified with rolled-back fixtures; Complete approved seed loaded: one course, 36 topics, 3 personas, 300 cohort students and 30 fallback plans. Two reseeds produced identical logical rows and retained an isolated AiCache fixture; fixture removed after verification.
 - OpenAI: API key created; configure secrets outside the repo. No model or spending budget confirmed yet.
 
 The existing Vercel integration deployed `255a6c1` successfully after the push. [Recorded production deployment](https://back-on-track-4n90nbkz7-heryordejys-projects.vercel.app) redirects both the landing and clock requests to Vercel SSO when unauthenticated. Browser inspection timed out; deployed runtime/environment verification and the public showcase URL remain pending. No Vercel security or environment setting was changed. Local clock/API behavior is verified separately.
