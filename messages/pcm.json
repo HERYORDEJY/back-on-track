@@ -54,5 +54,10 @@
   "basis.coursework": "Demo coursework: you need am for {assessment} ({weight}%, deadline {date})",
   "basis.examHigh": "Demo exam weight: high, about {pct}% of exam",
   "basis.examLow": "Demo exam weight: low, about {pct}% of exam",
-  "reminder.text": "Tonight: {minutes} min, start with {topic}"
+  "reminder.text": "Tonight: {minutes} min, start with {topic}",
+  "demo.reset": "Start demo afresh",
+  "demo.resetting": "We dey start demo afresh…",
+  "demo.retry": "Try reset again",
+  "demo.failed": "We no fit start demo afresh. Try again.",
+  "demo.invalid": "Send demo reset request wey empty."
 }

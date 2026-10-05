@@ -23,9 +23,11 @@ Import rules, enforced with `no-restricted-imports` in the ESLint config:
 | `lib/engine` | its own files, `lib/i18n` | `lib/db`, `lib/ai`, `lib/clock`, `lib/services`, `app`, `components`, Node or browser APIs |
 | `lib/risk` | its own files, `lib/engine`, `lib/i18n` | same as `lib/engine` |
 | `lib/ai` | its own files, `lib/db` (for the cache) | `lib/services`, `app`, `components` |
-| `lib/services` | `lib/engine`, `lib/risk`, `lib/ai`, `lib/db`, `lib/clock`, `lib/i18n` | `app`, `components` |
+| `lib/services` | its own files, `lib/engine`, `lib/risk`, `lib/ai`, `lib/db`, `lib/clock`, `lib/i18n`, pure `prisma/course.ts` and `prisma/personas.ts` | `app`, `components`, other `prisma/` modules (including runner, loader and cohort) |
 | `app` (server code) | `lib/services`, `lib/i18n`, `components` | `lib/db`, `lib/ai` directly |
 | Client components (`"use client"`) | `lib/i18n`, `lib/offline`, shared types | `lib/services`, `lib/db`, `lib/ai`, `lib/clock` |
+
+The maintainer approved the pure seed-definition allowance on 2026-10-05 so demo reset can restore the reviewed personas without running a seed. Services must never import `prisma/seed.ts`, `prisma/load-seed.ts` or `prisma/cohort.ts`.
 
 `eslint.config.mjs` checks aliases and relative layer imports. Client boundaries also use an AST restriction triggered by the `"use client"` directive; unit tests exercise both rejected and permitted imports. `lib/utils.ts` contains UI class-name helpers only and is not a domain dependency. Pure layers also reject I/O globals and Node/framework imports.
 
@@ -144,7 +146,7 @@ Maintainer-provided on 2026-10-04; verification updated on 2026-10-05:
 - Neon project: `plain-wind-52121770`. Maintainer configured ignored `.env`; connectivity and initially empty public schema verified. Migration `20261005000000_foundation` applied with migrate deploy; migration status is current. Session deletion/progress retention verified with rolled-back fixtures; Complete approved seed loaded: one course, 36 topics, 3 personas, 300 cohort students and 30 fallback plans. Two reseeds produced identical logical rows and retained an isolated AiCache fixture; fixture removed after verification.
 - OpenAI: API key created; configure secrets outside the repo. No model or spending budget confirmed yet.
 
-The existing Vercel integration deployed `255a6c1` successfully after the push. [Recorded production deployment](https://back-on-track-4n90nbkz7-heryordejys-projects.vercel.app) redirects both the landing and clock requests to Vercel SSO when unauthenticated. Browser inspection timed out; deployed runtime/environment verification and the public showcase URL remain pending. No Vercel security or environment setting was changed. Local clock/API behavior is verified separately.
+The assigned public alias is [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app), confirmed in the Vercel project overview on 2026-10-05. Its landing returns 200 without sign-in; `/api/clock` returns 503. The Vercel environment page shows no configured variables, so the maintainer has been asked to configure Production `DATABASE_URL` outside chat. Generated deployment URLs redirect to SSO; no hosting security setting was changed. Public database runtime verification remains pending.
 
 ## Stack
 

@@ -4,8 +4,9 @@ import nextTypescript from "eslint-config-next/typescript";
 
 // Covers aliases and relative imports naming a forbidden layer.
 const layer = (names) => `^(?:@/(?:lib/)?|(?:\\.\\./)+(?:lib/)?)(?:${names.join("|")})(?:/|\\.|$)`;
-const restricted = (names, pure = false) => ["error", {
+const restricted = (names, pure = false, extra = []) => ["error", {
   patterns: [
+    ...extra,
     { regex: layer(names), message: "Use the layers documented in ARCHITECTURE.md." },
     ...(pure ? [{ regex: "^(node:|next(?:/|$)|react(?:/|$)|(?:fs|http|https|net|child_process|path|os)(?:/|$))", message: "Domain logic does no I/O." }] : []),
   ],
@@ -30,7 +31,7 @@ export default defineConfig([
     },
   },
   { files: ["lib/ai/**/*.{ts,tsx}"], rules: { "no-restricted-imports": restricted(["services", "app", "components"]) } },
-  { files: ["lib/services/**/*.{ts,tsx}"], rules: { "no-restricted-imports": restricted(["app", "components"]) } },
+  { files: ["lib/services/**/*.{ts,tsx}"], rules: { "no-restricted-imports": restricted(["app", "components"], false, [{ regex: "^(?:@/|(?:\\.\\./)+)prisma/(?!(?:course|personas)(?:\\.ts)?$)", message: "Services may import only pure course/persona seed definitions." }]) } },
   { files: ["app/**/*.{ts,tsx}"], rules: { "no-restricted-imports": restricted(["db", "ai", "clock", "engine", "risk"]) } },
   {
     files: ["components/**/*.{ts,tsx}", "app/**/*.{ts,tsx}"],

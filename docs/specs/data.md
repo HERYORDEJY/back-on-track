@@ -21,7 +21,7 @@ The simulated clock is the only "now". Everything time-stamped is read as of now
 
 Implemented D1: the first migration initialises Setting `clock` at demo start. `getNow()` rejects missing/corrupt clock data; updates take a row lock inside a transaction so concurrent jumps see each other's committed result. The API validates exactly one positive whole-day or future-week jump and returns no-store views; errors contain no database details. Week numbers are calendar weeks counted from 7 September; 30 November is Week 13, after the 12 teaching weeks. Header options stop at the clock limit.
 
-Verification: 19 clock tests and 13 API-contract tests pass. Live concurrent requests each advanced the persisted clock once. Live clock checks had left it on 25 October; the complete seed subsequently restored the specified demo start. No standalone backward reset was used. `scripts/db-verify.ts` verifies progress retention/null provenance after session deletion with fixtures rolled back; it is a local database check, not a CI/e2e suite. Course/persona/cohort seeding is verified; demo reset and Delete my data remain unimplemented.
+Verification: 19 clock tests and 13 API-contract tests pass. Live concurrent requests each advanced the persisted clock once. Live clock checks had left it on 25 October; the complete seed subsequently restored the specified demo start. No standalone backward reset was used. `scripts/db-verify.ts` verifies progress retention/null provenance after session deletion with fixtures rolled back; it is a local database check, not a CI/e2e suite. Course/persona/cohort seeding is verified; demo reset is implemented and verified; Delete my data remains unimplemented.
 
 ## Course (`prisma/course.ts`)
 
@@ -85,7 +85,9 @@ Implemented transaction in `prisma/load-seed.ts`, invoked by the CLI runner with
 
 ## Demo reset (`lib/services/demo.ts`, `POST /api/demo/reset`)
 
-Restores the personas from `personas.ts` (language, goal, context and availability included), deletes their plans, plan items, sessions and reminders and any Progress or Submission rows not in their seed, deletes every Outreach row, clears their `escalatedAt`, and sets the clock to the demo start. Cohort data and AiCache are untouched. Start demo and ClockControl's Reset both call it.
+Restores the personas from `personas.ts` (language, goal, context and availability included), deletes their plans, plan items, sessions and reminders and any Progress or Submission rows not in their seed, deletes every Outreach row, clears their `escalatedAt`, and sets the clock to the demo start. Cohort study data and AiCache are untouched; all Outreach rows are cleared as specified above. ClockControl's Reset calls it; Start demo will use the same endpoint when the learner destination exists.
+
+Implemented as one transaction holding the clock row lock, serialised with forward jumps. Exact academic seed rows are restored, including missing or altered seed records, and persona plans cascade to their items/sessions. The endpoint accepts an empty body or strict empty object, rejects extra scope fields, returns no-store responses and generic retryable errors. `scripts/demo-reset-verify.ts` verified two identical resets on Neon after temporary changes to persona attributes, academic records, application plans and outreach; cohort study rows and an isolated cache fixture remained identical. The fixture was removed. Offline snapshot/queue cleanup must be integrated when offline storage is built.
 
 ## Delete my data (`DELETE /api/students/[id]`)
 

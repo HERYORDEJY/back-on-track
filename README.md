@@ -2,7 +2,7 @@
 
 A proof of concept for the Andela x OpenAI Codex Accelerator capstone, “Learning That Stays With You”. A learner who has fallen behind gets a catch-up plan that fits their available hours, and an advisor sees who needs a call. MIVA Open University is the intended first partner.
 
-The D1 foundation is in progress. The local app provides a bilingual landing shell, three labelled simulated learner profiles and a database-backed simulated clock. The initial schema/migration is applied on Neon. The approved course/persona/cohort seed is loaded on Neon; the pure recovery engine passes all three persona outcomes. Plan service/learner navigation, advisor view, demo reset and offline use are pending. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
+The D1 foundation is in progress. The local app provides a bilingual landing shell, three labelled simulated learner profiles and a database-backed simulated clock. The initial schema/migration is applied on Neon. The approved course/persona/cohort seed is loaded on Neon; the pure recovery engine passes all three persona outcomes. Plan service/learner navigation, advisor view and offline use are pending. Atomic demo reset is implemented and verified on Neon. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
 
 ## Run locally
 
@@ -22,9 +22,9 @@ npm run build
 
 The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. [GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions/runs/37252741926) passed with 54 tests on commit `255a6c1`.
 
-[Recorded Vercel deployment](https://back-on-track-4n90nbkz7-heryordejys-projects.vercel.app): deployment completed, but the generated URL redirects unauthenticated requests to Vercel sign-in. Deployed runtime/database behavior and a public showcase URL are still unverified.
+[Public Vercel URL](https://back-on-track-one.vercel.app): landing returns 200; clock returns 503 because Production database configuration is pending. Generated deployment URLs require Vercel sign-in.
 
-Copy `.env.example` to `.env`; configure secrets outside Git. Use `npx --no-install tsx scripts/db-verify.ts` for the local, rolled-back provenance check. Clock jumps are forward only and stop at the day before the exam. `npm run db:seed` loads the complete deterministic simulated dataset, retains AiCache and restores the clock; it replaces academic/application records. `npx --no-install tsx scripts/seed-verify.ts` performs two full reseeds and checks identical rows/cache retention. Demo reset, demo-warm and local Playwright implementations remain pending. Do not use the reset command against an existing database.
+Copy `.env.example` to `.env`; configure secrets outside Git. Use `npx --no-install tsx scripts/db-verify.ts` for the local, rolled-back provenance check. Clock jumps are forward only and stop at the day before the exam. `npm run db:seed` loads the complete deterministic simulated dataset, retains AiCache and restores the clock; it replaces academic/application records. `npx --no-install tsx scripts/seed-verify.ts` performs two full reseeds and checks identical rows/cache retention. `npx --no-install tsx scripts/demo-reset-verify.ts` exercises the narrower persona-only reset and checks cohort/cache retention; it restores personas and clears outreach. Demo-warm and local Playwright implementations remain pending. Do not use the reset command against an existing database.
 
 ## Project map
 
