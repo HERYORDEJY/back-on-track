@@ -20,7 +20,9 @@ npm run check
 npm run build
 ```
 
-The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. GitHub Actions has the same check workflow; it has not yet run on the remote.
+The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. [GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions/runs/37252741926) passed with 54 tests on commit `255a6c1`.
+
+[Recorded Vercel deployment](https://back-on-track-4n90nbkz7-heryordejys-projects.vercel.app): deployment completed, but the generated URL redirects unauthenticated requests to Vercel sign-in. Deployed runtime/database behavior and a public showcase URL are still unverified.
 
 Copy `.env.example` to `.env`; configure secrets outside Git. Use `npx --no-install tsx scripts/db-verify.ts` for the local, rolled-back provenance check. Clock jumps are forward only and stop at the day before the exam. Database seeding/reset, demo-warm and local Playwright script names are registered, but their implementations/dependencies are pending. Do not use the reset command against an existing database.
 

@@ -8,7 +8,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Scaffold, CI, deploy | in progress | Local scaffold and clock checked: 54 tests, types/lint/docs green; production build passed. CI workflow written; remote CI and deploy pending |
+| Scaffold, CI, deploy | in progress | Local checks/build and remote CI pass (54 tests). Vercel deployment completed; generated URL redirects to SSO, so deployed runtime/public URL verification pending |
 | Data model and seed (course, personas, cohort) | in progress | 13-model schema migrated on Neon; progress retention verified with rolled-back fixtures. Source/cohort seed pending |
 | Simulated clock and demo reset | in progress | Persisted forward clock, API and bilingual controls built; 32 clock/API tests pass and live concurrent advances verified. Reset awaits seed |
 | Languages (message files, switch) | in progress | Bilingual helpers and landing cookie control built; 4 helper tests pass; interactive persistence/phone widths and learner/offline switching pending |
@@ -34,7 +34,7 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | Research public management material and MIVA facts | done | Primary sources verified; candidates, licensing/access limits and unknowns recorded in `docs/RESEARCH.md`; source selection remains pending |
 | Local foundation scaffold | tested | [D1 foundation plan](plans/d1-foundation.md), approved dependencies/lockfile, strict Next/Tailwind/shadcn shell, 20 passing tests and lint boundaries, scripts and CI configuration. Production build passed; exact-width/interactive browser verification pending |
 | Database and simulated clock | tested | [Database/clock plan](plans/d1-database-clock.md), valid schema/client, applied additive migration, rolled-back provenance test, 32 clock/API tests, live forward/concurrent requests and production build. Exact-width/interactive UI verification pending |
-| Infrastructure access | in progress | GitHub SSH/CLI auth verified; docs/scaffold commits preserved. Neon connection configured and migration verified. Vercel browser timed out; deploy pending |
+| Infrastructure access | in progress | Commits through 255a6c1 pushed; [CI passed](https://github.com/HERYORDEJY/back-on-track/actions/runs/37252741926). Neon migration current; Vercel deployment succeeded but unauthenticated landing/API requests redirect to SSO |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
 | Source/demo mapping and remaining behavior choices | pending | Questions sent about source selection, ordering, delayed offline check-ins and same-day re-planning; cache deletion ownership still needs a decision |
 
@@ -52,7 +52,8 @@ Follow-up: dependency audit reports 9 high-severity tooling-chain entries; no au
 - [x] Scaffold Next.js (App Router, TypeScript strict), Tailwind and shadcn/ui
 - [x] Connect Prisma to Neon
 - [x] ESLint `no-restricted-imports` rules for the layers in `ARCHITECTURE.md`, with boundary tests
-- [ ] Vercel project with env vars; GitHub Actions running `npm ci` and `npm run check`
+- [x] GitHub Actions running `npm ci` and `npm run check`
+- [ ] Vercel runtime/env verification and public showcase URL (deployment completed; generated URL protected by SSO)
 - [x] Prisma schema for every model; first migration
 - [x] `lib/clock.ts`, `/api/clock` and ClockControl (Reset awaits demo reset below)
 - [ ] Seed the course and personas (`specs/data.md`)

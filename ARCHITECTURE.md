@@ -137,12 +137,12 @@ Removing sessions must preserve retained Progress records: clear their session p
 
 Maintainer-provided on 2026-10-04; verification updated on 2026-10-05:
 
-- GitHub: [HERYORDEJY/back-on-track](https://github.com/HERYORDEJY/back-on-track), SSH remote `git@github.com:HERYORDEJY/back-on-track.git`. SSH access and GitHub CLI authentication verified; remote returned no refs on the latest check. Existing local docs commit `81926f5` and scaffold commit `d3943a7` preserved on main; origin configured. No scaffold push yet.
+- GitHub: [HERYORDEJY/back-on-track](https://github.com/HERYORDEJY/back-on-track), SSH remote `git@github.com:HERYORDEJY/back-on-track.git`. Existing docs/scaffold/database-clock commits `81926f5`, `d3943a7`, `255a6c1` preserved and pushed to main. [CI run for 255a6c1](https://github.com/HERYORDEJY/back-on-track/actions/runs/37252741926) passed.
 - Vercel: [back-on-track project](https://vercel.com/heryordejys-projects/back-on-track).
 - Neon project: `plain-wind-52121770`. Maintainer configured ignored `.env`; connectivity and initially empty public schema verified. Migration `20261005000000_foundation` applied with migrate deploy; migration status is current. Session deletion/progress retention verified with rolled-back fixtures; no course/persona/cohort seed yet.
 - OpenAI: API key created; configure secrets outside the repo. No model or spending budget confirmed yet.
 
-Vercel browser inspection timed out; no deployment or environment change is claimed. The local bilingual landing needs no secrets.
+The existing Vercel integration deployed `255a6c1` successfully after the push. [Recorded production deployment](https://back-on-track-4n90nbkz7-heryordejys-projects.vercel.app) redirects both the landing and clock requests to Vercel SSO when unauthenticated. Browser inspection timed out; deployed runtime/environment verification and the public showcase URL remain pending. No Vercel security or environment setting was changed. Local clock/API behavior is verified separately.
 
 ## Stack
 
@@ -152,7 +152,7 @@ Vercel browser inspection timed out; no deployment or environment change is clai
 - OpenAI Responses API with Structured Outputs and zod schemas.
 - date-fns for dates, seedrandom for seed data, tsx for scripts.
 - Vitest for unit tests; one Playwright test for the demo path, run locally.
-- npm, Node 24 pinned in `.nvmrc` and CI. Vercel is the deployment target; deployment is pending.
+- npm, Node 24 pinned in `.nvmrc` and CI. Deployed on Vercel; public/runtime verification is pending.
 
 Pinned foundation packages and maintainer approvals are in [the D1 plan](docs/plans/d1-foundation.md). Dev/build use Next's supported webpack mode because Turbopack's local CSS worker port is blocked here. Typecheck generates Next route types first. `agentRules: false` preserves the authored AGENTS.md. Compatibility/advisory follow-ups are in [the library notes](docs/references/next-eslint.md).
 
