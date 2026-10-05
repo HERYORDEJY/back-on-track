@@ -28,6 +28,13 @@ h3 { font-size: 20px; margin: 0 0 6px; line-height: 1.25; letter-spacing: -0.3px
 .persona-description .persona-goal { font-size: 13px; margin-top: 10px; color: #1a705d; }
 .persona-hours { margin: 3px 0 0; font-size: 14px; color: #13213a; font-weight: 600; text-align: right; }
 .site-footer { font-size: 12px; color: #475973; padding-block: 32px; }
+.clock-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-block: 16px; border-bottom: 1px solid #d8e3f5; }
+.clock-bar p { margin: 0; font-size: 13px; }
+.clock-caption { display: block; color: #475973; font-size: 11px; margin-bottom: 2px; }
+.clock-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.clock-week select { min-height: 44px; border: 1px solid #d8e3f5; border-radius: 8px; background: white; padding: 8px; font-size: 13px; }
+.clock-status:empty { display: none; }
+.clock-status { flex-basis: 100%; display: flex; gap: 12px; align-items: center; color: #9a5c00; }
 @media (max-width: 640px) {
   .page-width { width: calc(100% - 40px); }
   .site-header { min-height: 108px; gap: 10px; }

@@ -2,7 +2,7 @@
 
 A proof of concept for the Andela x OpenAI Codex Accelerator capstone, “Learning That Stays With You”. A learner who has fallen behind gets a catch-up plan that fits their available hours, and an advisor sees who needs a call. MIVA Open University is the intended first partner.
 
-The D1 foundation is in progress. The local app currently provides the bilingual landing shell and three labelled, simulated learner profiles. Plan creation, persona navigation, advisor view, clock/reset, database seeding and offline use are not implemented yet. The full status and pending decisions are in [docs/PLANS.md](docs/PLANS.md).
+The D1 foundation is in progress. The local app provides a bilingual landing shell, three labelled simulated learner profiles and a database-backed simulated clock. The initial schema/migration is applied on Neon. Plan creation, persona navigation, advisor view, demo reset, database seeding and offline use are pending. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
 
 ## Run locally
 
@@ -13,7 +13,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000`. The landing shell needs no secrets. English is the default; the language selector saves a `lang` cookie for Nigerian Pidgin or English.
+Open `http://localhost:3000`. English is the default; the language selector saves a `lang` cookie. The landing can render without secrets and shows a retry state when the clock is unavailable. For the clock, configure `DATABASE_URL` in ignored `.env` and apply the migration with `npm run db:deploy` to a new database. Postinstall/build generate the Prisma client without requiring a connection string.
 
 ```sh
 npm run check
@@ -22,7 +22,7 @@ npm run build
 
 The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. GitHub Actions has the same check workflow; it has not yet run on the remote.
 
-Copy `.env.example` to `.env` when database/AI services are implemented; configure actual secrets outside Git. Database, demo-warm and local Playwright script names are registered as required by AGENTS.md, but their implementations/dependencies are pending. Do not use the reset command against an existing database.
+Copy `.env.example` to `.env`; configure secrets outside Git. Use `npx --no-install tsx scripts/db-verify.ts` for the local, rolled-back provenance check. Clock jumps are forward only and stop at the day before the exam. Database seeding/reset, demo-warm and local Playwright script names are registered, but their implementations/dependencies are pending. Do not use the reset command against an existing database.
 
 ## Project map
 

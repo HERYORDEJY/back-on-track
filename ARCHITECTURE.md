@@ -52,7 +52,7 @@ lib/
   engine/    config.ts types.ts time.ts backlog.ts capacity.ts rules.ts basis.ts triage.ts validate.ts fallback.ts schedule.ts plan.ts
   risk/      config.ts score.ts reasons.ts metric.ts
   ai/        client.ts schemas.ts prompts.ts cache.ts
-  db.ts  clock.ts  i18n.ts  offline.ts
+  db.ts  clock.ts  i18n.ts  offline.ts  types.ts (shared UI/service contracts)
 messages/    en.json pcm.json
 public/      sw.js
 prisma/      schema.prisma seed.ts course.ts personas.ts cohort.ts
@@ -81,6 +81,7 @@ Service functions:
 | `students.ts` | `updateStudent(id, patch)`, `deleteStudentData(id)` |
 | `advisor.ts` | `listStudents({ band })`, `getStudentDetail(id)`, `draftOutreach(studentId)`, `markContacted(outreachId, message)` |
 | `demo.ts` | `resetDemo()` |
+| `clock.ts` | `getClockView()`, `changeClock(jump)`; returns preformatted bilingual dates and available future weeks |
 
 ## Data model
 
@@ -105,6 +106,8 @@ Published course and topic titles remain English. Each selected reading has a so
 | Setting | key (primary), value |
 
 Every timestamp is read "as of now" (time rules in `docs/specs/data.md`).
+
+The initial Prisma schema and migration are implemented. Localized arrays (`warnings`) and structured lists (`sourceRefs`, `pieces`, `unscheduled`) use JSON arrays in Json columns; services validate their shape. IDs are explicit strings so seeds can remain deterministic. Uniqueness protects topic order, student/topic progress, student/assessment submissions, plan versions/items and one session per plan/date. Personalised AiCache deletion is still pending and is not implemented by the initial schema.
 
 Removing sessions must preserve retained Progress records: clear their session provenance rather than cascading deletion into university course records. Today-only reversal deletes rows with that session's provenance, never independent course records.
 
@@ -134,9 +137,9 @@ Removing sessions must preserve retained Progress records: clear their session p
 
 Maintainer-provided on 2026-10-04; verification updated on 2026-10-05:
 
-- GitHub: [HERYORDEJY/back-on-track](https://github.com/HERYORDEJY/back-on-track), SSH remote `git@github.com:HERYORDEJY/back-on-track.git`. SSH access and GitHub CLI authentication verified; remote returned no refs. Existing local docs commit `81926f5` preserved on main; origin configured. No scaffold push yet.
+- GitHub: [HERYORDEJY/back-on-track](https://github.com/HERYORDEJY/back-on-track), SSH remote `git@github.com:HERYORDEJY/back-on-track.git`. SSH access and GitHub CLI authentication verified; remote returned no refs on the latest check. Existing local docs commit `81926f5` and scaffold commit `d3943a7` preserved on main; origin configured. No scaffold push yet.
 - Vercel: [back-on-track project](https://vercel.com/heryordejys-projects/back-on-track).
-- Neon project: `plain-wind-52121770`. Connection string absent locally; database access/migrations not verified.
+- Neon project: `plain-wind-52121770`. Maintainer configured ignored `.env`; connectivity and initially empty public schema verified. Migration `20261005000000_foundation` applied with migrate deploy; migration status is current. Session deletion/progress retention verified with rolled-back fixtures; no course/persona/cohort seed yet.
 - OpenAI: API key created; configure secrets outside the repo. No model or spending budget confirmed yet.
 
 Vercel browser inspection timed out; no deployment or environment change is claimed. The local bilingual landing needs no secrets.
@@ -152,6 +155,8 @@ Vercel browser inspection timed out; no deployment or environment change is clai
 - npm, Node 24 pinned in `.nvmrc` and CI. Vercel is the deployment target; deployment is pending.
 
 Pinned foundation packages and maintainer approvals are in [the D1 plan](docs/plans/d1-foundation.md). Dev/build use Next's supported webpack mode because Turbopack's local CSS worker port is blocked here. Typecheck generates Next route types first. `agentRules: false` preserves the authored AGENTS.md. Compatibility/advisory follow-ups are in [the library notes](docs/references/next-eslint.md).
+
+Prisma 7 generates into ignored `lib/generated/prisma`; postinstall/build regenerate it without needing secrets. `prisma.config.ts` loads `.env` quietly and only supplies a datasource when configured, so CI can generate/test without Neon. `getDb()` lazily creates one adapter/client. Never import it into UI or domain code.
 
 ## Testing
 

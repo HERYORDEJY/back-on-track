@@ -27,7 +27,7 @@ After any mutation or clock change, call `router.refresh()`.
 
 PersonaSwitcher, a Start demo button (calls demo reset, then opens Amaka), and a link to the advisor view.
 
-Current D1 shell: both message files, landing-cookie language control, SimulatedBadge and the three approved persona descriptions are implemented. Learner navigation, Start demo, advisor link and ClockControl await real services; the shell shows no inactive or invented demo actions. Helpers/key parity and server rendering are checked; exact 375/1280 px and interactive cookie persistence remain to verify because browser automation timed out. Pidgin copy still needs the maintainer's human review.
+Current D1 shell: both message files, landing-cookie language control, SimulatedBadge and the three approved persona descriptions are implemented. ClockControl now shows the real persisted simulated date/week and provides day/week advances, loading, limit and retry states. After a failed mutation, it refreshes the date before permitting another jump because a lost response does not prove the mutation failed. Reset, learner navigation, Start demo and advisor link await real services; the shell shows no invented demo actions. Helpers/key parity, bilingual server rendering and clock API are checked; exact 375/1280 px and interactive browser behavior remain to verify because automation timed out. Pidgin copy still needs the maintainer's human review.
 
 ### Learner (`/learner/[studentId]`)
 

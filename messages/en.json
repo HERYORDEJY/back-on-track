@@ -24,5 +24,18 @@
   "landing.person.zainab.hours": "60 min each day",
   "landing.person.zainab.goal": "Working towards a move into product management",
   "landing.footer": "Sample course · Principles of Management",
-  "time.minutes": "{minutes} min"
+  "time.minutes": "{minutes} min",
+  "clock.label": "Demo clock",
+  "clock.week": "Week {week}",
+  "clock.day": "+1 day",
+  "clock.days": "+3 days",
+  "clock.jump": "Jump to week",
+  "clock.loading": "Moving the clock…",
+  "clock.limit": "The clock has reached the day before the exam.",
+  "clock.failed": "We could not confirm the clock change. Check its date before trying again.",
+  "clock.checking": "Checking the clock…",
+  "clock.refresh": "Check the clock",
+  "clock.retry": "Try again",
+  "clock.unavailable": "The demo clock is unavailable. Try again.",
+  "clock.invalid": "Choose one forward jump in whole days or weeks."
 }

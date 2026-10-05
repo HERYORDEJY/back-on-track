@@ -28,6 +28,8 @@ describe("architecture import boundaries", () => {
     ["lib/ai/cache.ts", "import { db } from '../db'; void db;"],
     ["lib/services/plans.ts", "import { db } from '../db'; void db;"],
     ["app/page.tsx", "import { getPlan } from '@/lib/services/plans'; void getPlan;"],
+    ["app/page.tsx", "import { getClockView } from '@/lib/services/clock'; void getClockView;"],
+    ["app/api/clock/route.ts", "import { getClockView } from '../../../lib/services/clock'; void getClockView;"],
     ["components/shared/Example.tsx", "'use client'; import { t } from '@/lib/i18n'; void t;"],
   ])("allows the documented dependency in %s", async (filePath, source) => {
     expect(await violations(filePath, source)).toEqual([]);

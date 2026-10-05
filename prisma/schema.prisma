@@ -1,0 +1,225 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Language {
+  en
+  pcm
+}
+
+enum Segment {
+  on_track
+  drifting
+  recovering
+  gone_quiet
+}
+
+enum AssessmentKind {
+  assignment
+  quiz
+  exam
+}
+
+enum PlanStatus {
+  fit
+  cut
+  infeasible
+}
+
+enum PlanSource {
+  ai
+  fallback
+  cache
+}
+
+enum Action {
+  keep
+  compress_light
+  compress_heavy
+  skip
+}
+
+enum SessionStatus {
+  pending
+  done
+  missed
+}
+
+model Course {
+  id            String       @id
+  code          String
+  title         String
+  startDate     DateTime     @db.Timestamptz(3)
+  examDate      DateTime     @db.Timestamptz(3)
+  sourceTitle   String?
+  sourceUrl     String?
+  sourceLicense String?
+  topics        Topic[]
+  assessments   Assessment[]
+}
+
+model Topic {
+  id         String     @id
+  courseId   String
+  week       Int
+  order      Int
+  title      String
+  estMinutes Int
+  examWeight Float
+  prereqIds  String[]
+  sourceRefs Json
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  progress   Progress[]
+  planItems  PlanItem[]
+
+  @@unique([courseId, order])
+}
+
+model Assessment {
+  id          String         @id
+  courseId    String
+  title       String
+  kind        AssessmentKind
+  dueDate     DateTime       @db.Timestamptz(3)
+  weight      Float
+  topicIds    String[]
+  course      Course         @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  submissions Submission[]
+  focusPlans  Plan[]
+
+  @@index([courseId, dueDate])
+}
+
+model Student {
+  id           String       @id
+  name         String
+  context      String?      @db.VarChar(120)
+  goal         String?      @db.VarChar(80)
+  language     Language
+  isSimulated  Boolean
+  segment      Segment?
+  availability Json?
+  hoursVary    Boolean      @default(false)
+  lastSeenAt   DateTime?    @db.Timestamptz(3)
+  escalatedAt  DateTime?    @db.Timestamptz(3)
+  progress     Progress[]
+  submissions  Submission[]
+  plans        Plan[]
+  reminders    Reminder[]
+  outreach     Outreach[]
+}
+
+model Progress {
+  id          String   @id
+  studentId   String
+  topicId     String
+  completedAt DateTime @db.Timestamptz(3)
+  sessionId   String?
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Restrict)
+  session     Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@unique([studentId, topicId])
+  @@index([sessionId])
+}
+
+model Submission {
+  id           String     @id
+  studentId    String
+  assessmentId String
+  submittedAt  DateTime   @db.Timestamptz(3)
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Restrict)
+
+  @@unique([studentId, assessmentId])
+}
+
+model Plan {
+  id                String      @id
+  studentId         String
+  version           Int
+  isCurrent         Boolean
+  simNow            DateTime    @db.Timestamptz(3)
+  status            PlanStatus
+  source            PlanSource
+  requiredMin       Int
+  capacityMin       Int
+  summary           Json
+  changeSummary     Json?
+  warnings          Json
+  focusAssessmentId String?
+  focusDueDate      DateTime?   @db.Timestamptz(3)
+  unscheduled       Json
+  student           Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  focusAssessment   Assessment? @relation(fields: [focusAssessmentId], references: [id], onDelete: Restrict)
+  items             PlanItem[]
+  sessions          Session[]
+
+  @@unique([studentId, version])
+  @@index([studentId, isCurrent])
+}
+
+model PlanItem {
+  id        String @id
+  planId    String
+  topicId   String
+  action    Action
+  minutes   Int
+  basis     Json
+  rationale Json
+  plan      Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  topic     Topic  @relation(fields: [topicId], references: [id], onDelete: Restrict)
+
+  @@unique([planId, topicId])
+}
+
+model Session {
+  id        String        @id
+  planId    String
+  date      String        @db.VarChar(10)
+  minutes   Int
+  pieces    Json
+  status    SessionStatus @default(pending)
+  checkedAt DateTime?     @db.Timestamptz(3)
+  plan      Plan          @relation(fields: [planId], references: [id], onDelete: Cascade)
+  progress  Progress[]
+  reminders Reminder[]
+
+  @@unique([planId, date])
+}
+
+model Reminder {
+  id        String   @id
+  studentId String
+  sessionId String
+  at        DateTime @db.Timestamptz(3)
+  text      Json
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Outreach {
+  id        String   @id
+  studentId String
+  message   String
+  nextStep  String
+  contacted Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model AiCache {
+  key       String   @id
+  response  Json
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model Setting {
+  key   String @id
+  value String
+}

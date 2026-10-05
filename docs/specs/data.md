@@ -16,8 +16,12 @@ The simulated clock is the only "now". Everything time-stamped is read as of now
 - Every timestamp the engine or risk reads (`completedAt`, `submittedAt`, `checkedAt`, `lastSeenAt`, `escalatedAt`) is set from `getNow()`.
 - Opening the plan, submitting the intake and checking in set `lastSeenAt`.
 - Demo start: `2026-10-19T18:00:00+01:00`, Monday of Week 7, before tonight's 20:00 reminder.
-- The clock moves forward only: `jumpDays(n)` with n of 1 or more, and `jumpToWeek(w)` with w after the current week, landing on Monday 18:00 of that week. It never passes `2026-11-30T18:00:00+01:00`, the day before the exam. Going back means demo reset.
+- The clock moves forward only: `jumpDays(n)` with n of 1 or more, and `jumpToWeek(w)` with w after the current week, landing on Monday 18:00 of that week. It never passes `2026-11-30T18:00:00+01:00`, the day before the exam. Overshooting jumps stop at that limit (maintainer approved 2026-10-05); further day jumps remain at the limit. Going back means demo reset.
 - Calendar dates are Africa/Lagos `YYYY-MM-DD`; timestamps are stored in UTC.
+
+Implemented D1: the first migration initialises Setting `clock` at demo start. `getNow()` rejects missing/corrupt clock data; updates take a row lock inside a transaction so concurrent jumps see each other's committed result. The API validates exactly one positive whole-day or future-week jump and returns no-store views; errors contain no database details. Week numbers are calendar weeks counted from 7 September; 30 November is Week 13, after the 12 teaching weeks. Header options stop at the clock limit.
+
+Verification: 19 clock tests and 13 API-contract tests pass. Live concurrent requests each advanced the persisted clock once. Live checks left it on 25 October; no standalone backward reset was used. `scripts/db-verify.ts` verifies progress retention/null provenance after session deletion with fixtures rolled back; it is a local database check, not a CI/e2e suite. Course/persona/cohort seeding, reset and Delete my data remain unimplemented.
 
 ## Course (`prisma/course.ts`)
 

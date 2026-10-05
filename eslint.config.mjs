@@ -3,7 +3,7 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 
 // Covers aliases and relative imports naming a forbidden layer.
-const layer = (names) => `(^|/)(?:${names.join("|")})(?:/|\\.|$)`;
+const layer = (names) => `^(?:@/(?:lib/)?|(?:\\.\\./)+(?:lib/)?)(?:${names.join("|")})(?:/|\\.|$)`;
 const restricted = (names, pure = false) => ["error", {
   patterns: [
     { regex: layer(names), message: "Use the layers documented in ARCHITECTURE.md." },
