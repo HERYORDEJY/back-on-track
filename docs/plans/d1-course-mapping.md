@@ -1,6 +1,6 @@
 # D1 sample course mapping
 
-Prepared 2026-10-05 for review after the maintainer selected BCcampus / University of Minnesota for the 36-topic, 12-week adaptation.
+Prepared and approved by the maintainer on 2026-10-05 after selecting BCcampus / University of Minnesota for the 36-topic, 12-week adaptation.
 
 Readings: [Principles of Management](https://pressbooks.bccampus.ca/principlesofmanagement2021/), © 2015 University of Minnesota, University of Minnesota Libraries Publishing edition, hosted by BCcampus. Original authors and publisher omitted at their request. [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), except where otherwise noted. Selection/grouping below is a demo adaptation; attribution and applicable noncommercial/share-alike terms accompany the reading selection. This does not change the software licence. No textbook body or image is copied.
 
@@ -51,4 +51,4 @@ Prerequisites list earlier topic ids needed before the row. Empty means no demo 
 | t35 | 12 | [15.3 Organizational Control](https://pressbooks.bccampus.ca/principlesofmanagement2021/chapter/15-3-organizational-control/) | 80 | 3% | — |
 | t36 | 12 | [16.3 The Changing Role of Strategic Human Resource Management in Principles of Management](https://pressbooks.bccampus.ca/principlesofmanagement2021/chapter/16-3-the-changing-role-of-strategic-human-resource-management-in-principles-of-management/) | 100 | 4% | — |
 
-Assessment dates/coverage and persona details remain those in [the data spec](../specs/data.md). This mapping is prepared for review; it has not been loaded into Neon. Persona fit/cut/infeasible outcomes await the tested engine and are not inferred from raw capacity sums.
+Assessment dates/coverage and persona details remain those in [the data spec](../specs/data.md). This exact mapping is approved for seeding; it has not been loaded into Neon. Persona fit/cut/infeasible outcomes await the tested engine and are not inferred from raw capacity sums.

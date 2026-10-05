@@ -61,7 +61,7 @@ Every requirement in the brief maps to something built and shown.
 
 ## In scope
 
-- One demo adaptation of publicly accessible management readings, with 3 simulated coursework assessments and a final exam; source/mapping selection is pending.
+- One approved 36-reading, 12-week demo adaptation of BCcampus / University of Minnesota Principles of Management, with 3 simulated coursework assessments and a final exam; reading attribution and simulated metadata are explicit.
 - Three scripted personas and 300 simulated students in one cohort.
 - A simulated clock the presenter can move forward.
 - Learner flow: intake, plan, check-in, re-plan with a change summary, in-app reminders, the infeasible screen.

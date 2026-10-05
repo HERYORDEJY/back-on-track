@@ -6,7 +6,7 @@ Two AI calls: triage for plans and outreach for advisors. Both go through a cach
 
 | Call | Used by | Input | Output |
 | --- | --- | --- | --- |
-| triage | the engine, injected by `lib/services/plans.ts` | `TriageContext` (`specs/engine.md`), plus violations on a retry | Sparse changed-topic actions and Localized rationales, plus a Localized summary; the ordering contract is pending in `docs/PLANS.md` |
+| triage | the engine, injected by `lib/services/plans.ts` | `TriageContext` (`specs/engine.md`), plus violations on a retry | Sparse changed-topic actions and Localized rationales, plus a Localized summary; code owns topic order |
 | outreach | `lib/services/advisor.ts` | Risk reasons (codes and params), plan status, the student's language | A message in the student's language starting with `{firstName}`, and one next step in English for the advisor |
 
 ## Client (`client.ts`)
@@ -23,9 +23,8 @@ export const Action = z.enum(["keep", "compress_light", "compress_heavy", "skip"
 export const ChangedAction = z.enum(["compress_light", "compress_heavy", "skip"]);
 export const Localized = z.object({ en: z.string(), pcm: z.string() });
 
-export const TriageOutput = z.object({
+export const TriageOutput = z.strictObject({
   items: z.array(z.object({ topicId: z.string(), action: ChangedAction, rationale: Localized })),
-  order: z.array(z.string()),
   summary: Localized,
 });
 
@@ -33,7 +32,7 @@ export const OutreachOutput = z.object({ message: z.string(), nextStep: z.string
 ```
 
 - `items` contains only shortened or skipped unfinished topics, each at most once. Code expands unlisted unfinished topics to `keep`, with template rationale and computed basis; a fit response has no changed items. Missing change items are valid defaults, not a `MISSING_TOPIC` violation.
-- The existing `order` field is provisional until the maintainer chooses code-owned versus AI-proposed order (`docs/PLANS.md`). If retained, it must list every expanded non-skipped topic exactly once and put every unfinished prerequisite before its dependants. Do not implement an assumed contract.
+- The maintainer chose code-owned ordering on 2026-10-05. There is no `order` field. Code computes the same prerequisite/deadline/weight/course order for all classification, validation and fallback placement; strict parsing rejects an unexpected generated order.
 - Pin zod to the major version that `openai/helpers/zod` supports in the installed SDK.
 - No length limits inside schemas sent to OpenAI. State limits in the prompt and enforce them after parsing, trimming at a sentence boundary: rationale 20 words, summary 60, message 80, next step 20.
 
@@ -75,4 +74,4 @@ export const OutreachOutput = z.object({ message: z.string(), nextStep: z.string
 - Cache keys: the same input gives the same key; any change in prompt version, model or input gives a different key.
 - Length enforcement trims at a sentence boundary.
 - Parse failure, timeout and a `DEMO_MODE` miss all return `null`.
-- Sparse changes expand to keep defaults; duplicate change items, protected actions, incomplete/bad retained order and prerequisite order are rejected. The shared budget never resets between attempts, expiry uses fallback, and domain code never reads a clock for elapsed time.
+- Sparse changes expand to keep defaults; duplicate change items and protected actions are rejected. An unexpected order field fails strict parsing; code-owned prerequisite/order invariants have engine tests. The shared budget never resets between attempts, expiry uses fallback, and domain code never reads a clock for elapsed time.

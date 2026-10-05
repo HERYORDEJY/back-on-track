@@ -89,14 +89,14 @@ type TriageFn = (ctx: TriageContext, violations?: Violation[]) =>
 
 1. Compute today, week, done topics, backlog, remaining, plan days, display capacity and required.
 2. Mark protected topics. Compute rounded minutes once as `round(estMinutes x factor)`; every feasibility check uses these exact minutes and the same scheduler, including the 20-minute block rule.
-3. Try scheduling all unfinished topics at keep before the exam. Full placement gives `fit`; skip step 4. All decisions are keep with template rationales and code-generated bases; AI may write the summary and propose order only if that contract is retained.
+3. Try scheduling all unfinished topics at keep before the exam. Full placement gives `fit`; skip step 4. All decisions are keep with template rationales and code-generated bases; AI may write the summary, never the order.
 4. If all-keep placement failed, check the protected minimum (protected topics at compress_light, unprotected topics skipped) with the same scheduler. Success permits `cut`. Failure returns `infeasible` without an AI call: target the next assessment's unfinished topics and prerequisites, each at keep in prerequisite-first priority order; schedule only through its due date, bounded by the day before the exam. Show unplaced work under "Won't fit before {date}", persist focus assessment/date, and set `escalate=true`. The exam can be the next assessment after the final quiz. With no assessment remaining, use protected work and the exam cutoff as a safeguard.
-5. For fit or cut, obtain triage output within the shared budget. Fit items must be empty; cut items contain only changed topics. Expand omitted unfinished topics to keep with template rationale and computed basis. The agreed ordering policy below is needed before implementation of classification.
+5. For fit or cut, obtain triage output within the shared budget. Fit items must be empty; cut items contain only changed topics. Expand omitted unfinished topics to keep with template rationale and computed basis, then order in code as below.
 6. Validate the expanded decisions and actual scheduler placement. On violations retry up to twice with quoted violations, within the single 20-second budget injected through the service/AI wrapper. If the budget expires, triage returns null, or the third response is invalid, use fallback and source fallback.
 7. Fit/cut results must have zero unscheduled minutes: every non-skipped minute is placed before the exam. Attach basis and deadline warnings; capacity never overrides a failed placement check.
 8. Summary: AI/cache summary where returned, otherwise fit/cut templates; infeasible always uses the honest template. Add a change summary when previous is given. A fit/cut result has `escalate=false`; the service clears any prior escalation.
 
-Ordering is an explicit pending decision in `docs/PLANS.md`: one code-owned prerequisite-first order, or AI-proposed order with validation and deterministic fallback. Order can affect placement when daily remnants under 20 minutes are unused. Status prechecks, proposal validation and fallback must use the agreed policy consistently; do not treat a raw sum or an arbitrary failed order as proof of impossibility.
+Ordering is code-owned (maintainer approved 2026-10-05): topological prerequisite-first order; among eligible topics, earliest inherited upcoming coursework deadline, then higher exam weight, earlier week and stable course order. A prerequisite recursively inherits the earliest deadline of its unfinished dependants. All status prechecks, proposal validation, fallback and infeasible scheduling use this policy. AI never supplies an order. Order can affect placement when daily remnants under 20 minutes are unused; never treat display capacity as proof of feasibility.
 
 ## Triage context (`triage.ts`)
 
@@ -124,10 +124,8 @@ Each violation has a code, the `topicId` where relevant, and a one-line message 
 | `UNKNOWN_TOPIC` | An item names a topic outside backlog and remaining |
 | `ACTION_NOT_ALLOWED` | `skip` or `compress_heavy` on a protected topic, an explicit keep in sparse change items, or any changed item when status is fit |
 | `OVER_CAPACITY` | The shared scheduler leaves any rounded non-skipped minute unplaced before the exam |
-| `BAD_ORDER` | `order` is not exactly the non-skipped topic ids, each once |
-| `PREREQUISITE_ORDER` | An unfinished prerequisite appears after its dependant in the applicable order |
 
-Unlisted topics are valid keep defaults; there is no `MISSING_TOPIC` violation. `BAD_ORDER` applies to the AI `order` field only if that pending contract is retained; code-owned order still has to cover every non-skipped topic and satisfy prerequisites.
+Unlisted topics are valid keep defaults; there is no `MISSING_TOPIC` violation. AI output has no `order` field; strict schema parsing rejects extra fields. Code-owned order must cover every non-skipped topic once and satisfy prerequisites; integrity tests cover those invariants. The provisional `BAD_ORDER` and `PREREQUISITE_ORDER` AI violation codes are removed.
 
 ## Fallback (`fallback.ts`)
 
@@ -189,7 +187,7 @@ English text for the engine's message keys. Every key also exists in `messages/p
 
 - One test per term, validator code, fallback step, basis rule and scheduler rule.
 - Effective session status before, on and after the session date, including a check-in dated after now.
-- Rounded-minute placement, unusable daily remnants, display capacity never accepting incomplete work, prerequisite inheritance/order, sparse keep defaults and duplicate changes, infeasible unplaced work/cutoff/expired focus date, and the shared budget with no domain clock reads. Ordering-sensitive tests await the pending ordering decision.
+- Rounded-minute placement, unusable daily remnants, display capacity never accepting incomplete work, prerequisite inheritance/order, sparse keep defaults and duplicate changes, infeasible unplaced work/cutoff/expired focus date, and the shared budget with no domain clock reads. Ordering-sensitive tests use the approved code-owned policy.
 - Same-day completion provenance/reversal and locked earlier sessions; delayed offline and same-day re-plan cases await their pending decisions.
 - Retry path: invalid output twice then valid gives source `ai`; invalid three times gives `fallback`; `null` gives `fallback`.
 - Persona tests: `buildPlan` with a triage stub that returns `null`, at the demo start, gives `cut` for amaka, `infeasible` for tunde and `fit` for zainab. If one fails, tune the seed data in `specs/data.md` (and ask first), never the engine rules.
