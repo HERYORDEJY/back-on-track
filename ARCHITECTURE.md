@@ -89,6 +89,8 @@ Service functions:
 
 Published course and topic titles remain English. Each selected reading has a source reference; demo weeks, study estimates, prerequisites, assessments and exam weights are labelled simulated. The source selection and adaptation are tracked in `docs/RESEARCH.md`.
 
+Pure `prisma/course.ts` and `prisma/personas.ts` export fresh deterministic seed definitions with generated Prisma input types imported as types only. No runner, database access or AI call occurs on import. The BCcampus/University of Minnesota source is selected; exact mapping approval/loading and complete cohort generation remain pending. The [mapping](docs/plans/d1-course-mapping.md) includes attribution and source-access limits.
+
 | Model | Fields |
 | --- | --- |
 | Course | id, code, title, startDate, examDate, sourceTitle?, sourceUrl?, sourceLicense? |

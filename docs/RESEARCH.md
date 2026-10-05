@@ -1,12 +1,12 @@
 # Research: course material and MIVA
 
-Primary sources checked on 2026-10-04. A public source verifies only what it actually says; it does not approve Back on Track's curriculum, simulated metadata or pilot. The original programme brief and submitted idea remain in [CAPSTONE_PROJECT_BRIEF.md](../CAPSTONE_PROJECT_BRIEF.md). Pending choices are tracked in [PLANS.md](PLANS.md).
+Primary sources checked on 2026-10-04; selected reading references checked on 2026-10-05. A public source verifies only what it actually says; it does not approve Back on Track's curriculum, simulated metadata or pilot. The original programme brief and submitted idea remain in [CAPSTONE_PROJECT_BRIEF.md](../CAPSTONE_PROJECT_BRIEF.md). Pending choices are tracked in [PLANS.md](PLANS.md).
 
 ## Public management material
 
 | Source | What was verified | Proposed use / limits |
 | --- | --- | --- |
-| [Principles of Management, University of Minnesota edition hosted by BCcampus](https://pressbooks.bccampus.ca/principlesofmanagement2021/) | Full HTML readings opened without login; 16 chapters and 116 section entries; edition published 27 October 2015, adapted from a 2010 work | Recommended, pending maintainer selection. The host states CC BY-NC-SA 4.0 except where noted: attribute the work, retain noncommercial/share-alike conditions for adaptations and check exceptions. Original authors/publisher requested omitted attribution; do not invent author names |
+| [Principles of Management, University of Minnesota edition hosted by BCcampus](https://pressbooks.bccampus.ca/principlesofmanagement2021/) | Full HTML readings opened without login; 16 chapters and 116 section entries; edition published 27 October 2015, adapted from a 2010 work | Selected by the maintainer on 2026-10-05 for the labelled 36-topic, 12-week adaptation. The host states CC BY-NC-SA 4.0 except where noted: attribute the work, retain noncommercial/share-alike conditions for adaptations and check exceptions. Original authors/publisher requested omitted attribution; do not invent author names |
 | [NOUN FMS105: Elements of Management I](https://nou.edu.ng/coursewarecontent/FMS%20105%20ELEMENTS%20OF%20MANAGEMENT%201.pdf) | Official Nigerian university PDF opened publicly; 15 units across three modules, with a 15-week guide; ©2017 NOUN Press | Useful Nigerian curriculum reference. Frontmatter reserves reproduction rights and requires written permission; public download is not permission to copy/adapt the full text. Its 30% coursework/70% exam split is not our demo split |
 | [OpenStax Principles of Management](https://openstax.org/books/principles-management/pages/1-introduction) | Public HTML available; published 20 March 2019 | Current HTML states CC BY-NC-SA and prior written permission for LLM/generative-AI ingestion; the [older official PDF](https://assets.openstax.org/oscms-prodcms/media/documents/PrinciplesofManagement-OP_mGBMvoU.pdf) states CC BY 4.0. Do not silently resolve this discrepancy by putting its text in AI inputs |
 
@@ -17,6 +17,8 @@ NOUN's [official courseware repository](https://nou.edu.ng/ecourseware-faculty-o
 ## Real readings, simulated course metadata
 
 No reviewed source supplies our proposed 36 topics over 12 weeks, 60-100-minute estimates, topic exam weights, prerequisite graph or assessment dates. Selecting actual readings and approving a demo adaptation are separate decisions.
+
+The exact [reading mapping](plans/d1-course-mapping.md) and [implementation plan](plans/d1-course-personas.md) are prepared. Pure definitions preserve source titles and references without copying bodies/images. Of 36 selected sections, 29 opened directly through the research tool; seven were verified from public contents/indexed pages but direct opens failed. Those access limits are recorded with the mapping. Mapping approval and database loading remain pending; the source choice is confirmed.
 
 - Keep source title, section identifiers, direct URLs and attribution with selected readings.
 - Preserve the institution/publisher's English course and topic titles.
@@ -46,4 +48,4 @@ Product implication (an inference): offer a conversation about an extension, bre
 - No advisor interview, pilot agreement, staffing-capacity measurement or dropout-rate evidence has been obtained.
 - No public primary measurements were found for students' devices, RAM/browser versions, data budgets, language preferences or Pidgin comprehension. English/Pidgin and basic-Android support are project inclusion choices to validate during a pilot.
 - [Building EdTech for Reality, Not Just Ambition](https://miva.edu.ng/building-edtech-for-reality-not-just-ambition/), 29 August 2025, discusses working adults/connectivity; some device/data examples concern uLesson, so they are not MIVA prevalence estimates.
-- The source selection/demo mapping, exact submission date, judging rubric, team/pre-build rules and live-AI model/budget remain pending. No public research result changes those into confirmed facts.
+- The exact demo mapping approval, submission date, judging rubric, team/pre-build rules and live-AI model/budget remain pending. The reading source is selected; no public research result confirms the other choices.

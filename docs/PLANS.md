@@ -9,7 +9,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Area | Status | Notes |
 | --- | --- | --- |
 | Scaffold, CI, deploy | in progress | Local checks/build and remote CI pass (54 tests). Vercel deployment completed; generated URL redirects to SSO, so deployed runtime/public URL verification pending |
-| Data model and seed (course, personas, cohort) | in progress | 13-model schema migrated on Neon; progress retention verified with rolled-back fixtures. Source/cohort seed pending |
+| Data model and seed (course, personas, cohort) | in progress | Schema migrated; selected-source course/persona definitions pass 12 tests. Exact mapping approval/loading and engine-backed cohort pending |
 | Simulated clock and demo reset | in progress | Persisted forward clock, API and bilingual controls built; 32 clock/API tests pass and live concurrent advances verified. Reset awaits seed |
 | Languages (message files, switch) | in progress | Bilingual helpers and landing cookie control built; 4 helper tests pass; interactive persistence/phone widths and learner/offline switching pending |
 | Recovery engine | not started | |
@@ -31,16 +31,17 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | --- | --- | --- |
 | Review complete starting folder | done | All original docs and the checker reviewed; docs check passed; complete starting point confirmed |
 | Read capstone brief and record maintainer decisions | done | Routed docs aligned with the supplied decisions; docs check and consistency review completed; remaining behavior questions explicitly listed below |
-| Research public management material and MIVA facts | done | Primary sources verified; candidates, licensing/access limits and unknowns recorded in `docs/RESEARCH.md`; source selection remains pending |
+| Research public management material and MIVA facts | done | Primary sources/licensing limits recorded in `docs/RESEARCH.md`; maintainer selected BCcampus/University of Minnesota on 2026-10-05 |
 | Local foundation scaffold | tested | [D1 foundation plan](plans/d1-foundation.md), approved dependencies/lockfile, strict Next/Tailwind/shadcn shell, 20 passing tests and lint boundaries, scripts and CI configuration. Production build passed; exact-width/interactive browser verification pending |
 | Database and simulated clock | tested | [Database/clock plan](plans/d1-database-clock.md), valid schema/client, applied additive migration, rolled-back provenance test, 32 clock/API tests, live forward/concurrent requests and production build. Exact-width/interactive UI verification pending |
+| Course and persona definitions | tested | [Task plan](plans/d1-course-personas.md), attributed [36-reading mapping](plans/d1-course-mapping.md), pure fresh typed definitions and 12 integrity tests; all 66 tests pass. Mapping approval/database loading and persona engine outcomes pending |
 | Infrastructure access | in progress | Commits through 255a6c1 pushed; [CI passed](https://github.com/HERYORDEJY/back-on-track/actions/runs/37252741926). Neon migration current; Vercel deployment succeeded but unauthenticated landing/API requests redirect to SSO |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
-| Source/demo mapping and remaining behavior choices | pending | Questions sent about source selection, ordering, delayed offline check-ins and same-day re-planning; cache deletion ownership still needs a decision |
+| Demo mapping and remaining behavior choices | pending | Source selected; exact mapping prepared for approval. Delayed offline check-ins, same-day re-planning and cache deletion ownership still need decisions |
 
 After each work session, record completed tasks, the current task, next steps, blockers, pending decisions and any cuts here and in `CODEX_LOG.md`. Do not erase deferred or abandoned work; keep its reason and date. No feature has been cut or abandoned yet.
 
-Current task: finish D1's source/persona/cohort seed, demo reset and deployment after the tested scaffold/database/clock tasks. Maintainer configured `.env`; migration status is current and secrets remain ignored. Existing scaffold commit `d3943a7` was found and preserved. Live clock checks left the demo at Sunday 25 October; the future full seed/reset restores 19 October. Exact 375/1280 px and interactive browser verification remain pending because automation timed out. Five earlier clarification questions remain pending: source/demo adaptation, topic ordering, delayed offline check-ins, same-day re-planning and cache deletion. The recovering cohort also requires the D2 fallback engine. D1's complete exit remains pending; no feature was cut or abandoned.
+Current task: finish D1 seed/reset/deployment after tested scaffold/database/clock and course/persona definitions. The maintainer selected BCcampus/University of Minnesota and approved code-owned ordering; write that contract into engine/AI specs before building the fallback needed by the recovering cohort. Exact mapping approval is requested before loading; delayed offline check-ins, same-day re-planning and cache deletion remain unanswered. `.env` remains ignored and migration is current. Live checks left the clock at Sunday 25 October; the future full seed/reset restores 19 October. Exact 375/1280 px and interactive browser verification remain pending after automation timeouts. D1's complete exit remains pending; no feature was cut or abandoned.
 
 Follow-up: dependency audit reports 9 high-severity tooling-chain entries; no automatic incompatible fixes applied. ESLint 9 is a temporary compatibility pin. Details and upstream references are in [library notes](references/next-eslint.md).
 
@@ -175,11 +176,12 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 - [ ] Deliverables and judging criteria
 - [ ] Team and pre-build policy
 - [ ] A call with a MIVA success advisor through the organizers
-- [ ] Select a publicly available management source and confirm the demo mapping; do not invent learning content
+- [x] Select a publicly available management source: BCcampus / University of Minnesota, approved 2026-10-05
+- [ ] Confirm the exact [36-reading mapping](plans/d1-course-mapping.md) before loading it; do not invent learning content
 - [x] Public MIVA advisor/study-break/deferment guidance researched; recorded with limitations in `docs/RESEARCH.md`
 - [ ] Partner confirmation of eligibility/windows for the demo scenario and any assignment-extension procedure; public guidance does not guarantee a break or extension
 - [ ] Which languages, phones and data budgets MIVA students actually have
-- [ ] Feasibility order: code fixes prerequisite/deadline order, or AI proposes an order that code validates and falls back from; a different order can change placement under the 20-minute rule
+- [x] Feasibility order: code owns prerequisite/deadline/weight/course order, approved 2026-10-05; engine/AI contract update is next
 - [ ] Delayed offline first check-in: permit its later sync despite earlier-session edit locking, or reject with a visible conflict
 - [ ] Today's missed session: immediate re-plan with preserved same-day editability, or wait until tomorrow before re-planning it
 - [ ] Delete my data: decide how to remove shared AiCache entries derived from deleted user free text while preserving unrelated warmed demo entries
@@ -207,6 +209,8 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 | 2026-10-05 | Approve the pinned D1 dependency set and the subsequent ESLint 9.39.5 replacement | Foundation packages approved explicitly; React plugin crashes with ESLint 10.12.0. Support/advisory limits recorded, no unrelated packages added |
 | 2026-10-05 | Use webpack dev/build and generate Next route types before typecheck; disable generated agent rules | Verified build mode in this environment and checks before the first build; preserve the repo's authored instruction map |
 | 2026-10-05 | Overshooting clock jumps stop at the specified limit; later day jumps stay there | Maintainer chose clamping rather than rejection before clock implementation |
+| 2026-10-05 | Use BCcampus / University of Minnesota Principles of Management for the labelled 36-topic, 12-week adaptation | Maintainer selected the researched source; exact mapping prepared separately for review, with published titles and attribution |
+| 2026-10-05 | Code owns prerequisite-first ordering, followed by inherited assessment deadline, exam weight and stable course order | Maintainer chose deterministic ordering for all feasibility checks, AI proposals and fallback; no AI order field |
 
 ## Later
 
