@@ -37,5 +37,22 @@
   "clock.refresh": "Check the clock",
   "clock.retry": "Try again",
   "clock.unavailable": "Demo clock no dey available now. Try again.",
-  "clock.invalid": "Choose one jump go front, with whole days or weeks."
+  "clock.invalid": "Choose one jump go front, with whole days or weeks.",
+  "plan.summary.fit": "Everything fit the time wey you get. Topics wey you need first go come before the others, then we go follow deadline priority.",
+  "plan.summary.cut": "This plan put about {scheduledHours} hours of study before exam. E keep {kept} topics, shorten {shortened} and skip {skipped}.",
+  "plan.summary.infeasible": "The main work no fit finish before exam. Na this work fit before {assessment} on {date}; the rest dey below. Your advisor don get the flag. Ask about more time or study break.",
+  "plan.wontFit": "E no fit finish before {date}",
+  "plan.nextStep.infeasible": "Your advisor don get the flag. Ask about more time or study break.",
+  "plan.changeSummary": "We move {moved} topics, shorten {shortened}, drop {dropped}.",
+  "plan.deadlineWarning": "{n} topics for {assessment} go finish after the deadline ({date}). Ask your advisor about more time.",
+  "rationale.keep": "We keep am: e fit your time",
+  "rationale.keepFor": "We keep am: you need am for {assessment}",
+  "rationale.prereqFor": "We keep am: you need am before one topic for {assessment}",
+  "rationale.shorten": "We shorten am to fit your time",
+  "rationale.skip": "We skip am: small exam weight",
+  "basis.prereq": "Demo prerequisite: you need am before {topic}",
+  "basis.coursework": "Demo coursework: you need am for {assessment} ({weight}%, deadline {date})",
+  "basis.examHigh": "Demo exam weight: high, about {pct}% of exam",
+  "basis.examLow": "Demo exam weight: low, about {pct}% of exam",
+  "reminder.text": "Tonight: {minutes} min, start with {topic}"
 }

@@ -2,6 +2,8 @@
 
 Builds and re-builds a student's catch-up plan. Pure: no Prisma, no fetch, no clock reads, no browser APIs. `now` is always an argument, and the AI is injected as a function. May import `lib/i18n` (pure) for templates and dates.
 
+Implemented pure D2 dependency for D1's recovering cohort: 48 tests cover calendar/as-of work, protection, labelled basis, code-owned deadline inheritance, rounded placement, sparse validation, fallback, retries, focused infeasible results and change summaries. Null-triage persona fixtures pass cut/infeasible/fit without metadata tuning. Service check-in/provenance behavior, elapsed-time budget/abort and live AI are not implemented by this pure task; D2's browser exit remains pending. Controlled course input is expected to have valid unique topics and acyclic prerequisites; integrity checks reject a cycle rather than generating an invalid plan.
+
 ## Terms
 
 | Term | Definition |

@@ -12,7 +12,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Data model and seed (course, personas, cohort) | in progress | Schema migrated; selected-source course/persona definitions pass 12 tests. Mapping approved; loading and engine-backed cohort pending |
 | Simulated clock and demo reset | in progress | Persisted forward clock, API and bilingual controls built; 32 clock/API tests pass and live concurrent advances verified. Reset awaits seed |
 | Languages (message files, switch) | in progress | Bilingual helpers and landing cookie control built; 4 helper tests pass; interactive persistence/phone widths and learner/offline switching pending |
-| Recovery engine | not started | |
+| Recovery engine | tested | Pure buildPlan/scheduler/protection/sparse validation/fallback/infeasible paths; 48 tests including all three persona outcomes. Service budget/live AI/browser exit pending |
 | AI calls, cache, `DEMO_MODE` | not started | |
 | Learner flow (intake, plan, check-in, re-plan) | not started | |
 | Infeasible screen | not started | |
@@ -34,14 +34,15 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | Research public management material and MIVA facts | done | Primary sources/licensing limits recorded in `docs/RESEARCH.md`; maintainer selected BCcampus/University of Minnesota on 2026-10-05 |
 | Local foundation scaffold | tested | [D1 foundation plan](plans/d1-foundation.md), approved dependencies/lockfile, strict Next/Tailwind/shadcn shell, 20 passing tests and lint boundaries, scripts and CI configuration. Production build passed; exact-width/interactive browser verification pending |
 | Database and simulated clock | tested | [Database/clock plan](plans/d1-database-clock.md), valid schema/client, applied additive migration, rolled-back provenance test, 32 clock/API tests, live forward/concurrent requests and production build. Exact-width/interactive UI verification pending |
-| Course and persona definitions | tested | [Task plan](plans/d1-course-personas.md), attributed [36-reading mapping](plans/d1-course-mapping.md), pure fresh typed definitions and 12 integrity tests; all 66 tests pass. Mapping approved; database loading and persona engine outcomes pending |
+| Course and persona definitions | tested | [Task plan](plans/d1-course-personas.md), attributed [36-reading mapping](plans/d1-course-mapping.md), pure fresh typed definitions and 12 integrity tests. Mapping approved; engine outcomes pass; database loading pending |
+| Pure recovery engine | tested | [Engine plan](plans/d2-engine.md), code-owned inherited deadline order and shared rounded placement; 48 tests including Amaka cut / Tunde infeasible / Zainab fit. Full suite 114 tests; service/AI/browser checks remain |
 | Infrastructure access | in progress | Commits through 255a6c1 pushed; [CI passed](https://github.com/HERYORDEJY/back-on-track/actions/runs/37252741926). Neon migration current; Vercel deployment succeeded but unauthenticated landing/API requests redirect to SSO |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
 | Demo mapping and remaining behavior choices | pending | Source and exact mapping approved. Delayed offline check-ins, same-day re-planning and cache deletion ownership still need decisions |
 
 After each work session, record completed tasks, the current task, next steps, blockers, pending decisions and any cuts here and in `CODEX_LOG.md`. Do not erase deferred or abandoned work; keep its reason and date. No feature has been cut or abandoned yet.
 
-Current task: finish D1 seed/reset/deployment after tested scaffold/database/clock and course/persona definitions. The maintainer selected BCcampus/University of Minnesota and approved code-owned ordering; engine/AI specs now remove generated order and apply the shared policy. Build the fallback under the [engine plan](plans/d2-engine.md) before the engine-backed cohort and complete seed/reset. The exact mapping is approved for loading; delayed offline check-ins, same-day re-planning and cache deletion remain unanswered. `.env` remains ignored and migration is current. Live checks left the clock at Sunday 25 October; the future full seed/reset restores 19 October. Exact 375/1280 px and interactive browser verification remain pending after automation timeouts. D1's complete exit remains pending; no feature was cut or abandoned.
+Current task: complete D1's cohort skill/full seed/reset/deployment using the tested pure fallback and [cohort/seed plan](plans/d1-cohort-seed.md). The selected source and exact mapping are approved; all three persona fallback outcomes pass. Code owns ordering and AI output has no order field. Seedrandom 3.0.5 and development types 3.0.8 are approved for the cohort task. Delayed offline check-ins, same-day re-planning and cache deletion remain unanswered. `.env` remains ignored and migration is current. Live checks left the clock at Sunday 25 October; the future full seed/reset restores 19 October. Exact 375/1280 px and interactive browser verification remain pending after automation timeouts. D1's complete exit and D2's live-AI/browser exit remain pending; no feature was cut or abandoned.
 
 Follow-up: dependency audit reports 9 high-severity tooling-chain entries; no automatic incompatible fixes applied. ESLint 9 is a temporary compatibility pin. Details and upstream references are in [library notes](references/next-eslint.md).
 
@@ -66,7 +67,7 @@ Exit: the deployed URL shows the personas, the clock moves forward, Start demo r
 
 ### D2: engine and a thin learner flow
 
-- [ ] `lib/engine` as pure functions with tests: time rules, backlog, capacity, protected topics, basis, validator, fallback, scheduler
+- [x] `lib/engine` as pure functions with tests: time rules, backlog, capacity, protected topics, basis, validator, fallback, scheduler
 - [ ] `lib/ai`: client, schemas, prompts, cache, `DEMO_MODE`; `tests/ai-privacy.test.ts`
 - [ ] `buildPlan` with retries and fallback; the infeasible path; persona tests
 - [ ] `lib/services/plans.ts`, `POST /api/plan`, and a plain page showing the plan

@@ -37,5 +37,22 @@
   "clock.refresh": "Check the clock",
   "clock.retry": "Try again",
   "clock.unavailable": "The demo clock is unavailable. Try again.",
-  "clock.invalid": "Choose one forward jump in whole days or weeks."
+  "clock.invalid": "Choose one forward jump in whole days or weeks.",
+  "plan.summary.fit": "Everything fits in your time. Prerequisites come first, followed by deadline priority.",
+  "plan.summary.cut": "This plan schedules about {scheduledHours} hours before the exam. It keeps {kept} topics, shortens {shortened} and skips {skipped}.",
+  "plan.summary.infeasible": "The core work won’t fit before the exam. Here is what fits before {assessment} on {date}; the rest is listed below. Your advisor has been told. Ask about an extension or a study break.",
+  "plan.wontFit": "Won’t fit before {date}",
+  "plan.nextStep.infeasible": "Your advisor has been told. Ask about an extension or a study break.",
+  "plan.changeSummary": "Moved {moved} topics, shortened {shortened}, dropped {dropped}.",
+  "plan.deadlineWarning": "{n} topics for {assessment} land after its due date ({date}). Ask your advisor about an extension.",
+  "rationale.keep": "Kept: it fits your time",
+  "rationale.keepFor": "Kept: needed for {assessment}",
+  "rationale.prereqFor": "Kept: needed before a topic for {assessment}",
+  "rationale.shorten": "Shortened to fit your time",
+  "rationale.skip": "Skipped: low exam weight",
+  "basis.prereq": "Simulated prerequisite: needed before {topic}",
+  "basis.coursework": "Simulated coursework: needed for {assessment} ({weight}%, due {date})",
+  "basis.examHigh": "Simulated exam weight: high, about {pct}% of the exam",
+  "basis.examLow": "Simulated exam weight: low, about {pct}% of the exam",
+  "reminder.text": "Tonight: {minutes} min, starting with {topic}"
 }

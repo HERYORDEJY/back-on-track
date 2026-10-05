@@ -71,6 +71,8 @@ Infeasible screen: honest summary, work that fits through the next assessment du
 
 ## Languages
 
+Pure engine templates for summaries, rationales, reminders, deadline/change warnings and labelled simulated bases are in both message files, with key/parameter parity checked. They are not yet rendered on learner pages; all new Pidgin copy still needs human review.
+
 - `messages/en.json` and `messages/pcm.json` have exactly the same keys. Keys are dot-separated by screen (`plan.tonight.title`); parameters use braces (`{minutes}`).
 - `t(key, language, params)` and `formatDate(date, language)` live in `lib/i18n.ts`.
 - Plan text from the engine is Localized; render `text[language]`.
