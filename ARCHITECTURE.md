@@ -146,7 +146,7 @@ Maintainer-provided on 2026-10-04; verification updated on 2026-10-05:
 - Neon project: `plain-wind-52121770`. Maintainer configured ignored `.env`; connectivity and initially empty public schema verified. Migration `20261005000000_foundation` applied with migrate deploy; migration status is current. Session deletion/progress retention verified with rolled-back fixtures; Complete approved seed loaded: one course, 36 topics, 3 personas, 300 cohort students and 30 fallback plans. Two reseeds produced identical logical rows and retained an isolated AiCache fixture; fixture removed after verification.
 - OpenAI: API key created; configure secrets outside the repo. No model or spending budget confirmed yet.
 
-The assigned public alias is [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app), confirmed in the Vercel project overview on 2026-10-05. Its landing returns 200 without sign-in; `/api/clock` returns 503. The Vercel environment page shows no configured variables, so the maintainer has been asked to configure Production `DATABASE_URL` outside chat. Generated deployment URLs redirect to SSO; no hosting security setting was changed. Public database runtime verification remains pending.
+The assigned public alias is [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app). After the maintainer configured Production `DATABASE_URL` and implementation commits through `aacdeb3` were pushed, Vercel deployed successfully and [CI passed](https://github.com/HERYORDEJY/back-on-track/actions/runs/37300003442) with 137 tests. Public landing/clock/reset return 200; interactive +3 day/Reset, English/Pidgin persistence and 375/1280 px layouts were verified. The clock was restored to demo start. Generated deployment URLs redirect to SSO; no hosting security setting was changed.
 
 ## Stack
 
@@ -156,7 +156,7 @@ The assigned public alias is [back-on-track-one.vercel.app](https://back-on-trac
 - OpenAI Responses API with Structured Outputs and zod schemas.
 - date-fns for dates, seedrandom for seed data, tsx for scripts.
 - Vitest for unit tests; one Playwright test for the demo path, run locally.
-- npm, Node 24 pinned in `.nvmrc` and CI. Deployed on Vercel; public/runtime verification is pending.
+- npm, Node 24 pinned in `.nvmrc` and CI. Deployed on Vercel; public foundation runtime is verified.
 
 Pinned foundation packages and maintainer approvals are in [the D1 plan](docs/plans/d1-foundation.md). Dev/build use Next's supported webpack mode because Turbopack's local CSS worker port is blocked here. Typecheck generates Next route types first. `agentRules: false` preserves the authored AGENTS.md. Compatibility/advisory follow-ups are in [the library notes](docs/references/next-eslint.md).
 
