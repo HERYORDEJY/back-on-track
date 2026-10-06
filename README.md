@@ -20,9 +20,9 @@ npm run check
 npm run build
 ```
 
-The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. Local D2 checks pass with 155 tests and a production build. [The last pushed D1 GitHub Actions run](https://github.com/HERYORDEJY/back-on-track/actions/runs/37300003442) passed with 137 tests; D2 remote CI is pending push.
+The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. Local D2 checks and production build pass with 155 tests; [D2 GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed too.
 
-[Public Vercel URL](https://back-on-track-one.vercel.app): the D1 bilingual landing, persisted clock and atomic persona reset are verified. D2 plan screens are verified locally and await deployment; the advisor link activates with D4. Generated deployment URLs require Vercel sign-in.
+[Public Vercel URL](https://back-on-track-one.vercel.app): the D1 bilingual landing, persisted clock and atomic persona reset are verified. D2 is deployed; the landing and Amaka/Tunde learner routes return 200. Plan building and Start demo were verified locally in the browser; the public mutation path has not yet been exercised. The advisor link activates with D4. Generated deployment URLs require Vercel sign-in.
 
 Copy `.env.example` to `.env`; configure secrets outside Git. Use `npx --no-install tsx scripts/db-verify.ts` for the local, rolled-back provenance check. Clock jumps are forward only and stop at the day before the exam. `npm run db:seed` loads the complete deterministic simulated dataset, retains AiCache and restores the clock; it replaces academic/application records. `npx --no-install tsx scripts/seed-verify.ts` performs two full reseeds and checks identical rows/cache retention. `npx --no-install tsx scripts/demo-reset-verify.ts` exercises the narrower persona-only reset and checks cohort/cache retention; it restores personas and clears outreach. Demo-warm and local Playwright implementations remain pending. Do not use the reset command against an existing database.
 
