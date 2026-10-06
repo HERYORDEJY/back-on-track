@@ -14,6 +14,23 @@ a { color: inherit; }
 .language-switch [role="status"], .language-switch [role="alert"] { display: block; max-width: 180px; font-size: 12px; }
 .language-switch [role="alert"] { color: #8d351e; }
 .language-switch button { min-height: 44px; color: #244ba6; text-decoration: underline; }
+.language-transition { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 32px; overflow: hidden; background: #102e3d; color: #f7faf7; text-align: left; }
+.language-transition:focus { outline: none; }
+.language-transition__inner { width: min(100%, 580px); }
+.language-transition__brand { margin: 0 0 clamp(44px, 10vh, 96px); color: #b9d8d4; font-size: 14px; font-weight: 700; letter-spacing: .03em; }
+.language-transition__folio { position: relative; width: 66px; height: 74px; margin-bottom: 32px; }
+.language-transition__folio span { position: absolute; inset: 0 8px 0 0; border: 2px solid #9de0cc; border-radius: 3px 12px 3px 3px; transform: rotate(-8deg); }
+.language-transition__folio span:last-child { inset: 5px 0 0 10px; border-color: #f7faf7; background: #102e3d; transform-origin: 12px 70px; animation: language-page-turn 1.5s ease-in-out infinite alternate; }
+.language-transition h2 { max-width: 12ch; margin: 0; color: #f7faf7; font-size: clamp(36px, 8vw, 60px); font-weight: 750; line-height: 1.05; letter-spacing: -.055em; }
+.language-transition__note { margin: 20px 0 44px; color: #bfd5d4; font-size: 16px; }
+.language-transition__steps { display: flex; justify-content: space-between; gap: 24px; max-width: 480px; color: #8da9a8; font-size: 13px; font-weight: 600; }
+.language-transition__steps .is-current { color: #f7faf7; }
+.language-transition__steps .is-done { color: #9de0cc; }
+.language-transition__track { height: 3px; max-width: 480px; margin-top: 12px; overflow: hidden; background: #46616a; }
+.language-transition__track span { display: block; width: 42%; height: 100%; background: #9de0cc; animation: language-track 1.7s ease-in-out infinite alternate; }
+@keyframes language-page-turn { to { transform: rotate(14deg) skewY(-7deg); } }
+@keyframes language-track { to { transform: translateX(138%); } }
+@media (prefers-reduced-motion: reduce) { .language-transition__folio span:last-child, .language-transition__track span { animation: none; } }
 .skip-link { position: absolute; left: 16px; top: -100px; z-index: 10; padding: 12px; background: white; }
 .skip-link:focus { top: 16px; }
 .introduction { padding-block: 68px 60px; max-width: 800px; }

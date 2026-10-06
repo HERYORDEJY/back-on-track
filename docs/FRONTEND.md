@@ -9,6 +9,17 @@ Screens, copy, languages, offline behaviour and accessibility. Product voice is 
 - Works offline after the first load.
 - Learner UI works in English and Nigerian Pidgin; published course and topic titles stay English. Read-aloud covers the plan session/summary and infeasible summary/next step; other screens have screen-reader labels.
 
+## Visual direction from D4 onward
+
+The D1–D3 screens work, but their pale background, repeated rounded cards and uniform hierarchy need a deliberate visual pass before final completion. Keep the current flows stable while building D4; revisit the landing, shared header and learner screens together during D5 before feature freeze.
+
+- Let the study task shape each screen. Give tonight's session a strong focal point and make deadlines, actions and course evidence visibly different. The advisor view should read as a concise call list, with priority and next action easy to scan.
+- Use a restrained, stronger palette: deep ink `#102e3d`, clear paper `#f7faf7`, active teal `#126e61`, warm deadline amber `#9b5b19`, and quiet rule `#b6c9c7`. Check text and control contrast before applying these tokens broadly. Use colour for meaning, with words and structure carrying the same meaning.
+- Keep the system font and light pages. Make personality through larger type for the next action, tighter body measures, purposeful spacing, a study-page motif and varied section structure. Avoid uniform card stacks, decorative gradients and motion that does not explain an action.
+- Review real English and Pidgin copy at 375 px and 1280 px. Check keyboard focus, reduced motion, screen readers, Slow 4G and Lighthouse during the D5 pass.
+
+Language switching now uses a full-screen page-turn transition. The visible stages correspond to saving the choice and applying it to the page; it clears after the refreshed language renders or exposes a retry if saving or refresh fails. The motion stops for reduced-motion users.
+
 ## Shared components (`components/shared`)
 
 | Component | Where | Behaviour |

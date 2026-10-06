@@ -22,6 +22,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Privacy panel and Delete my data | not started | |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | not started | |
 | Pitch assets (video, slides, README) | not started | |
+| Visual direction and D1–D3 UI overhaul | deferred | D4 design direction is documented in `FRONTEND.md`; language switching has a custom full-screen transition. The coherent landing/header/learner visual pass resumes in D5 before feature freeze and final completion |
 
 ## Current progress
 
@@ -42,6 +43,7 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | Personal commit-message skill | tested | `git-commit-message` is installed under the personal Codex system skills directory. Existing YAML parser validates skill/UI metadata and independent staged-only dry run passes. Stock validator lacks PyYAML; no dependency or application milestone changed |
 | D2 AI/cache, plan service and thin learner page | demo-verified | [Task plan](plans/d2-learner-service.md); approved pinned OpenAI SDK; local demo-mode browser path verified for Amaka cut/Tunde infeasible and Start demo/reset at 375/1280 px, plus the revised cached Pidgin cut in the browser. Revised prompt produced a valid live `ai` Amaka cut in 18.9 seconds; cache-only engine replay and saved API returned valid `cache` plans. `npm run check` passes with 156 tests and build passes. The [prior implementation CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed; [GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions) tracks this follow-up's remote result |
 | D3 online learner loop | demo-verified | [Task plan](plans/d3-learner-loop.md); 179 tests, `npm run check` and production build pass. Local browser built all three persona outcomes, saved Zainab's language switch, checked Amaka done/reversal and +3 day change summary, used variable-hours intake, and restored the demo. No horizontal overflow at 375/1280 px. One transient reset 503 succeeded on retry; audio, offline queue and physical Android checks remain D5 |
+| Language transition and visual direction | tested | Custom full-screen page-turn transition verified on landing and saved learner language switching, including 375 px. D4 design direction is in `FRONTEND.md`; D1–D3 visual overhaul remains scheduled for D5 before freeze |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
 | Demo mapping and remaining behavior choices | pending | Source and exact mapping approved; next-day re-planning decided. Delayed offline check-ins and cache deletion ownership still need decisions |
 
@@ -49,7 +51,7 @@ After each work session, record completed tasks, the current task, next steps, b
 
 D1 foundation completed on 2026-10-05 under the approved sequencing adjustment. Public URL: [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app). All 137 tests, required checks, production build and remote CI pass. Production landing, clock and reset return 200; public +3 day/Reset and English/Pidgin reload persistence verified at 375/1280 px with no horizontal overflow. Two identical complete reseeds and persona resets preserve their specified cache/cohort boundaries. Clock restored to 19 October 18:00 Lagos.
 
-Next task: D4 advisor view and privacy. The D3 online learner loop is locally verified. Offline plan snapshots, queued mutations, physical Android/TalkBack and audible read-aloud checks remain D5. Delayed offline first check-in and cache deletion remain open choices; the maintainer chose next-day re-planning for today's missed session. No feature was cut or abandoned.
+Next task: D4 advisor view and privacy, using the stronger visual direction in `FRONTEND.md`. The D3 online learner loop is locally verified. A cohesive visual overhaul of the completed D1–D3 screens is pending in D5 before feature freeze and final completion; this is scheduled work, not a cut. Offline plan snapshots, queued mutations, physical Android/TalkBack and audible read-aloud checks remain D5. Delayed offline first check-in and cache deletion remain open choices; the maintainer chose next-day re-planning for today's missed session. No feature was cut or abandoned.
 
 D2 implementation commit `7d0c61e` is pushed. [GitHub CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed and Vercel reported deployment success. The public landing, Amaka and Tunde routes return 200; the public mutation path has not been exercised, so the local browser evidence remains the D2 interaction check.
 
@@ -105,6 +107,7 @@ Exit: the online loop works for all 3 personas locally at 375 px and 1280 px, wi
 ### D4: advisor view and privacy, in two parallel threads
 
 - [ ] Activate the landing advisor link once the advisor screen works
+- [ ] Give the advisor list and drawer a deliberate call-priority hierarchy using the visual direction in `FRONTEND.md`; check at 375 px and 1280 px without adding decorative weight
 
 - [ ] `lib/risk` with tests (`specs/risk.md`)
 - [ ] `lib/services/advisor.ts`; advisor page with the ranked list, band filter and student drawer
@@ -116,6 +119,7 @@ Exit: 300 students load in under 1 second; every High-risk student shows at leas
 
 ### D5: demo hardening, then feature freeze
 
+- [ ] Complete the cohesive D1–D3 landing, shared-header and learner visual overhaul before feature freeze; preserve the validated flows and both languages, and review the D4 advisor view for consistency
 - [ ] Run `npm run demo:warm` against production, then set `DEMO_MODE=true` there; keep a preview deployment on live AI
 - [ ] Offline: `public/sw.js`, plan snapshot, check-in queue and sync
 - [ ] Low-bandwidth pass on Chrome's Slow 4G profile; Lighthouse on mobile
@@ -125,7 +129,7 @@ Exit: 300 students load in under 1 second; every High-risk student shows at leas
 - [ ] Playwright demo test, run locally
 - [ ] Check on a mid-range Android phone and a laptop
 
-Exit: the demo path runs 3 times in a row with nothing off-script, the plan opens in airplane mode, and Lighthouse on mobile scores accessibility 90+ and performance 80+. Then freeze features.
+Exit: the D1–D3 visual overhaul and D4 consistency review are complete; the demo path runs 3 times in a row with nothing off-script, the plan opens in airplane mode, and Lighthouse on mobile scores accessibility 90+ and performance 80+. Then freeze features.
 
 ### D6: pitch and proof, no new features
 
