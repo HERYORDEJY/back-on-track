@@ -2,7 +2,7 @@
 
 A proof of concept for the Andela x OpenAI Codex Accelerator capstone, “Learning That Stays With You”. A learner who has fallen behind gets a catch-up plan that fits their available hours, and an advisor sees who needs a call. MIVA Open University is the intended first partner.
 
-The D1 foundation is complete. D2 now has a tested AI/cache adapter, plan service and thin learner page. Start demo resets to Amaka; the browser shows her cut plan in Pidgin and Tunde's honest can't-fit path. The approved course/persona/cohort seed and atomic reset are loaded and verified on Neon. Live AI verification awaits account credits; fallback works. The full D3 learner flow, advisor view and offline use are pending. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
+The D1 foundation is complete. D2 now has a tested AI/cache adapter, plan service and thin learner page. Start demo resets to Amaka; the browser shows her cut plan in Pidgin and Tunde's honest can't-fit path. The approved course/persona/cohort seed and atomic reset are loaded and verified on Neon. OpenAI generation works with the configured key; Amaka's first live proposal exceeded capacity and its correction missed the 20-second budget, so the valid fallback plan remains the verified path. The full D3 learner flow, advisor view and offline use are pending. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
 
 ## Run locally
 
