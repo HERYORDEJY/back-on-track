@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { LanguageSwitch } from "@/components/shared/LanguageSwitch";
 import { SimulatedBadge } from "@/components/shared/SimulatedBadge";
 import { ClockControl } from "@/components/shared/ClockControl";
 import { getClockView } from "@/lib/services/clock";
+import { getStudentLanguage } from "@/lib/services/students";
 import { resolveLanguage, t } from "@/lib/i18n";
 import "./globals.css";
 
@@ -16,7 +18,9 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const language = resolveLanguage((await cookies()).get("lang")?.value);
+  const learnerId = (await headers()).get("x-backontrack-learner-id");
+  const savedLanguage = learnerId ? await getStudentLanguage(learnerId).catch(() => null) : null;
+  const language = savedLanguage ?? resolveLanguage((await cookies()).get("lang")?.value);
   const clock = await getClockView().catch(() => null);
   return (
     <html lang={language}>
@@ -27,7 +31,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <Link className="brand" href="/">{t("app.name", language)}</Link>
             <SimulatedBadge language={language} />
           </div>
-          <LanguageSwitch language={language} />
+          <LanguageSwitch language={language} studentId={savedLanguage ? learnerId : null} />
         </header>
         <div className="page-width"><ClockControl clock={clock} language={language} /></div>
         {children}

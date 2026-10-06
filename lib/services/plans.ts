@@ -3,10 +3,12 @@ import { z } from "zod";
 import { getDb } from "@/lib/db";
 import { getNow, calendarDate } from "@/lib/clock";
 import { buildPlan } from "@/lib/engine/plan";
-import type { Availability, PlanInput, PlanResult, TriageFn } from "@/lib/engine/types";
+import { effectiveStatus, needsReplan } from "@/lib/engine/time";
+import type { PlanInput, PlanResult, TriageFn } from "@/lib/engine/types";
 import { triage } from "@/lib/ai/client";
 import { Localized } from "@/lib/ai/schemas";
-import type { Language } from "@/lib/i18n";
+import { formatDate } from "@/lib/i18n";
+import type { PlanView, SessionView } from "@/lib/types";
 import type { Prisma } from "@/lib/generated/prisma/client";
 
 const availabilitySchema = z.strictObject({ mon: z.number().int().min(0), tue: z.number().int().min(0), wed: z.number().int().min(0), thu: z.number().int().min(0), fri: z.number().int().min(0), sat: z.number().int().min(0), sun: z.number().int().min(0) });
@@ -15,6 +17,10 @@ const unscheduledSchema = z.array(z.strictObject({ topicId: z.string(), minutes:
 
 export class PlanServiceError extends Error {
   constructor(public readonly code: "STUDENT_NOT_FOUND" | "AVAILABILITY_REQUIRED") { super(code); }
+}
+
+export class SessionServiceError extends Error {
+  constructor(public readonly code: "SESSION_NOT_FOUND" | "SESSION_LOCKED") { super(code); }
 }
 
 export function redactPrivateText(text: string | null | undefined, name: string, limit: number): string | undefined {
@@ -46,17 +52,26 @@ export function withPlanBudget(call: (context: Parameters<TriageFn>[0], violatio
   };
 }
 
-export type PlanView = {
-  today: string;
-  student: { id: string; name: string; goal: string | null; language: Language; availability: Availability | null };
-  plan: null | {
-    status: PlanResult["status"]; source: PlanResult["source"]; summary: z.infer<typeof Localized>;
-    requiredMin: number; capacityMin: number; focusDueDate: string | null;
-    warnings: z.infer<typeof Localized>[]; unscheduled: { topicId: string; minutes: number; title: string }[];
-    items: { topicId: string; title: string; action: string; minutes: number; rationale: z.infer<typeof Localized>; basis: z.infer<typeof Localized>; sourceUrl: string | null }[];
-    sessions: { date: string; minutes: number; pieces: { topicId: string; title: string; minutes: number; isLast: boolean }[] }[];
-  };
-};
+function dateLabel(date: string) {
+  const value = new Date(`${date}T12:00:00+01:00`);
+  return { en: formatDate(value, "en"), pcm: formatDate(value, "pcm") };
+}
+
+function reminderLabel(at: Date) {
+  const time = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lagos", hour: "2-digit", minute: "2-digit", hour12: false }).format(at);
+  return { en: `${formatDate(at, "en")} ${time}`, pcm: `${formatDate(at, "pcm")} ${time}` };
+}
+
+function weekStart(today: string): string {
+  const date = new Date(`${today}T00:00:00Z`);
+  const day = (date.getUTCDay() + 6) % 7;
+  date.setUTCDate(date.getUTCDate() - day);
+  return date.toISOString().slice(0, 10);
+}
+
+function daysBetween(first: string, second: string): number {
+  return Math.floor((Date.parse(`${second}T00:00:00Z`) - Date.parse(`${first}T00:00:00Z`)) / 86_400_000);
+}
 
 export async function savePlanInTransaction(tx: Prisma.TransactionClient, studentId: string, now: Date, result: PlanResult): Promise<void> {
   await tx.$queryRaw`SELECT "id" FROM "Student" WHERE "id" = ${studentId} FOR UPDATE`;
@@ -73,7 +88,7 @@ export async function savePlanInTransaction(tx: Prisma.TransactionClient, studen
   if (result.decisions.length) await tx.planItem.createMany({ data: result.decisions.map((item) => ({ id: randomUUID(), planId, topicId: item.topicId, action: item.action, minutes: item.minutes, basis: item.basis, rationale: item.rationale })) });
   if (result.sessions.length) {
     const rows = result.sessions.map((session) => ({ id: randomUUID(), planId, date: session.date, minutes: session.minutes, pieces: session.pieces, reminder: session.reminder }));
-    await tx.session.createMany({ data: rows.map(({ id, planId, date, minutes, pieces }) => ({ id, planId, date, minutes, pieces })) });
+    await tx.session.createMany({ data: rows.map((row) => ({ id: row.id, planId: row.planId, date: row.date, minutes: row.minutes, pieces: row.pieces })) });
     await tx.reminder.createMany({ data: rows.map(({ id: sessionId, reminder }) => ({ id: randomUUID(), studentId, sessionId, at: reminder.at, text: reminder.text })) });
   }
   await tx.student.update({ where: { id: studentId }, data: { lastSeenAt: now, escalatedAt: result.escalate ? now : null } });
@@ -82,21 +97,44 @@ export async function savePlanInTransaction(tx: Prisma.TransactionClient, studen
 export async function getPlanView(studentId: string): Promise<PlanView> {
   const db = getDb();
   const now = await getNow();
-  const student = await db.student.findUnique({ where: { id: studentId }, include: { plans: { where: { isCurrent: true }, include: { items: { include: { topic: true } }, sessions: { orderBy: { date: "asc" } } }, take: 1 } } });
+  const student = await db.student.findUnique({ where: { id: studentId }, include: { plans: { where: { isCurrent: true }, include: { items: { include: { topic: true } }, sessions: { orderBy: { date: "asc" }, include: { reminders: true } } }, take: 1 } } });
   if (!student) throw new PlanServiceError("STUDENT_NOT_FOUND");
   await db.student.update({ where: { id: studentId }, data: { lastSeenAt: now } });
   const plan = student.plans[0];
   const availability = availabilitySchema.safeParse(student.availability);
-  const studentView = { id: student.id, name: student.name, goal: student.goal, language: student.language, availability: availability.success ? availability.data : null };
-  if (!plan || !availability.success) return { today: calendarDate(now), student: studentView, plan: null };
+  const today = calendarDate(now);
+  const studentView = { id: student.id, name: student.name, goal: student.goal, context: student.context, language: student.language, availability: availability.success ? availability.data : null, hoursVary: student.hoursVary, isSimulated: student.isSimulated };
+  if (!plan || !availability.success) return { today, student: studentView, plan: null };
+  if (needsReplan({ status: plan.status, focusDueDate: plan.focusDueDate ? calendarDate(plan.focusDueDate) : undefined, sessions: plan.sessions }, now)) {
+    return createPlan(studentId);
+  }
   const titleById = new Map(plan.items.map(({ topic }) => [topic.id, topic.title]));
-  return { today: calendarDate(now), student: studentView, plan: {
-    status: plan.status, source: plan.source, summary: Localized.parse(plan.summary), requiredMin: plan.requiredMin, capacityMin: plan.capacityMin,
+  const sessions: SessionView[] = plan.sessions.map((session) => ({
+    id: session.id, date: session.date, dateLabel: dateLabel(session.date), minutes: session.minutes,
+    status: effectiveStatus(session, now), editable: session.date === today,
+    pieces: piecesSchema.parse(session.pieces).map((piece) => ({ ...piece, title: titleById.get(piece.topicId) ?? piece.topicId })),
+  }));
+  const monday = weekStart(today);
+  const nextMonday = new Date(Date.parse(`${monday}T00:00:00Z`) + 7 * 86_400_000).toISOString().slice(0, 10);
+  const pendingIds = new Set(sessions.filter((session) => session.status === "pending").map((session) => session.id));
+  const reminders = plan.sessions.flatMap((session) => session.reminders.filter(() => pendingIds.has(session.id)).map((reminder) => ({
+    id: reminder.id, atLabel: reminderLabel(reminder.at), text: Localized.parse(reminder.text),
+  })));
+  const items = plan.items.map((item) => ({ topicId: item.topicId, title: item.topic.title, action: item.action, minutes: item.minutes, rationale: Localized.parse(item.rationale), basis: Localized.parse(item.basis), sourceUrl: z.array(z.object({ url: z.string() })).parse(item.topic.sourceRefs)[0]?.url ?? null }));
+  return { today, student: studentView, plan: {
+    id: plan.id, version: plan.version, status: plan.status, source: plan.source, summary: Localized.parse(plan.summary),
+    changeSummary: plan.changeSummary ? Localized.parse(plan.changeSummary) : null,
+    requiredMin: plan.requiredMin, capacityMin: plan.capacityMin,
+    scheduledMin: sessions.reduce((sum, session) => sum + session.minutes, 0),
     focusDueDate: plan.focusDueDate ? calendarDate(plan.focusDueDate) : null,
+    focusDateLabel: plan.focusDueDate ? dateLabel(calendarDate(plan.focusDueDate)) : null,
     warnings: z.array(Localized).parse(plan.warnings),
     unscheduled: unscheduledSchema.parse(plan.unscheduled).map((item) => ({ ...item, title: titleById.get(item.topicId) ?? item.topicId })),
-    items: plan.items.map((item) => ({ topicId: item.topicId, title: item.topic.title, action: item.action, minutes: item.minutes, rationale: Localized.parse(item.rationale), basis: Localized.parse(item.basis), sourceUrl: z.array(z.object({ url: z.string() })).parse(item.topic.sourceRefs)[0]?.url ?? null })),
-    sessions: plan.sessions.map((session) => ({ date: session.date, minutes: session.minutes, pieces: piecesSchema.parse(session.pieces).map((piece) => ({ ...piece, title: titleById.get(piece.topicId) ?? piece.topicId })) })),
+    items, sessions, featuredSession: sessions.find((session) => session.date === today) ?? sessions.find((session) => session.date > today && session.status === "pending") ?? null,
+    weekSessions: sessions.filter((session) => session.date >= monday && session.date < nextMonday),
+    counts: { kept: items.filter((item) => item.action === "keep").length, shortened: items.filter((item) => item.action === "compress_light" || item.action === "compress_heavy").length, skipped: items.filter((item) => item.action === "skip").length },
+    weeklyHoursDue: student.hoursVary && daysBetween(calendarDate(plan.simNow), today) >= 7,
+    reminders,
   } };
 }
 
@@ -104,7 +142,7 @@ export async function createPlan(studentId: string): Promise<PlanView> {
   const db = getDb();
   const now = await getNow();
   const [student, course] = await Promise.all([
-    db.student.findUnique({ where: { id: studentId }, include: { progress: true } }),
+    db.student.findUnique({ where: { id: studentId }, include: { progress: true, plans: { orderBy: { version: "desc" }, take: 1, include: { items: true, sessions: { orderBy: { date: "asc" } } } } } }),
     db.course.findUnique({ where: { id: "smpl201" }, include: { topics: { orderBy: { order: "asc" } }, assessments: { orderBy: { dueDate: "asc" } } } }),
   ]);
   if (!student) throw new PlanServiceError("STUDENT_NOT_FOUND");
@@ -118,8 +156,43 @@ export async function createPlan(studentId: string): Promise<PlanView> {
     availability: availability.data,
     progress: student.progress.map(({ topicId, completedAt }) => ({ topicId, completedAt })),
     student: { goal: redactPrivateText(student.goal, student.name, 80), context: redactPrivateText(student.context, student.name, 120) },
+    previous: student.plans[0] ? {
+      decisions: student.plans[0].items.map((item) => ({ topicId: item.topicId, action: item.action, minutes: item.minutes, basis: Localized.parse(item.basis), rationale: Localized.parse(item.rationale) })),
+      sessions: student.plans[0].sessions.map((session) => ({ date: session.date, topicIds: piecesSchema.parse(session.pieces).map((piece) => piece.topicId) })),
+    } : undefined,
   };
   const result = await buildPlan(input, withPlanBudget(triage));
   await db.$transaction((tx) => savePlanInTransaction(tx, studentId, now, result), { timeout: 30_000 });
   return getPlanView(studentId);
+}
+
+export async function checkInSession(sessionId: string, status: "done" | "missed"): Promise<PlanView> {
+  const db = getDb();
+  const now = await getNow();
+  const studentId = await db.$transaction((tx) => checkInSessionInTransaction(tx, sessionId, status, now));
+  return getPlanView(studentId);
+}
+
+export async function checkInSessionInTransaction(tx: Prisma.TransactionClient, sessionId: string, status: "done" | "missed", now: Date): Promise<string> {
+  const today = calendarDate(now);
+  const candidate = await tx.session.findUnique({ where: { id: sessionId }, include: { plan: true } });
+  if (!candidate) throw new SessionServiceError("SESSION_NOT_FOUND");
+  const studentId = candidate.plan.studentId;
+  // The student lock also serialises plan replacement and check-ins.
+  const students = await tx.$queryRaw<{ id: string }[]>`SELECT "id" FROM "Student" WHERE "id" = ${studentId} FOR UPDATE`;
+  if (!students[0]) throw new SessionServiceError("SESSION_NOT_FOUND");
+  const session = await tx.session.findUnique({ where: { id: sessionId }, include: { plan: true } });
+  if (!session || session.plan.studentId !== studentId) throw new SessionServiceError("SESSION_NOT_FOUND");
+  if (!session.plan.isCurrent || session.date !== today) throw new SessionServiceError("SESSION_LOCKED");
+  if (effectiveStatus(session, now) !== status) {
+    if (status === "missed") {
+      await tx.progress.deleteMany({ where: { studentId, sessionId } });
+    } else {
+      const lastPieces = piecesSchema.parse(session.pieces).filter((piece) => piece.isLast);
+      if (lastPieces.length) await tx.progress.createMany({ data: lastPieces.map((piece) => ({ id: randomUUID(), studentId, topicId: piece.topicId, completedAt: now, sessionId })), skipDuplicates: true });
+    }
+    await tx.session.update({ where: { id: sessionId }, data: { status, checkedAt: now } });
+  }
+  await tx.student.update({ where: { id: studentId }, data: { lastSeenAt: now } });
+  return studentId;
 }

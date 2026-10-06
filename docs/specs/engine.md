@@ -2,7 +2,7 @@
 
 Builds and re-builds a student's catch-up plan. Pure: no Prisma, no fetch, no clock reads, no browser APIs. `now` is always an argument, and the AI is injected as a function. May import `lib/i18n` (pure) for templates and dates.
 
-Implemented pure D2 dependency for D1's recovering cohort: 48 tests cover calendar/as-of work, protection, labelled basis, code-owned deadline inheritance, rounded placement, sparse validation, fallback, retries, focused infeasible results and change summaries. Null-triage persona fixtures pass cut/infeasible/fit without metadata tuning. The D2 service now enforces the elapsed-time budget; a live Amaka `ai` cut validated and scheduled within 20 seconds, and the browser paths passed locally. Service check-in/provenance behavior remains D3. Controlled course input is expected to have valid unique topics and acyclic prerequisites; integrity checks reject a cycle rather than generating an invalid plan.
+Implemented pure D2 dependency for D1's recovering cohort: tests cover calendar/as-of work, protection, labelled basis, code-owned deadline inheritance, rounded placement, sparse validation, fallback, retries, focused infeasible results and change summaries. Null-triage persona fixtures pass cut/infeasible/fit without metadata tuning. The D2 service enforces the elapsed-time budget; a live Amaka `ai` cut validated and scheduled within 20 seconds. D3 adds today-only check-in/provenance and next-day re-planning after missed work, with browser verification. Controlled course input is expected to have valid unique topics and acyclic prerequisites; integrity checks reject a cycle rather than generating an invalid plan.
 
 ## Terms
 
@@ -164,7 +164,7 @@ One basis per decision; the first matching rule wins:
 - Effective status as of `now`: a session marked `done` or `missed` with `checkedAt` at or before now keeps that status; otherwise a session dated before today is `missed`; otherwise it's `pending`.
 - `lib/services` re-plans when the current plan has an effectively missed session, or when the student changes their hours. The new plan becomes the current version; the old one stops being current.
 - An infeasible plan also re-plans on the first visit after its focus assessment due date passes, even if there were no missed sessions. The new target is the following assessment, including the exam after the final quiz.
-- Only today's session is editable. Done-to-missed reversal deletes only Progress rows created by that session (`sessionId` provenance); earlier sessions are locked. Delayed offline first check-ins and the interaction of today's editable session with immediate re-planning remain pending in `docs/PLANS.md`.
+- Only today's session is editable. Done-to-missed reversal deletes only Progress rows created by that session (`sessionId` provenance); earlier sessions are locked. Today's missed session stays editable, then can trigger re-planning on the next visit starting tomorrow. Delayed offline first check-ins remain pending in `docs/PLANS.md`.
 - Change summary: `plan.changeSummary`, "Moved {moved} topics, shortened {shortened}, dropped {dropped}." Moved counts topics scheduled in both plans whose first session date changed; shortened counts topics whose action changed from `keep` to a compress action; dropped counts topics whose action changed to `skip`.
 - A topic is done when the session holding its last piece is marked done. Partial topics aren't tracked.
 
@@ -190,6 +190,6 @@ English text for the engine's message keys. Every key also exists in `messages/p
 - One test per term, validator code, fallback step, basis rule and scheduler rule.
 - Effective session status before, on and after the session date, including a check-in dated after now.
 - Rounded-minute placement, unusable daily remnants, display capacity never accepting incomplete work, prerequisite inheritance/order, sparse keep defaults and duplicate changes, infeasible unplaced work/cutoff/expired focus date, and the shared budget with no domain clock reads. Ordering-sensitive tests use the approved code-owned policy.
-- Same-day completion provenance/reversal and locked earlier sessions; delayed offline and same-day re-plan cases await their pending decisions.
+- Same-day completion provenance/reversal and locked earlier sessions; next-day re-planning after a missed session. Delayed offline cases await their pending decision.
 - Retry path: invalid output twice then valid gives source `ai`; invalid three times gives `fallback`; `null` gives `fallback`.
 - Persona tests: `buildPlan` with a triage stub that returns `null`, at the demo start, gives `cut` for amaka, `infeasible` for tunde and `fit` for zainab. If one fails, tune the seed data in `specs/data.md` (and ask first), never the engine rules.

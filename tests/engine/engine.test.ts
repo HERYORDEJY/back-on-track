@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { buildPlan } from "../../lib/engine/plan";
-import { calendarDate, currentWeek, effectiveStatus, focusExpired, planDays } from "../../lib/engine/time";
+import { calendarDate, currentWeek, effectiveStatus, focusExpired, needsReplan, planDays } from "../../lib/engine/time";
 import { capacity } from "../../lib/engine/capacity";
 import { getWork } from "../../lib/engine/backlog";
 import { actionMinutes, inheritedDeadlines, nextAssessment, priorityOrder, protectedFloor, protectedTopics } from "../../lib/engine/rules";
@@ -47,6 +47,14 @@ describe("Lagos time and as-of work", () => {
     expect(focusExpired("2026-10-19", input().now)).toBe(false);
     expect(focusExpired("2026-10-18", input().now)).toBe(true);
     expect(focusExpired(undefined, input().now)).toBe(false);
+  });
+  it("re-plans on a later visit after today's miss while preserving today's editability", () => {
+    const now = input().now;
+    const todayMissed = { date: "2026-10-19", status: "missed" as const, checkedAt: now };
+    expect(needsReplan({ status: "cut", sessions: [todayMissed] }, now)).toBe(false);
+    expect(needsReplan({ status: "cut", sessions: [todayMissed] }, new Date("2026-10-20T17:00:00Z"))).toBe(true);
+    expect(needsReplan({ status: "cut", sessions: [{ ...todayMissed, status: "done" }] }, new Date("2026-10-20T17:00:00Z"))).toBe(false);
+    expect(needsReplan({ status: "infeasible", focusDueDate: "2026-10-19", sessions: [] }, new Date("2026-10-20T17:00:00Z"))).toBe(true);
   });
   it("sums weekday-specific capacity including irregular/zero days", () => {
     expect(capacity(planDays("2026-10-19", "2026-10-26"), { ...hours(40), sat: 0, sun: 90 })).toBe(290);

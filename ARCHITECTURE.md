@@ -35,7 +35,7 @@ The maintainer approved the pure seed-definition allowance on 2026-10-05 so demo
 
 ```text
 app/
-  layout.tsx                       header: ClockControl, SimulatedBadge; registers the service worker
+  layout.tsx                       header: ClockControl, SimulatedBadge, learner language
   page.tsx                         landing: PersonaSwitcher, Start demo, advisor link
   learner/[studentId]/page.tsx     intake, plan, check-in, infeasible screen
   advisor/page.tsx                 ranked list (?band=), student drawer (?student=)
@@ -59,6 +59,7 @@ messages/    en.json pcm.json
 public/      sw.js
 prisma/      schema.prisma seed.ts course.ts personas.ts cohort.ts
 scripts/     docs-check.mjs demo-warm.ts
+proxy.ts     supplies the learner id to the shared header for saved-language rendering
 tests/       fixtures/ engine/ risk/ i18n.test.ts ai-privacy.test.ts e2e/demo.spec.ts
 docs/        PRODUCT_SENSE.md PLANS.md FRONTEND.md RESEARCH.md specs/ references/
 AGENTS.md  ARCHITECTURE.md  CAPSTONE_PROJECT_BRIEF.md  CODEX_LOG.md  README.md  .env.example
@@ -118,7 +119,7 @@ Removing sessions must preserve retained Progress records: clear their session p
 ## Key flows
 
 1. Build a plan (`POST /api/plan`): `createPlan` loads the course, topics, assessments, student and events; takes `now` from `getNow()`; redacts the student's name, emails and phone numbers from goal and context; runs `buildPlan(input, triage)` with a triage wrapper sharing one 20-second elapsed-time budget across all attempts; then in one transaction saves the new current version, its items, sessions, reminders and unscheduled work. Set `escalatedAt` for an infeasible plan, clear it for fit/cut, and set `lastSeenAt`. Domain logic never reads elapsed wall-clock time.
-2. Open the plan page: `getPlanView` returns the intake when no current plan exists or hours were cleared. Re-plan for effective missed sessions or changed hours, and on the first visit after an infeasible plan's focus deadline passes. Same-day missed-session/reversal behavior is an explicit pending decision in `docs/PLANS.md`; do not silently choose it during implementation.
+2. Open the plan page: `getPlanView` returns the intake when no current plan exists or hours were cleared. Re-plan for effective missed sessions on a visit starting the next day, changed hours, and on the first visit after an infeasible plan's focus deadline passes. Today's missed session remains editable.
 3. Check in (`PATCH /api/sessions/[id]`): only today's session is editable. Set status and `checkedAt` to simulated now, create Progress for fully finished topics with `sessionId` provenance, and set `lastSeenAt`. Reversing done to missed deletes only that session's Progress rows. Earlier sessions are locked; handling delayed offline first check-ins is pending in `docs/PLANS.md`.
 4. Offline mutations: `lib/offline.ts` queues check-ins and language edits and replays them when online. Check-ins receive simulated time at sync; language edits use last write wins. Deletion clears that student's snapshot, queued mutations and service-worker cached learner pages on that device.
 5. Advisor list: `listStudents` loads students, events and current-plan sessions, computes risk, then sorts and filters. Numeric scores stay internal. Advisor responses expose call-priority band, reasons, last activity and escalation, never goal or context; the learner panel exposes the same fields for that student.

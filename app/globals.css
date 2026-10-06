@@ -11,6 +11,9 @@ a { color: inherit; }
 .brand { font-size: 20px; font-weight: 750; text-decoration: none; letter-spacing: -0.6px; min-height: 44px; display: inline-flex; align-items: center; }
 .simulated-badge { background: #e7eefb; color: #244ba6; border: 1px solid #c8d8f3; border-radius: 5px; padding: 3px 8px; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .language-switch select { min-height: 44px; max-width: 100%; padding: 8px 26px 8px 12px; border: 1px solid #b7c6df; border-radius: 8px; background: white; color: #13213a; font-size: 14px; }
+.language-switch [role="status"], .language-switch [role="alert"] { display: block; max-width: 180px; font-size: 12px; }
+.language-switch [role="alert"] { color: #8d351e; }
+.language-switch button { min-height: 44px; color: #244ba6; text-decoration: underline; }
 .skip-link { position: absolute; left: 16px; top: -100px; z-index: 10; padding: 12px; background: white; }
 .skip-link:focus { top: 16px; }
 .introduction { padding-block: 68px 60px; max-width: 800px; }
@@ -56,6 +59,7 @@ h3 { font-size: 20px; margin: 0 0 6px; line-height: 1.25; letter-spacing: -0.3px
 .plan-items p { margin: 5px 0; }
 .course-basis { color: #475973; font-size: 14px; }
 .plan-totals { font-size: 14px; color: #475973; }
+.read-aloud { min-height: 44px; padding: 8px 12px; border: 1px solid #b7c6df; border-radius: 8px; background: #eef3ff; color: #244ba6; font-weight: 700; cursor: pointer; }
 @media (max-width: 640px) {
   .page-width { width: calc(100% - 40px); }
   .site-header { min-height: 108px; gap: 10px; }

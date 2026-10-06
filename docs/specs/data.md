@@ -57,7 +57,7 @@ If a persona test fails, propose tuning topic `estMinutes`, `examWeight` or prer
 - Availability requires at least one day with 20 minutes or more. Cleared availability means return to intake, not silently reuse old hours.
 - `Progress.sessionId` is nullable provenance. Seed/university course records have no creating session. Completing the last full piece creates a row attributed to that check-in; changing today's done session to missed deletes only rows attributed to it. Earlier sessions are locked. Deleting sessions must not delete retained Progress; clear provenance instead.
 - Fit/cut plans clear `escalatedAt`; infeasible plans set it. Persist the focus assessment/date and unplaced work so the next visit can re-plan after that date passes.
-- Delayed offline check-ins and same-day missed-session re-plan timing are explicit pending decisions in `docs/PLANS.md`.
+- A missed session stays editable through its own day and can trigger re-planning on the next visit starting tomorrow (maintainer choice, 2026-10-06). Delayed offline check-ins remain a pending decision in `docs/PLANS.md`.
 
 ## Cohort (`prisma/cohort.ts`)
 

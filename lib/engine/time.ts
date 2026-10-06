@@ -23,3 +23,11 @@ export function effectiveStatus(session: { date: string; status: "pending" | "do
 export function focusExpired(focusDueDate: string | undefined, now: Date): boolean {
   return Boolean(focusDueDate && focusDueDate < calendarDate(now));
 }
+export function needsReplan(
+  plan: { status: "fit" | "cut" | "infeasible"; focusDueDate?: string; sessions: { date: string; status: "pending" | "done" | "missed"; checkedAt?: Date | null }[] },
+  now: Date,
+): boolean {
+  const today = calendarDate(now);
+  return plan.sessions.some((session) => session.date < today && effectiveStatus(session, now) === "missed") ||
+    (plan.status === "infeasible" && focusExpired(plan.focusDueDate, now));
+}

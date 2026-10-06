@@ -11,13 +11,13 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Scaffold, CI, deploy | demo-verified | Local check/build and [D2 remote CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) pass (155 tests); public landing/clock/reset and D2 learner routes return 200. D1 interactive and D2 local browser checks pass at 375/1280 px |
 | Data model and seed (course, personas, cohort) | in progress | Schema migrated; selected-source course/persona definitions pass 12 tests. Complete 303-student seed loaded; 9 cohort tests and two identical reseeds/cache-retention verification pass |
 | Simulated clock and demo reset | demo-verified | Persisted forward clock, API and bilingual controls built; 32 clock/API tests pass and live concurrent advances verified. Atomic persona reset implemented; two identical live resets preserve cohort study rows/cache; local +1 day and public +3 days/Reset loading and success verified at 375 px |
-| Languages (message files, switch) | in progress | Bilingual helpers and landing cookie control built; 4 helper tests pass; English/Pidgin cookie persistence and 375/1280 px layout verified locally and publicly; learner/offline switching pending |
-| Recovery engine | demo-verified | Pure buildPlan/scheduler/protection/sparse validation/fallback/infeasible paths; 48 tests include all three persona outcomes. D2 service budget and live/cache/browser plan paths verified; D3 re-plan behavior remains |
+| Languages (message files, switch) | in progress | Learner header reads each student's saved language and PATCH switch persists it without rebuilding a plan; local Zainab English/Pidgin and direct Amaka/Tunde visits verified. Offline switching and human Pidgin review remain D5 |
+| Recovery engine | demo-verified | Pure buildPlan/scheduler/protection/sparse validation/fallback/infeasible paths and D3 next-day re-plan/change summary tested; local browser +3 day path verified |
 | AI calls, cache, `DEMO_MODE` | in progress | D2 triage is live-validated: Amaka's revised prompt yielded a valid `ai` cut plan in 18.9 seconds; cache-only replay and saved API return `cache` without OpenAI. D4 outreach integration and D5 production cache warm remain |
-| Learner flow (intake, plan, check-in, re-plan) | in progress | D2 plan service/API and thin saved-hours learner page built; Start demo and persona links active. Full intake, check-in and re-plan remain D3 |
-| Infeasible screen | in progress | Tunde's honest summary, assessment-focused work and unplaced minutes render in the browser; read-aloud and full D3 treatment pending |
+| Learner flow (intake, plan, check-in, re-plan) | demo-verified | D3 daily/variable intake, check-in and safe reversal, next-day re-plan/change summary, weekly sessions, reminders and bilingual plan UI pass 179 tests and the local browser path. Offline queue remains D5 |
+| Infeasible screen | demo-verified | Tunde's honest summary, next step, assessment-focused sessions and unplaced work render locally; read-aloud control is present. Physical audio/TalkBack check remains D5 |
 | Offline plan and check-in queue | not started | |
-| Read-aloud | not started | |
+| Read-aloud | built | Plan session/summary and infeasible summary/next step are wired to speechSynthesis with en-NG preference for Pidgin and an unsupported-device message; audible device check remains D5 |
 | Risk score and advisor view | not started | |
 | Privacy panel and Delete my data | not started | |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | not started | |
@@ -41,14 +41,15 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | Infrastructure access | demo-verified | Implementation commits through aacdeb3 pushed; [CI passed](https://github.com/HERYORDEJY/back-on-track/actions/runs/37300003442) with 137 tests. Neon migration/seed/reset verified; configured Production DATABASE_URL and public runtime verified |
 | Personal commit-message skill | tested | `git-commit-message` is installed under the personal Codex system skills directory. Existing YAML parser validates skill/UI metadata and independent staged-only dry run passes. Stock validator lacks PyYAML; no dependency or application milestone changed |
 | D2 AI/cache, plan service and thin learner page | demo-verified | [Task plan](plans/d2-learner-service.md); approved pinned OpenAI SDK; local demo-mode browser path verified for Amaka cut/Tunde infeasible and Start demo/reset at 375/1280 px, plus the revised cached Pidgin cut in the browser. Revised prompt produced a valid live `ai` Amaka cut in 18.9 seconds; cache-only engine replay and saved API returned valid `cache` plans. `npm run check` passes with 156 tests and build passes. The [prior implementation CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed; [GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions) tracks this follow-up's remote result |
+| D3 online learner loop | demo-verified | [Task plan](plans/d3-learner-loop.md); 179 tests, `npm run check` and production build pass. Local browser built all three persona outcomes, saved Zainab's language switch, checked Amaka done/reversal and +3 day change summary, used variable-hours intake, and restored the demo. No horizontal overflow at 375/1280 px. One transient reset 503 succeeded on retry; audio, offline queue and physical Android checks remain D5 |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
-| Demo mapping and remaining behavior choices | pending | Source and exact mapping approved. Delayed offline check-ins, same-day re-planning and cache deletion ownership still need decisions |
+| Demo mapping and remaining behavior choices | pending | Source and exact mapping approved; next-day re-planning decided. Delayed offline check-ins and cache deletion ownership still need decisions |
 
 After each work session, record completed tasks, the current task, next steps, blockers, pending decisions and any cuts here and in `CODEX_LOG.md`. Do not erase deferred or abandoned work; keep its reason and date. No feature has been cut or abandoned. Landing actions are deferred until their scheduled working destinations exist, as the maintainer approved on 2026-10-05.
 
 D1 foundation completed on 2026-10-05 under the approved sequencing adjustment. Public URL: [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app). All 137 tests, required checks, production build and remote CI pass. Production landing, clock and reset return 200; public +3 day/Reset and English/Pidgin reload persistence verified at 375/1280 px with no horizontal overflow. Two identical complete reseeds and persona resets preserve their specified cache/cohort boundaries. Clock restored to 19 October 18:00 Lagos.
 
-Next task: D3 full intake, check-in, re-plan, bilingual learner switching, read-aloud and offline behavior. D2's revised prompt returned a validated `ai` Amaka cut plan in 18.9 seconds, with 1,660 minutes selected and scheduled before the exam and none unplaced. Cache-only replay returned `cache`; the saved plan API returned HTTP 200 with source `cache`, then demo reset restored the start state. The first live proposal had stopped at displayed capacity and left 60 minutes unplaced; the prompt now warns about daily fragments under the 20-minute block rule. Local remote-Neon timings were about 3 seconds for engine cache replay and 7.8 seconds for the saved API path; these do not involve an OpenAI call. Delayed offline check-ins, same-day re-planning and cache deletion remain unanswered; no policy was assumed. Physical Android/TalkBack and complete demo/offline checks remain D5. No feature was cut or abandoned.
+Next task: D4 advisor view and privacy. The D3 online learner loop is locally verified. Offline plan snapshots, queued mutations, physical Android/TalkBack and audible read-aloud checks remain D5. Delayed offline first check-in and cache deletion remain open choices; the maintainer chose next-day re-planning for today's missed session. No feature was cut or abandoned.
 
 D2 implementation commit `7d0c61e` is pushed. [GitHub CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed and Vercel reported deployment success. The public landing, Amaka and Tunde routes return 200; the public mutation path has not been exercised, so the local browser evidence remains the D2 interaction check.
 
@@ -88,18 +89,18 @@ Exit met for the AI budget and plan paths: Amaka's live `ai` cut completed in 18
 
 Checkpoint: if this exit cannot be met within the remaining build time, the advisor screen becomes a slide mockup and D3/D4 both go to the learner flow. Log the cut and update the demo steps in `PRODUCT_SENSE.md` and the local demo test in the same change. Golden rules take precedence over the cut list, which takes precedence over the script.
 
-### D3: learner experience, in two parallel threads
+### D3: learner experience, in two parallel threads — online loop completed 2026-10-06
 
-- [ ] Intake: minutes per weekday (required), "my hours change every week", goal and context (optional)
-- [ ] Plan view in the order set in `FRONTEND.md`, with Localized text in the chosen language
-- [ ] Check-in: done or missed; Progress rows for finished topics; `lastSeenAt`
-- [ ] Re-plan on effectively missed sessions, with a change summary; the weekly hours prompt
-- [ ] Reminders panel
-- [ ] ReadAloud
-- [ ] Infeasible screen
-- [ ] Every learner string in both message files
+- [x] Intake: minutes per weekday (required), "my hours change every week", goal and context (optional)
+- [x] Plan view in the order set in `FRONTEND.md`, with Localized text in the chosen language
+- [x] Check-in: done or missed; Progress rows for finished topics; `lastSeenAt`
+- [x] Re-plan on effectively missed sessions, with a change summary; the weekly hours prompt
+- [x] Reminders panel
+- [x] ReadAloud (control and speech text; audible device check D5)
+- [x] Infeasible screen
+- [x] Every learner string in both message files
 
-Exit: the full loop works for all 3 personas at 375 px and 1280 px, in English and Pidgin.
+Exit: the online loop works for all 3 personas locally at 375 px and 1280 px, with English and Pidgin learner copy. Browser checks covered each outcome and both language states; full offline/device and spoken-audio checks remain D5.
 
 ### D4: advisor view and privacy, in two parallel threads
 
@@ -198,7 +199,7 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 - [ ] Which languages, phones and data budgets MIVA students actually have
 - [x] Feasibility order: code owns prerequisite/deadline/weight/course order, approved 2026-10-05; engine/AI contract updated
 - [ ] Delayed offline first check-in: permit its later sync despite earlier-session edit locking, or reject with a visible conflict
-- [ ] Today's missed session: immediate re-plan with preserved same-day editability, or wait until tomorrow before re-planning it
+- [x] Today's missed session: keep it editable today; re-plan on the next visit starting tomorrow (maintainer chose 2026-10-06)
 - [ ] Delete my data: decide how to remove shared AiCache entries derived from deleted user free text while preserving unrelated warmed demo entries
 - [x] Confirm `OPENAI_MODEL` is configured and accessible: read-only model lookup returned HTTP 200 on 2026-10-05
 - [ ] Confirm a live-AI spending budget before warming the cache; credits now work, but no warm budget has been set
@@ -207,6 +208,7 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 
 | Date | Decision | Why |
 | --- | --- | --- |
+| 2026-10-06 | Re-plan a missed session starting tomorrow, while today's check-in stays editable | Prevents a same-day plan replacement from locking the student's chance to reverse the check-in |
 | 2026-10-03 | Added the student's goal, a basis for every reason, offline use, English and Pidgin, read-aloud and the privacy panel | Every requirement in the capstone brief maps to a feature |
 | 2026-10-03 | End-to-end tests run locally only | Invention sprint: protect the demo, skip production hardening |
 | 2026-10-04 | Split the single AGENTS.md into a short map plus `docs/` | Codex loads only what a task needs; each fact has one home |

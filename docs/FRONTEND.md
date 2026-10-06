@@ -31,6 +31,8 @@ Current D1 shell: both message files, landing-cookie language control, Simulated
 
 D2 update: Start demo now resets the personas and opens Amaka; each persona has a working learner link. The thin learner page reads the saved student language and shows the goal, summary, next session, topic actions/reasons/course bases/source links, warnings and unplaced work. It builds through `/api/plan` with loading and retry states. Amaka's Pidgin cut and Tunde's honest infeasible result were verified in the browser at 375 and 1280 px without horizontal overflow. The full intake, check-in, learner language switch, read-aloud and offline behavior remain D3. The shared header still uses the landing cookie, so on a direct Amaka visit it can show English controls above her Pidgin content; D3's learner-language control must resolve that before the full-loop exit.
 
+D3 update (2026-10-06): the full online learner view replaces the thin page. Intake has prefilled daily minutes, quick presets, a variable-hours average, bounded optional goal/context and a privacy hint. The plan puts tonight's action first, then its summary, weekly sessions, warnings, expandable topic reasons and source facts, workload and pending reminders. Done/missed check-ins support same-day reversal; earlier sessions lock, and missed work re-plans on a later visit starting tomorrow with a change summary. The shared header reads the saved learner language on a direct visit; switching it persists through the student API without rebuilding the plan. The infeasible view shows the next step and unplaced work; ReadAloud covers the required summary/session text. Local browser checks passed the three persona outcomes, Zainab's saved language switch, Amaka's check-in/reversal/+3 day re-plan and variable-hours intake. All three learner pages had no horizontal overflow at 375 px; 1280 px was also checked. Offline snapshots and queued mutations, audible device and TalkBack checks remain D5.
+
 ### Learner (`/learner/[studentId]`)
 
 No current plan: show the intake, prefilled from the student record.
@@ -57,7 +59,7 @@ Also on the plan screen:
 - After a re-plan, a change-summary banner.
 - When hours vary and the plan is 7 or more days old, a banner asking the student to update this week's hours.
 - An in-app reminders panel listing reminders for pending sessions.
-- Only today's session can be changed; earlier sessions are locked. Reversing a done check-in to missed removes only the Progress that check-in created. Delayed offline check-ins and same-day re-plan timing remain pending decisions in `PLANS.md`.
+- Only today's session can be changed; earlier sessions are locked. Reversing a done check-in to missed removes only the Progress that check-in created. A missed session stays editable today and can trigger re-planning on the next visit starting tomorrow. Delayed offline check-ins remain a pending decision in `PLANS.md`.
 - Course facts derived from demo weights, dates and prerequisite links are labelled simulated; source readings are traceable through their links.
 
 Infeasible screen: honest summary, work that fits through the next assessment due date in prerequisite-first priority order, and the rest under "Won't fit before {date}". No session is scheduled after that due date or on/after the exam. Next step: "Your advisor has been told. Ask about an extension or a study break." Read the summary and next step aloud. On the next visit after that date, re-plan for the following assessment; the exam is the next assessment after the final quiz. MIVA's published guidance and its approval/deadline limits are in `RESEARCH.md`; do not promise eligibility or an extension. Never show the word "infeasible".
@@ -73,7 +75,7 @@ Infeasible screen: honest summary, work that fits through the next assessment du
 
 ## Languages
 
-Pure engine templates for summaries, rationales, reminders, deadline/change warnings and labelled simulated bases are in both message files, with key/parameter parity checked. They are not yet rendered on learner pages; all new Pidgin copy still needs human review.
+Pure engine templates for summaries, rationales, reminders, deadline/change warnings and labelled simulated bases are in both message files, with key/parameter parity checked and rendered on learner pages. All new Pidgin copy still needs human review.
 
 - `messages/en.json` and `messages/pcm.json` have exactly the same keys. Keys are dot-separated by screen (`plan.tonight.title`); parameters use braces (`{minutes}`).
 - `t(key, language, params)` and `formatDate(date, language)` live in `lib/i18n.ts`.

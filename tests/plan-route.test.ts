@@ -11,7 +11,7 @@ const request = (body: string) => new Request("http://localhost/api/plan", { met
 
 describe("plan API", () => {
   it("accepts only a student id and returns a no-store view", async () => {
-    vi.mocked(createPlan).mockResolvedValue({ today: "2026-10-19", student: { id: "amaka", name: "Amaka", goal: null, language: "pcm", availability: null }, plan: null });
+    vi.mocked(createPlan).mockResolvedValue({ today: "2026-10-19", student: { id: "amaka", name: "Amaka", goal: null, context: null, language: "pcm", availability: null, hoursVary: false, isSimulated: true }, plan: null });
     const response = await POST(request('{"studentId":"amaka"}'));
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
