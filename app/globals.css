@@ -35,6 +35,27 @@ h3 { font-size: 20px; margin: 0 0 6px; line-height: 1.25; letter-spacing: -0.3px
 .clock-week select { min-height: 44px; border: 1px solid #d8e3f5; border-radius: 8px; background: white; padding: 8px; font-size: 13px; }
 .clock-status:empty { display: none; }
 .clock-status { flex-basis: 100%; display: flex; gap: 12px; align-items: center; color: #9a5c00; }
+.start-demo { margin-top: 28px; }
+.start-demo button, .plan-action button { min-height: 48px; }
+.persona-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 12px; color: #244ba6; font-weight: 700; }
+.learner-page { padding-block: 24px 60px; }
+.learner-nav { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 32px; }
+.learner-nav a { display: inline-flex; align-items: center; min-height: 44px; color: #244ba6; }
+.learner-nav a[aria-current="page"] { font-weight: 700; text-decoration-thickness: 2px; }
+.learner-page h1 { font-size: clamp(32px, 5vw, 48px); }
+.learner-goal { color: #1a705d; font-weight: 600; }
+.plan-card { max-width: 780px; background: white; border: 1px solid #d8e3f5; border-radius: 12px; padding: 22px; margin-block: 20px; }
+.plan-card .eyebrow { margin-bottom: 8px; }
+.plan-card h2 { margin-bottom: 12px; }
+.plan-card ul { padding-left: 22px; }
+.plan-card li { margin-block: 8px; }
+.plan-minutes { font-size: 24px; font-weight: 700; margin: 0; }
+.plan-items { list-style: none; padding-left: 0 !important; }
+.plan-items li { border-top: 1px solid #d8e3f5; padding-top: 16px; margin-top: 16px; }
+.plan-items h3 { font-size: 17px; }
+.plan-items p { margin: 5px 0; }
+.course-basis { color: #475973; font-size: 14px; }
+.plan-totals { font-size: 14px; color: #475973; }
 @media (max-width: 640px) {
   .page-width { width: calc(100% - 40px); }
   .site-header { min-height: 108px; gap: 10px; }

@@ -2,6 +2,8 @@
 
 Two AI calls: triage for plans and outreach for advisors. Both go through a cache and both have a deterministic fallback, so the app never needs the network to show a plan or a message. Server only.
 
+D2 implementation (2026-10-06): `openai` 7.28.0 was approved and pinned for Responses API structured parsing with the existing Zod 4.6.5. Strict schemas, bilingual prompts, canonical cache keys, length enforcement, privacy redaction, shared service budget and cache-only `DEMO_MODE` are built and unit tested. The browser returns a valid Amaka cut plan through fallback when the live API fails. A read-only lookup confirmed the configured model, but live generation returned `429 credit_balance_exhausted`; verify a live AI-sourced plan after credits are available. Production `demo:warm` remains D5 and must wait for budget approval.
+
 ## Calls
 
 | Call | Used by | Input | Output |

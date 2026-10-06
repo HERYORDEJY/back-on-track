@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 import { resolveLanguage, t, type MessageKey } from "@/lib/i18n";
+import Link from "next/link";
+import { StartDemo } from "@/components/shared/StartDemo";
 
 export default async function LandingPage() {
   const language = resolveLanguage((await cookies()).get("lang")?.value);
@@ -10,6 +12,7 @@ export default async function LandingPage() {
         <p className="eyebrow">{t("landing.eyebrow", language)}</p>
         <h1 id="landing-title">{t("landing.title", language)}</h1>
         <p className="intro-copy">{t("landing.description", language)}</p>
+        <StartDemo language={language} />
       </section>
       <section aria-labelledby="learners-title" className="learners">
         <div className="section-heading">
@@ -27,6 +30,7 @@ export default async function LandingPage() {
                   <h3>{copy("name")}</h3>
                   <p>{copy("context")}</p>
                   <p className="persona-goal">{copy("goal")}</p>
+                  <Link className="persona-link" href={`/learner/${id}`}>{t("landing.openLearner", language)}</Link>
                 </div>
                 <p className="persona-hours">{copy("hours")}</p>
               </li>

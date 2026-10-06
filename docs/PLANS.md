@@ -13,9 +13,9 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Simulated clock and demo reset | demo-verified | Persisted forward clock, API and bilingual controls built; 32 clock/API tests pass and live concurrent advances verified. Atomic persona reset implemented; two identical live resets preserve cohort study rows/cache; local +1 day and public +3 days/Reset loading and success verified at 375 px |
 | Languages (message files, switch) | in progress | Bilingual helpers and landing cookie control built; 4 helper tests pass; English/Pidgin cookie persistence and 375/1280 px layout verified locally and publicly; learner/offline switching pending |
 | Recovery engine | tested | Pure buildPlan/scheduler/protection/sparse validation/fallback/infeasible paths; 48 tests including all three persona outcomes. Service budget/live AI/browser exit pending |
-| AI calls, cache, `DEMO_MODE` | not started | |
-| Learner flow (intake, plan, check-in, re-plan) | not started | |
-| Infeasible screen | not started | |
+| AI calls, cache, `DEMO_MODE` | in progress | Structured triage/outreach clients, strict schemas, redaction, canonical cache and cache-only mode implemented; unit tests green. Live generation blocked by OpenAI `429 credit_balance_exhausted`; production cache warm remains D5 |
+| Learner flow (intake, plan, check-in, re-plan) | in progress | D2 plan service/API and thin saved-hours learner page built; Start demo and persona links active. Full intake, check-in and re-plan remain D3 |
+| Infeasible screen | in progress | Tunde's honest summary, assessment-focused work and unplaced minutes render in the browser; read-aloud and full D3 treatment pending |
 | Offline plan and check-in queue | not started | |
 | Read-aloud | not started | |
 | Risk score and advisor view | not started | |
@@ -40,6 +40,7 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | Atomic demo reset | tested | [Reset plan](plans/d1-demo-reset.md), strict API/error privacy and layer tests, two identical Neon resets after temporary persona mutations; cohort study records/AiCache preserved. Local +1 day/public +3 days and Reset loading/successful restoration verified |
 | Infrastructure access | demo-verified | Implementation commits through aacdeb3 pushed; [CI passed](https://github.com/HERYORDEJY/back-on-track/actions/runs/37300003442) with 137 tests. Neon migration/seed/reset verified; configured Production DATABASE_URL and public runtime verified |
 | Personal commit-message skill | tested | `git-commit-message` is installed under the personal Codex system skills directory. Existing YAML parser validates skill/UI metadata and independent staged-only dry run passes. Stock validator lacks PyYAML; no dependency or application milestone changed |
+| D2 AI/cache, plan service and thin learner page | tested | [Task plan](plans/d2-learner-service.md); approved pinned OpenAI SDK; 155 tests, required checks and production build pass. Demo-mode browser path verified for Amaka cut/Tunde infeasible and Start demo/reset at 375/1280 px. Live AI request hit `429 credit_balance_exhausted`, so live-source and 20-second exit remain unverified |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
 | Demo mapping and remaining behavior choices | pending | Source and exact mapping approved. Delayed offline check-ins, same-day re-planning and cache deletion ownership still need decisions |
 
@@ -47,7 +48,7 @@ After each work session, record completed tasks, the current task, next steps, b
 
 D1 foundation completed on 2026-10-05 under the approved sequencing adjustment. Public URL: [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app). All 137 tests, required checks, production build and remote CI pass. Production landing, clock and reset return 200; public +3 day/Reset and English/Pidgin reload persistence verified at 375/1280 px with no horizontal overflow. Two identical complete reseeds and persona resets preserve their specified cache/cohort boundaries. Clock restored to 19 October 18:00 Lagos.
 
-Next task: D2 AI/cache/services and the thin learner screen, followed by activating Start demo/learner links; advisor link activates with D4. Pure engine is already tested. Live AI model/budget, delayed offline check-ins, same-day re-planning and cache deletion remain unanswered; no policy was assumed. The [cohort skill](../skills/cohort-seed/SKILL.md) is manually validated; its stock validator needs unavailable PyYAML. Physical Android/TalkBack and complete demo/offline checks remain scheduled for D5. No feature was cut or abandoned.
+Next task: after API credits are available, rerun the bounded live Amaka plan and verify an `ai` or `cache` source within the D2 budget. Then D3 builds full intake, check-in, re-plan, bilingual learner switching, read-aloud and offline behavior. The local `.env` has a configured key/model (model lookup returned HTTP 200), but structured generation returned `429 credit_balance_exhausted` on 2026-10-06; the maintainer said they will add credits. Delayed offline check-ins, same-day re-planning and cache deletion remain unanswered; no policy was assumed. Physical Android/TalkBack and complete demo/offline checks remain scheduled for D5. No feature was cut or abandoned.
 
 Follow-up: dependency audit reports 9 high-severity tooling-chain entries; no automatic incompatible fixes applied. ESLint 9 is a temporary compatibility pin. Details and upstream references are in [library notes](references/next-eslint.md).
 
@@ -74,14 +75,14 @@ Exit (sequencing approved 2026-10-05): the deployed URL shows the personas, the 
 
 ### D2: engine and a thin learner flow
 
-- [ ] Activate landing PersonaSwitcher/learner links and Start demo (reset, then open Amaka) once the learner screen works
+- [x] Activate landing PersonaSwitcher/learner links and Start demo (reset, then open Amaka) once the learner screen works
 
 - [x] `lib/engine` as pure functions with tests: time rules, backlog, capacity, protected topics, basis, validator, fallback, scheduler
-- [ ] `lib/ai`: client, schemas, prompts, cache, `DEMO_MODE`; `tests/ai-privacy.test.ts`
-- [ ] `buildPlan` with retries and fallback; the infeasible path; persona tests
-- [ ] `lib/services/plans.ts`, `POST /api/plan`, and a plain page showing the plan
+- [x] `lib/ai`: client, schemas, prompts, cache, `DEMO_MODE`; `tests/ai-privacy.test.ts` (live generation check pending credits)
+- [x] `buildPlan` with retries and fallback; the infeasible path; persona tests
+- [x] `lib/services/plans.ts`, `POST /api/plan`, and a plain page showing the plan
 
-Exit: Amaka's scenario returns a valid `cut` plan in the browser within the 20-second live plan budget and instantly in `DEMO_MODE`. Every kept or shortened minute is scheduled before the exam after rounding. Forcing an AI failure still returns the fallback plan. Persona tests are green.
+Exit: Amaka's scenario returns a valid `cut` plan in the browser within the 20-second live plan budget and instantly in `DEMO_MODE`. Every kept or shortened minute is scheduled before the exam after rounding. Forcing an AI failure still returns the fallback plan. Persona tests are green. Current evidence: demo-mode Amaka cut and Tunde infeasible plans render; all planned cut minutes fit, and forced live `429` used fallback. Browser mutation takes several seconds because Neon is remote. The live `ai` source/budget check awaits account credits.
 
 Checkpoint: if this exit cannot be met within the remaining build time, the advisor screen becomes a slide mockup and D3/D4 both go to the learner flow. Log the cut and update the demo steps in `PRODUCT_SENSE.md` and the local demo test in the same change. Golden rules take precedence over the cut list, which takes precedence over the script.
 
@@ -197,7 +198,8 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 - [ ] Delayed offline first check-in: permit its later sync despite earlier-session edit locking, or reject with a visible conflict
 - [ ] Today's missed session: immediate re-plan with preserved same-day editability, or wait until tomorrow before re-planning it
 - [ ] Delete my data: decide how to remove shared AiCache entries derived from deleted user free text while preserving unrelated warmed demo entries
-- [ ] Confirm `OPENAI_MODEL` and a live-AI spending budget before warming the cache
+- [x] Confirm `OPENAI_MODEL` is configured and accessible: read-only model lookup returned HTTP 200 on 2026-10-05
+- [ ] Confirm a live-AI spending budget before warming the cache; account currently returns `credit_balance_exhausted`, and the maintainer plans to add credits
 
 ## Decision log
 
@@ -227,6 +229,7 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 | 2026-10-05 | Complete D1 with header Reset; activate Start demo/learner links with D2 and the advisor link with D4 | Maintainer resolved navigation preceding its scheduled destination screens; features remain in scope |
 | 2026-10-05 | Allow services to import only pure course/persona seed definitions; runner, loader and cohort imports remain forbidden | Maintainer approved the narrow allowance needed for atomic reset; import boundaries now test it |
 | 2026-10-05 | Code owns prerequisite-first ordering, followed by inherited assessment deadline, exam weight and stable course order | Maintainer chose deterministic ordering for all feasibility checks, AI proposals and fallback; no AI order field |
+| 2026-10-06 | Add pinned `openai` 7.28.0 for the D2 Responses API structured-output adapter | Maintainer approved the dependency; installed Zod 4 is supported. No schema, threshold or persona changed |
 
 ## Later
 

@@ -2,7 +2,7 @@
 
 A proof of concept for the Andela x OpenAI Codex Accelerator capstone, “Learning That Stays With You”. A learner who has fallen behind gets a catch-up plan that fits their available hours, and an advisor sees who needs a call. MIVA Open University is the intended first partner.
 
-The D1 foundation is complete under the approved navigation sequencing. The local app provides a bilingual landing shell, three labelled simulated learner profiles and a database-backed simulated clock. The initial schema/migration is applied on Neon. The approved course/persona/cohort seed is loaded on Neon; the pure recovery engine passes all three persona outcomes. Plan service/learner navigation, advisor view and offline use are pending. Atomic demo reset is implemented and verified on Neon. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
+The D1 foundation is complete. D2 now has a tested AI/cache adapter, plan service and thin learner page. Start demo resets to Amaka; the browser shows her cut plan in Pidgin and Tunde's honest can't-fit path. The approved course/persona/cohort seed and atomic reset are loaded and verified on Neon. Live AI verification awaits account credits; fallback works. The full D3 learner flow, advisor view and offline use are pending. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
 
 ## Run locally
 
@@ -13,16 +13,16 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000`. English is the default; the language selector saves a `lang` cookie. The landing can render without secrets and shows a retry state when the clock is unavailable. For the clock, configure `DATABASE_URL` in ignored `.env` and apply the migration with `npm run db:deploy` to a new database. Postinstall/build generate the Prisma client without requiring a connection string.
+Open `http://localhost:3000`. English is the landing default; the language selector saves a `lang` cookie. Learner plan text uses each student's saved language. Configure `DATABASE_URL`, `OPENAI_API_KEY` and `OPENAI_MODEL` in ignored `.env`; `DEMO_MODE=true` reads only the shared AI cache and uses deterministic fallback on a miss. Apply the migration with `npm run db:deploy` to a new database. Postinstall/build generate the Prisma client without requiring a connection string.
 
 ```sh
 npm run check
 npm run build
 ```
 
-The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. [GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions/runs/37300003442) passed with 137 tests on implementation commit `aacdeb3`; the production build passes.
+The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. Local D2 checks pass with 155 tests and a production build. [The last pushed D1 GitHub Actions run](https://github.com/HERYORDEJY/back-on-track/actions/runs/37300003442) passed with 137 tests; D2 remote CI is pending push.
 
-[Public Vercel URL](https://back-on-track-one.vercel.app): the bilingual landing, persisted clock and atomic persona reset are verified. Public +3 day/Reset, language persistence after reload and 375/1280 px layouts pass. Start demo/learner links activate with the working D2 screen, and the advisor link with D4, as approved. Generated deployment URLs require Vercel sign-in.
+[Public Vercel URL](https://back-on-track-one.vercel.app): the D1 bilingual landing, persisted clock and atomic persona reset are verified. D2 plan screens are verified locally and await deployment; the advisor link activates with D4. Generated deployment URLs require Vercel sign-in.
 
 Copy `.env.example` to `.env`; configure secrets outside Git. Use `npx --no-install tsx scripts/db-verify.ts` for the local, rolled-back provenance check. Clock jumps are forward only and stop at the day before the exam. `npm run db:seed` loads the complete deterministic simulated dataset, retains AiCache and restores the clock; it replaces academic/application records. `npx --no-install tsx scripts/seed-verify.ts` performs two full reseeds and checks identical rows/cache retention. `npx --no-install tsx scripts/demo-reset-verify.ts` exercises the narrower persona-only reset and checks cohort/cache retention; it restores personas and clears outreach. Demo-warm and local Playwright implementations remain pending. Do not use the reset command against an existing database.
 
