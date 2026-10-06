@@ -2,7 +2,7 @@
 
 A proof of concept for the Andela x OpenAI Codex Accelerator capstone, “Learning That Stays With You”. A learner who has fallen behind gets a catch-up plan that fits their available hours, and an advisor sees who needs a call. MIVA Open University is the intended first partner.
 
-The D1 foundation is complete. D2 now has a tested AI/cache adapter, plan service and thin learner page. Start demo resets to Amaka; the browser shows her cut plan in Pidgin and Tunde's honest can't-fit path. The approved course/persona/cohort seed and atomic reset are loaded and verified on Neon. OpenAI generation works with the configured key; Amaka's first live proposal exceeded capacity and its correction missed the 20-second budget, so the valid fallback plan remains the verified path. The full D3 learner flow, advisor view and offline use are pending. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
+The D1 foundation and D2 thin learner flow are complete. Start demo resets to Amaka; the browser shows her cut plan in Pidgin and Tunde's honest can't-fit path. The approved course/persona/cohort seed and atomic reset are loaded and verified on Neon. With the configured OpenAI key, a valid live Amaka cut plan completed within the 20-second AI budget; cache-only replay and the saved plan API returned the same fully scheduled cut. The deterministic fallback remains available. The full D3 learner loop, advisor view and offline use are pending. Full status and decisions are in [docs/PLANS.md](docs/PLANS.md).
 
 ## Run locally
 
@@ -20,7 +20,7 @@ npm run check
 npm run build
 ```
 
-The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. Local D2 checks and production build pass with 155 tests; [D2 GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed too.
+The check command runs strict types, Next/architecture linting, Vitest tests and documentation validation. The D2 live-plan follow-up passes locally with 156 tests and a production build. The [prior implementation GitHub Actions run](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed with 155 tests; [GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions) tracks the follow-up's remote result.
 
 [Public Vercel URL](https://back-on-track-one.vercel.app): the D1 bilingual landing, persisted clock and atomic persona reset are verified. D2 is deployed; the landing and Amaka/Tunde learner routes return 200. Plan building and Start demo were verified locally in the browser; the public mutation path has not yet been exercised. The advisor link activates with D4. Generated deployment URLs require Vercel sign-in.
 

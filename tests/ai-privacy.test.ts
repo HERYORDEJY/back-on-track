@@ -4,6 +4,9 @@ import { cacheKey, canonicalJson } from "@/lib/ai/cache";
 import { triagePrompt, outreachPrompt } from "@/lib/ai/prompts";
 import { limitOutreach, limitTriage, TriageOutput, trimSentences } from "@/lib/ai/schemas";
 import { redactPrivateText, withPlanBudget } from "@/lib/services/plans";
+import { personaInput } from "./engine/fixtures";
+import { planState, triageContext } from "@/lib/engine/triage";
+import { validate } from "@/lib/engine/validate";
 import type { TriageContext } from "@/lib/engine/types";
 
 const context: TriageContext = {
@@ -45,6 +48,19 @@ describe("AI privacy and payloads", () => {
     expect(result.items[0].rationale.en.split(" ")).toHaveLength(20);
     expect(result.summary.pcm.split(" ")).toHaveLength(60);
     expect(limitOutreach({ message: long + " " + long, nextStep: long }).message.split(" ")).toHaveLength(80);
+  });
+  it("warns that matching displayed capacity can still leave work unplaced", () => {
+    const input = personaInput("amaka");
+    const state = planState(input);
+    const items = ["t11", "t26", "t29", "t31", "t35"].map((topicId) => ({
+      topicId, action: "skip" as const, rationale: { en: "Lower simulated exam weight.", pcm: "Simulated exam weight small." },
+    }));
+    const proposal = validate({ items, summary: { en: "Plan", pcm: "Plan" } }, "cut", state, input);
+    expect(proposal.decisions.reduce((sum, item) => sum + item.minutes, 0)).toBe(state.capacityMin);
+    expect(proposal.violations).toContainEqual(expect.objectContaining({ code: "OVER_CAPACITY" }));
+    const prompt = triagePrompt(triageContext(input, state, "cut"));
+    expect(prompt).toMatch(/20.minute block/i);
+    expect(prompt).toMatch(/less than.*capacity/i);
   });
 });
 
