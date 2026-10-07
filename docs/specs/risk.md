@@ -55,3 +55,5 @@ Exclude plans with no sessions in that 14-day window from both numbers. If nobod
 - Zero capacity with/without outstanding work, no upcoming deadline, never-active reason without double scoring, excluded zero-session plans, empty metric copy, and escalation clearing after a feasible plan.
 - Sort order with escalation and ties.
 - With the cohort generated in memory at the demo start, most `on_track` students score low and most `gone_quiet` students score high. After jumping to Week 10, most `on_track` students still score low.
+
+D4 verification (2026-10-07): 23 pure risk tests cover these boundaries and the generated 300-person cohort. The live local advisor list loaded 303 students; every High row had at least two reasons. After Tunde's infeasible plan he sorted first. At Week 10, all 180 live `on_track` rows were Low, and the simulated adherence metric read 23 of 31. The service keeps numeric scores inside its ranking path and projects the same public facts to the learner and advisor screens.

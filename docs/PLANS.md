@@ -9,17 +9,17 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Area | Status | Notes |
 | --- | --- | --- |
 | Scaffold, CI, deploy | demo-verified | Local check/build and [D2 remote CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) pass (155 tests); public landing/clock/reset and D2 learner routes return 200. D1 interactive and D2 local browser checks pass at 375/1280 px |
-| Data model and seed (course, personas, cohort) | in progress | Schema migrated; selected-source course/persona definitions pass 12 tests. Complete 303-student seed loaded; 9 cohort tests and two identical reseeds/cache-retention verification pass |
+| Data model and seed (course, personas, cohort) | tested | Schema and approved D4 ownership migration applied; selected-source course/persona definitions and 303-student seed pass. Two live reseeds retain the cache and Amaka ownership fixture, restore the clock and return identical seeded rows |
 | Simulated clock and demo reset | demo-verified | Persisted forward clock, API and bilingual controls built; 32 clock/API tests pass and live concurrent advances verified. Atomic persona reset implemented; two identical live resets preserve cohort study rows/cache; local +1 day and public +3 days/Reset loading and success verified at 375 px |
 | Languages (message files, switch) | in progress | Learner header reads each student's saved language and PATCH switch persists it without rebuilding a plan; local Zainab English/Pidgin and direct Amaka/Tunde visits verified. Offline switching and human Pidgin review remain D5 |
 | Recovery engine | demo-verified | Pure buildPlan/scheduler/protection/sparse validation/fallback/infeasible paths and D3 next-day re-plan/change summary tested; local browser +3 day path verified |
-| AI calls, cache, `DEMO_MODE` | in progress | D2 triage is live-validated: Amaka's revised prompt yielded a valid `ai` cut plan in 18.9 seconds; cache-only replay and saved API return `cache` without OpenAI. D4 outreach integration and D5 production cache warm remain |
+| AI calls, cache, `DEMO_MODE` | in progress | D2 live triage and cache replay pass; D4 editable outreach and fallback run in demo mode, with learner ownership recorded for cache reads/writes. D5 production cache warm remains |
 | Learner flow (intake, plan, check-in, re-plan) | demo-verified | D3 daily/variable intake, check-in and safe reversal, next-day re-plan/change summary, weekly sessions, reminders and bilingual plan UI pass 179 tests and the local browser path. Offline queue remains D5 |
 | Infeasible screen | demo-verified | Tunde's honest summary, next step, assessment-focused sessions and unplaced work render locally; read-aloud control is present. Physical audio/TalkBack check remains D5 |
 | Offline plan and check-in queue | not started | |
 | Read-aloud | built | Plan session/summary and infeasible summary/next step are wired to speechSynthesis with en-NG preference for Pidgin and an unsupported-device message; audible device check remains D5 |
-| Risk score and advisor view | not started | |
-| Privacy panel and Delete my data | not started | |
+| Risk score and advisor view | demo-verified | 23 pure risk tests; 303-row local call list, Tunde first after his infeasible plan, 180/180 on-track Low at Week 10, 375/1280 px browser checks. Warm service reads took 0.86–0.89 s; production-mode HTTP took 1.9–2.1 s warm and 4.2 s cold, a D5 performance follow-up |
+| Privacy panel and Delete my data | demo-verified | Learner/advisor parity and edited outreach verified in browser. Approved AiCacheUse migration applied; Tunde deletion cleared app data and reached a landing confirmation. D5 offline snapshot/queue integration remains |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | not started | |
 | Pitch assets (video, slides, README) | not started | |
 | Visual direction and D1–D3 UI overhaul | deferred | D4 design direction is documented in `FRONTEND.md`; language switching has a custom full-screen transition. The coherent landing/header/learner visual pass resumes in D5 before feature freeze and final completion |
@@ -44,14 +44,15 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | D2 AI/cache, plan service and thin learner page | demo-verified | [Task plan](plans/d2-learner-service.md); approved pinned OpenAI SDK; local demo-mode browser path verified for Amaka cut/Tunde infeasible and Start demo/reset at 375/1280 px, plus the revised cached Pidgin cut in the browser. Revised prompt produced a valid live `ai` Amaka cut in 18.9 seconds; cache-only engine replay and saved API returned valid `cache` plans. `npm run check` passes with 156 tests and build passes. The [prior implementation CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed; [GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions) tracks this follow-up's remote result |
 | D3 online learner loop | demo-verified | [Task plan](plans/d3-learner-loop.md); 179 tests, `npm run check` and production build pass. Local browser built all three persona outcomes, saved Zainab's language switch, checked Amaka done/reversal and +3 day change summary, used variable-hours intake, and restored the demo. No horizontal overflow at 375/1280 px. One transient reset 503 succeeded on retry; audio, offline queue and physical Android checks remain D5 |
 | Language transition and visual direction | tested | Custom full-screen page-turn transition verified on landing and saved learner language switching, including 375 px. D4 design direction is in `FRONTEND.md`; D1–D3 visual overhaul remains scheduled for D5 before freeze |
+| D4 advisor and privacy | demo-verified | [Task plan](plans/d4-advisor-privacy.md); risk and advisor lanes integrated, approved ownership migration deployed, local Tunde call-list/outreach/deletion path verified at 375/1280 px. At Week 10, 180/180 on-track rows were Low and metric was 23 of 31. Warm 303-row service reads met the 1-second target; full page HTTP remains slower. Live reseed ownership check, 219 tests, `npm run check` and production build passed |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
-| Demo mapping and remaining behavior choices | pending | Source and exact mapping approved; next-day re-planning decided. Delayed offline check-ins and cache deletion ownership still need decisions |
+| Demo mapping and remaining behavior choices | pending | Source and exact mapping approved; next-day re-planning and cache ownership/deletion decided. Delayed offline check-ins remain open |
 
 After each work session, record completed tasks, the current task, next steps, blockers, pending decisions and any cuts here and in `CODEX_LOG.md`. Do not erase deferred or abandoned work; keep its reason and date. No feature has been cut or abandoned. Landing actions are deferred until their scheduled working destinations exist, as the maintainer approved on 2026-10-05.
 
 D1 foundation completed on 2026-10-05 under the approved sequencing adjustment. Public URL: [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app). All 137 tests, required checks, production build and remote CI pass. Production landing, clock and reset return 200; public +3 day/Reset and English/Pidgin reload persistence verified at 375/1280 px with no horizontal overflow. Two identical complete reseeds and persona resets preserve their specified cache/cohort boundaries. Clock restored to 19 October 18:00 Lagos.
 
-Next task: D4 advisor view and privacy, using the stronger visual direction in `FRONTEND.md`. The D3 online learner loop is locally verified. A cohesive visual overhaul of the completed D1–D3 screens is pending in D5 before feature freeze and final completion; this is scheduled work, not a cut. Offline plan snapshots, queued mutations, physical Android/TalkBack and audible read-aloud checks remain D5. Delayed offline first check-in and cache deletion remain open choices; the maintainer chose next-day re-planning for today's missed session. No feature was cut or abandoned.
+Next task: D5 demo hardening. D4 advisor view and privacy are locally demo-verified; the advisor lane used a separate worktree and the risk lane used an isolated local clone after sandbox approval blocked another worktree. The maintainer approved AiCacheUse and removal of three legacy rows, and the migration applied. D5 includes the measured full-page advisor latency follow-up and a cohesive visual overhaul of the completed D1–D3 screens before feature freeze and final completion. Offline plan snapshots, queued mutations, physical Android/TalkBack and audible read-aloud checks remain D5. Delayed offline first check-in remains open; the maintainer chose next-day re-planning for today's missed session. No feature was cut or abandoned.
 
 D2 implementation commit `7d0c61e` is pushed. [GitHub CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed and Vercel reported deployment success. The public landing, Amaka and Tunde routes return 200; the public mutation path has not been exercised, so the local browser evidence remains the D2 interaction check.
 
@@ -74,7 +75,7 @@ Follow-up: dependency audit reports 9 high-severity tooling-chain entries; no au
 - [x] `lib/i18n.ts`, `messages/en.json`, `messages/pcm.json`, landing LanguageSwitch, `tests/i18n.test.ts` (learner switch waits for the learner flow)
 - [x] Bilingual landing persona descriptions, SimulatedBadge and `/api/demo/reset` with header Reset
 - [x] Start demo and learner links: activated with the working D2 learner screen (maintainer approved 2026-10-05)
-- [ ] Advisor link: deferred to the working D4 advisor screen (maintainer approved 2026-10-05)
+- [x] Advisor link: activated with the working D4 advisor screen (maintainer approved 2026-10-05)
 
 Exit (sequencing approved 2026-10-05): the deployed URL shows the personas, the clock moves forward, header Reset restores the demo, reseeding gives identical data, CI is green, and the landing page switches between English and Pidgin. Start demo/learner links are activated with D2 and the advisor link with D4; all remain in scope.
 
@@ -106,16 +107,16 @@ Exit: the online loop works for all 3 personas locally at 375 px and 1280 px, wi
 
 ### D4: advisor view and privacy, in two parallel threads
 
-- [ ] Activate the landing advisor link once the advisor screen works
-- [ ] Give the advisor list and drawer a deliberate call-priority hierarchy using the visual direction in `FRONTEND.md`; check at 375 px and 1280 px without adding decorative weight
+- [x] Activate the landing advisor link once the advisor screen works
+- [x] Give the advisor list and drawer a deliberate call-priority hierarchy using the visual direction in `FRONTEND.md`; check at 375 px and 1280 px without adding decorative weight
 
-- [ ] `lib/risk` with tests (`specs/risk.md`)
-- [ ] `lib/services/advisor.ts`; advisor page with the ranked list, band filter and student drawer
-- [ ] Outreach: AI draft in the student's language; edit locally, Copy the edited text, Mark contacted saves the final message
-- [ ] Header metric, labelled simulated
-- [ ] Learner side: the "What your advisor sees" panel and Delete my data
+- [x] `lib/risk` with tests (`specs/risk.md`)
+- [x] `lib/services/advisor.ts`; advisor page with the ranked list, band filter and student drawer
+- [x] Outreach: AI draft in the student's language; edit locally, Copy the edited text, Mark contacted saves the final message
+- [x] Header metric, labelled simulated
+- [x] Learner side: the "What your advisor sees" panel and Delete my data
 
-Exit: 300 students load in under 1 second; every High-risk student shows at least 2 reasons; after the demo path Tunde is first; after jumping to Week 10, on-track students are still low risk.
+Exit on the warm demo path: the service returns 303 ranked students in 0.86–0.89 seconds; every High row has at least two reasons; after Tunde's infeasible plan he ranks first; at Week 10 all 180 on-track learners remain Low. The full production-mode page request took 1.9–2.1 seconds warm and 4.2 seconds cold against remote Neon. The visible page does not yet meet a strict 1-second interpretation of this target; carry that latency into D5 low-bandwidth/performance work rather than claiming a faster page.
 
 ### D5: demo hardening, then feature freeze
 
@@ -204,7 +205,7 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 - [x] Feasibility order: code owns prerequisite/deadline/weight/course order, approved 2026-10-05; engine/AI contract updated
 - [ ] Delayed offline first check-in: permit its later sync despite earlier-session edit locking, or reject with a visible conflict
 - [x] Today's missed session: keep it editable today; re-plan on the next visit starting tomorrow (maintainer chose 2026-10-06)
-- [ ] Delete my data: decide how to remove shared AiCache entries derived from deleted user free text while preserving unrelated warmed demo entries
+- [x] Delete my data: add per-learner AiCache ownership and remove an entry only after its last owner is deleted; approved 2026-10-06. The three legacy rows may be removed once; migration refuses a larger purge
 - [x] Confirm `OPENAI_MODEL` is configured and accessible: read-only model lookup returned HTTP 200 on 2026-10-05
 - [ ] Confirm a live-AI spending budget before warming the cache; credits now work, but no warm budget has been set
 

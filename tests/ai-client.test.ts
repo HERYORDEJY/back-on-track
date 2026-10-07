@@ -30,7 +30,8 @@ describe("AI cache and fallback contract", () => {
   });
   it("returns a validated cached response without a network call", async () => {
     vi.mocked(readCache).mockResolvedValue(output);
-    expect(await triage(context)).toEqual({ output, source: "cache" });
+    expect(await triage(context, [], undefined, "amaka")).toEqual({ output, source: "cache" });
+    expect(readCache).toHaveBeenCalledWith(expect.any(String), "amaka");
     expect(sdk.constructed).not.toHaveBeenCalled();
   });
   it("rejects an invalid cached response and falls back in demo mode", async () => {
@@ -47,7 +48,7 @@ describe("AI cache and fallback contract", () => {
   it("caches a valid live structured response", async () => {
     vi.stubEnv("DEMO_MODE", "false");
     sdk.parse.mockResolvedValue({ output_parsed: output });
-    expect(await triage(context)).toEqual({ output, source: "ai" });
-    expect(writeCache).toHaveBeenCalledTimes(1);
+    expect(await triage(context, [], undefined, "amaka")).toEqual({ output, source: "ai" });
+    expect(writeCache).toHaveBeenCalledWith(expect.any(String), output, "amaka");
   });
 });

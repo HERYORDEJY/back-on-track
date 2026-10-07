@@ -21,7 +21,7 @@ The simulated clock is the only "now". Everything time-stamped is read as of now
 
 Implemented D1: the first migration initialises Setting `clock` at demo start. `getNow()` rejects missing/corrupt clock data; updates take a row lock inside a transaction so concurrent jumps see each other's committed result. The API validates exactly one positive whole-day or future-week jump and returns no-store views; errors contain no database details. Week numbers are calendar weeks counted from 7 September; 30 November is Week 13, after the 12 teaching weeks. Header options stop at the clock limit.
 
-Verification: 19 clock tests and 13 API-contract tests pass. Live concurrent requests each advanced the persisted clock once. Live clock checks had left it on 25 October; the complete seed subsequently restored the specified demo start. No standalone backward reset was used. `scripts/db-verify.ts` verifies progress retention/null provenance after session deletion with fixtures rolled back; it is a local database check, not a CI/e2e suite. Course/persona/cohort seeding is verified; demo reset is implemented and verified; Delete my data remains unimplemented.
+Verification: 19 clock tests and 13 API-contract tests pass. Live concurrent requests each advanced the persisted clock once. Live clock checks had left it on 25 October; the complete seed subsequently restored the specified demo start. No standalone backward reset was used. `scripts/db-verify.ts` verifies progress retention/null provenance after session deletion with fixtures rolled back; it is a local database check, not a CI/e2e suite. Course/persona/cohort seeding and demo reset are verified; D4 adds Delete my data.
 
 ## Course (`prisma/course.ts`)
 
@@ -79,9 +79,9 @@ Implemented D1: [cohort skill](../../skills/cohort-seed/SKILL.md), approved isol
 
 ## Seeding (`prisma/seed.ts`)
 
-Idempotent: clears every table except AiCache, inserts the course, personas and cohort, and sets the clock to the demo start. Every run produces the same rows and ids.
+Idempotent: clears and reloads academic/demo tables, preserves AiCache and restores its AiCacheUse ownership links after the stable student ids are reinserted, then sets the clock to the demo start. Every run produces the same rows and ids.
 
-Implemented transaction in `prisma/load-seed.ts`, invoked by the CLI runner without importing its side effects elsewhere. Verified on Neon: 303 students, 36 topics, 30 fallback plans and 1,360 sessions. `scripts/seed-verify.ts` compares every seeded model across two runs, retains an isolated AiCache fixture unchanged, removes only that fixture, and checks the demo clock. No reset/migration destruction was used.
+Implemented transaction in `prisma/load-seed.ts`, invoked by the CLI runner without importing its side effects elsewhere. Verified on Neon: 303 students, 36 topics, 30 fallback plans and 1,360 sessions. `scripts/seed-verify.ts` compares every seeded model across two runs, retains an isolated AiCache fixture and its Amaka ownership unchanged, removes only that fixture, and checks the demo clock. The D4 ownership verification first failed because deleting/reinserting students cascaded the links; reloading the stable links fixed it. No reset/migration destruction was used.
 
 ## Demo reset (`lib/services/demo.ts`, `POST /api/demo/reset`)
 
@@ -93,4 +93,6 @@ Implemented as one transaction holding the clock row lock, serialised with forwa
 
 Deletes the student's plans, plan items, sessions, reminders and outreach; clears goal, context, availability/hours, `lastSeenAt` and `escalatedAt`, and resets the variable-hours preference. The current device clears that student's saved plan snapshot, queued check-ins/language edits and service-worker cached learner pages. Progress and Submissions remain as university course records; this POC seeds them and does not add an LMS integration. Session deletion clears retained Progress provenance rather than cascading into those records.
 
-For a persona, reload its seed record after deletion so the demo can continue; no user-entered text, hours or local queued mutations survive. AiCache is shared; treatment of entries derived from deleted user free text must be resolved before implementing deletion (tracked in `docs/PLANS.md`).
+For a persona, reload its seed record after deletion so the demo can continue. This restores the persona's original simulated `lastSeenAt`, hours, goal and context; no user-entered text, hours or local queued mutations survive. Cohort app fields clear to null. After deletion, the device returns to the landing page and shows confirmation, so it does not immediately mark a new learner visit or leave the former plan visible. AiCacheUse records every learner who reads or writes a cached AI response. Deletion removes that learner's ownership and only deletes a response when no owner remains. The maintainer approved removing the three pre-ownership cache rows once; the migration refuses a larger purge. D5 must warm the demo cache again.
+
+D4 verification (2026-10-07): the additive ownership migration applied successfully to Neon. The Tunde learner screen deleted app data, cleared current-device keys/pages and reached the landing confirmation; a fresh visit returned to intake. The DELETE route accepts an empty request stream and rejects nonempty data. Its transaction allows enough time for a cold Neon connection; the first browser attempt exposed both cases and regression tests cover them.

@@ -8,12 +8,12 @@ import { outreachPrompt, triagePrompt, type OutreachContext } from "./prompts";
 function configuredModel(): string | null { return process.env.OPENAI_MODEL?.trim() || null; }
 function client(): OpenAI | null { return process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 }) : null; }
 
-export async function triage(context: TriageContext, violations: Violation[] = [], signal?: AbortSignal): ReturnType<TriageFn> {
+export async function triage(context: TriageContext, violations: Violation[] = [], signal?: AbortSignal, studentId?: string): ReturnType<TriageFn> {
   const model = configuredModel();
   if (!model) return null;
   const key = cacheKey("triage", model, { context, violations });
   try {
-    const cached = TriageOutput.safeParse(await readCache(key));
+    const cached = TriageOutput.safeParse(await readCache(key, studentId));
     if (cached.success) return { output: cached.data, source: "cache" };
     if (process.env.DEMO_MODE === "true" || signal?.aborted) return null;
     const sdk = client();
@@ -22,17 +22,17 @@ export async function triage(context: TriageContext, violations: Violation[] = [
     const parsed = TriageOutput.safeParse(response.output_parsed);
     if (!parsed.success) return null;
     const output = limitTriage(parsed.data);
-    await writeCache(key, output);
+    await writeCache(key, output, studentId);
     return { output, source: "ai" };
   } catch { return null; }
 }
 
-export async function outreach(context: OutreachContext, signal?: AbortSignal): Promise<{ output: typeof OutreachOutput._output; source: "ai" | "cache" } | null> {
+export async function outreach(context: OutreachContext, signal?: AbortSignal, studentId?: string): Promise<{ output: typeof OutreachOutput._output; source: "ai" | "cache" } | null> {
   const model = configuredModel();
   if (!model) return null;
   const key = cacheKey("outreach", model, context);
   try {
-    const cached = OutreachOutput.safeParse(await readCache(key));
+    const cached = OutreachOutput.safeParse(await readCache(key, studentId));
     if (cached.success) return { output: cached.data, source: "cache" };
     if (process.env.DEMO_MODE === "true" || signal?.aborted) return null;
     const sdk = client();
@@ -41,7 +41,7 @@ export async function outreach(context: OutreachContext, signal?: AbortSignal): 
     const parsed = OutreachOutput.safeParse(response.output_parsed);
     if (!parsed.success) return null;
     const output = limitOutreach(parsed.data);
-    await writeCache(key, output);
+    await writeCache(key, output, studentId);
     return { output, source: "ai" };
   } catch { return null; }
 }

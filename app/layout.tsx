@@ -18,9 +18,11 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const learnerId = (await headers()).get("x-backontrack-learner-id");
+  const requestHeaders = await headers();
+  const advisor = requestHeaders.get("x-backontrack-advisor") === "true";
+  const learnerId = requestHeaders.get("x-backontrack-learner-id");
   const savedLanguage = learnerId ? await getStudentLanguage(learnerId).catch(() => null) : null;
-  const language = savedLanguage ?? resolveLanguage((await cookies()).get("lang")?.value);
+  const language = advisor ? "en" : savedLanguage ?? resolveLanguage((await cookies()).get("lang")?.value);
   const clock = await getClockView().catch(() => null);
   return (
     <html lang={language}>
@@ -31,7 +33,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <Link className="brand" href="/">{t("app.name", language)}</Link>
             <SimulatedBadge language={language} />
           </div>
-          <LanguageSwitch language={language} studentId={savedLanguage ? learnerId : null} />
+          {!advisor && <LanguageSwitch language={language} studentId={savedLanguage ? learnerId : null} />}
         </header>
         <div className="page-width"><ClockControl clock={clock} language={language} /></div>
         {children}

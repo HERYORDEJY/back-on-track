@@ -10,6 +10,8 @@ export async function seedDatabase(db: ReturnType<typeof getDb>) {
   const personas = getPersonaSeed();
   const cohort = await generateCohort();
   await db.$transaction(async (tx) => {
+    // Student replacement cascades these links; restore them with the stable seed ids.
+    const cacheUses = await tx.aiCacheUse.findMany({ select: { key: true, studentId: true } });
     await tx.reminder.deleteMany();
     await tx.outreach.deleteMany();
     await tx.progress.deleteMany();
@@ -24,6 +26,7 @@ export async function seedDatabase(db: ReturnType<typeof getDb>) {
     await tx.topic.createMany({ data: topics });
     await tx.assessment.createMany({ data: assessments });
     await tx.student.createMany({ data: [...personas.students, ...cohort.students] });
+    if (cacheUses.length) await tx.aiCacheUse.createMany({ data: cacheUses });
     await tx.plan.createMany({ data: cohort.plans });
     await tx.planItem.createMany({ data: cohort.planItems });
     await tx.session.createMany({ data: cohort.sessions });

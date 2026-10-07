@@ -2,6 +2,7 @@ import { z } from "zod";
 import { getDb } from "@/lib/db";
 import { getNow } from "@/lib/clock";
 import { Prisma } from "@/lib/generated/prisma/client";
+import { getPersonaSeed } from "@/prisma/personas";
 
 const availabilitySchema = z.strictObject({
   mon: z.number().int().min(0).max(1440),
@@ -56,4 +57,28 @@ export async function updateStudent(id: string, patch: StudentPatch) {
     if (changed) await tx.plan.updateMany({ where: { studentId: id, isCurrent: true }, data: { isCurrent: false } });
     return { id, language: patch.language ?? student.language, planNeedsRefresh: changed };
   }, { timeout: 30_000 });
+}
+
+export async function deleteStudentData(id: string) {
+  const db = getDb();
+  const seed = getPersonaSeed().students.find((student) => student.id === id);
+  return db.$transaction(async (tx) => {
+    const student = await tx.student.findUnique({ where: { id }, select: { id: true } });
+    if (!student) throw new StudentServiceError("STUDENT_NOT_FOUND");
+    const keys = (await tx.aiCacheUse.findMany({ where: { studentId: id }, select: { key: true } })).map(({ key }) => key);
+    await tx.outreach.deleteMany({ where: { studentId: id } });
+    await tx.reminder.deleteMany({ where: { studentId: id } });
+    await tx.plan.deleteMany({ where: { studentId: id } });
+    await tx.aiCacheUse.deleteMany({ where: { studentId: id } });
+    if (keys.length) await tx.aiCache.deleteMany({ where: { key: { in: keys }, uses: { none: {} } } });
+    await tx.student.update({ where: { id }, data: seed ? {
+      language: seed.language, goal: seed.goal, context: seed.context,
+      availability: seed.availability as Prisma.InputJsonValue, hoursVary: false,
+      lastSeenAt: seed.lastSeenAt, escalatedAt: null,
+    } : {
+      goal: null, context: null, availability: Prisma.DbNull, hoursVary: false,
+      lastSeenAt: null, escalatedAt: null,
+    } });
+    return { id, restoredDemo: Boolean(seed) };
+  }, { maxWait: 30_000, timeout: 30_000 });
 }

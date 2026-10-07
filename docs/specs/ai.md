@@ -58,11 +58,14 @@ export const OutreachOutput = z.object({ message: z.string(), nextStep: z.string
 - With `DEMO_MODE=true`: read only. On a miss, return `null` and never touch the network; the caller falls back.
 - Source on the plan: `cache` when served from the cache, `ai` when freshly called, `fallback` otherwise.
 - Because the AI writes both languages in one call, one cached response covers English and Pidgin.
+- D4 records an AiCacheUse row when a learner reads or writes a response. Delete my data removes that learner's ownership and only removes a response with no remaining owners. The maintainer approved deleting the three legacy unowned rows once during migration; D5 must warm the demo path again.
+- Complete reseeding keeps AiCacheUse links for the same stable student ids. The live two-reseed check retains both a cache fixture and its learner ownership, so later Delete my data can still find it.
 
 ## Fallbacks
 
 - Triage: the engine's fallback (`specs/engine.md`), source `fallback`.
 - Outreach: `outreach.fallback.message` in the student's language, "{firstName}, I noticed {reason}. Can we talk this week about a plan that fits your time?", where `{reason}` is the top risk reason in that language; and `outreach.fallback.nextStep`, "Call this week and offer a catch-up plan."
+- For an escalated plan, adapt the advisor's third-person `ESCALATED` reason into a direct-address phrase before inserting it into that same fallback template.
 
 ## `demo:warm` (`scripts/demo-warm.ts`)
 

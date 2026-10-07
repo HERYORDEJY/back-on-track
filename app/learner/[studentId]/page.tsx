@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import { IntakeForm } from "@/components/learner/IntakeForm";
 import { SessionCheckIn } from "@/components/learner/SessionCheckIn";
+import { DeleteMyData } from "@/components/learner/DeleteMyData";
+import { AdvisorVisibility } from "@/components/learner/AdvisorVisibility";
 import { ReadAloud } from "@/components/shared/ReadAloud";
 import { getPlanView, PlanServiceError } from "@/lib/services/plans";
+import { getStudentRiskView, type PublicRisk } from "@/lib/services/advisor";
 import { t, type Language } from "@/lib/i18n";
 import type { PlanView, SessionView } from "@/lib/types";
 
@@ -39,7 +42,7 @@ function CourseDecisions({ plan, language }: { plan: NonNullable<PlanView["plan"
   </section>;
 }
 
-function PlanContent({ view }: { view: PlanView }) {
+function PlanContent({ view, risk }: { view: PlanView; risk: PublicRisk | null }) {
   const { student, plan } = view;
   if (!plan) return <IntakeForm student={student} />;
   const language = student.language;
@@ -113,6 +116,8 @@ function PlanContent({ view }: { view: PlanView }) {
       </div>
     </section>
 
+    <AdvisorVisibility risk={risk} language={language} studentId={student.id} />
+
     {plan.reminders.length > 0 && <section className="plan-card" aria-labelledby="reminders-title">
       <h2 id="reminders-title">{t("learner.reminders.title", language)}</h2>
       <ul>{plan.reminders.map((reminder) => <li key={reminder.id}><strong>{reminder.atLabel[language]}</strong> · {reminder.text[language]}</li>)}</ul>
@@ -130,6 +135,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ studen
   let view: PlanView;
   try { view = await getPlanView(studentId); }
   catch (error) { if (error instanceof PlanServiceError && error.code === "STUDENT_NOT_FOUND") notFound(); throw error; }
+  const risk = view.plan ? await getStudentRiskView(studentId).catch(() => null) : null;
   const language = view.student.language;
   return <main id="main" className="page-width learner-page">
     <nav className="learner-nav" aria-label={t("learner.personas", language)}>
@@ -138,6 +144,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ studen
     <p className="eyebrow">{t("learner.sampleCourse", language)}</p>
     <h1>{view.student.name}</h1>
     {view.student.goal && <p className="learner-goal">{t("learner.goal", language)} {view.student.goal}</p>}
-    <PlanContent view={view} />
+    <PlanContent view={view} risk={risk} />
+    <DeleteMyData studentId={studentId} language={language} />
   </main>;
 }

@@ -13,11 +13,27 @@ export function cacheKey(call: "triage" | "outreach", model: string, input: unkn
   return createHash("sha256").update(canonicalJson({ call, version, model, input })).digest("hex");
 }
 
-export async function readCache(key: string): Promise<unknown | null> {
-  return (await getDb().aiCache.findUnique({ where: { key } }))?.response ?? null;
+export async function readCache(key: string, studentId?: string): Promise<unknown | null> {
+  if (!studentId) return (await getDb().aiCache.findUnique({ where: { key } }))?.response ?? null;
+  return getDb().$transaction(async (tx) => {
+    const cached = await tx.aiCache.findUnique({ where: { key } });
+    if (cached) await tx.aiCacheUse.upsert({
+      where: { key_studentId: { key, studentId } }, update: {}, create: { key, studentId },
+    });
+    return cached?.response ?? null;
+  }, { timeout: 10_000 });
 }
 
-export async function writeCache(key: string, response: unknown): Promise<void> {
+export async function writeCache(key: string, response: unknown, studentId?: string): Promise<void> {
   const json = response as Prisma.InputJsonValue;
-  await getDb().aiCache.upsert({ where: { key }, update: { response: json }, create: { key, response: json } });
+  if (!studentId) {
+    await getDb().aiCache.upsert({ where: { key }, update: { response: json }, create: { key, response: json } });
+    return;
+  }
+  await getDb().$transaction(async (tx) => {
+    await tx.aiCache.upsert({ where: { key }, update: { response: json }, create: { key, response: json } });
+    await tx.aiCacheUse.upsert({
+      where: { key_studentId: { key, studentId } }, update: {}, create: { key, studentId },
+    });
+  }, { timeout: 10_000 });
 }

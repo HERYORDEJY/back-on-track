@@ -161,7 +161,7 @@ export async function createPlan(studentId: string): Promise<PlanView> {
       sessions: student.plans[0].sessions.map((session) => ({ date: session.date, topicIds: piecesSchema.parse(session.pieces).map((piece) => piece.topicId) })),
     } : undefined,
   };
-  const result = await buildPlan(input, withPlanBudget(triage));
+  const result = await buildPlan(input, withPlanBudget((context, violations, signal) => triage(context, violations, signal, studentId)));
   await db.$transaction((tx) => savePlanInTransaction(tx, studentId, now, result), { timeout: 30_000 });
   return getPlanView(studentId);
 }

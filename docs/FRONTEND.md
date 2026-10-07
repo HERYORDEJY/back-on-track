@@ -84,6 +84,8 @@ Infeasible screen: honest summary, work that fits through the next assessment du
 - Advisor screens are English only.
 - Goal and context never appear in advisor responses or screens. Outreach edits stay in the text box; Copy copies the edited text and Mark contacted saves the final message.
 
+D4 implementation (2026-10-07): the landing links to the English-only advisor call list. The page gives the action a strong heading, a compact simulated metric, band filters and ranked rows; the detail drawer keeps reasons, dated activity, missed sessions and the editable outreach note together. Local browser checks at 1280 px and 375 px found no page overflow; the drawer opens with focus and readable content at 375 px. A live simulated Tunde plan placed him first, and editing then marking his fallback outreach note contacted persisted the edited text after reload. At Week 10, the metric read 23 of 31, and all 180 on-track cohort rows were Low. Reset returned to Week 7. The learner panel showed Tunde the same band, reasons, last activity and escalation, and Delete my data returned to a landing confirmation. The broad D1–D3 visual pass and human Pidgin copy review remain D5.
+
 ## Languages
 
 Pure engine templates for summaries, rationales, reminders, deadline/change warnings and labelled simulated bases are in both message files, with key/parameter parity checked and rendered on learner pages. All new Pidgin copy still needs human review.

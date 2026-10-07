@@ -112,6 +112,7 @@ model Student {
   plans        Plan[]
   reminders    Reminder[]
   outreach     Outreach[]
+  aiCacheUses  AiCacheUse[]
 }
 
 model Progress {
@@ -217,6 +218,17 @@ model AiCache {
   key       String   @id
   response  Json
   createdAt DateTime @default(now()) @db.Timestamptz(3)
+  uses      AiCacheUse[]
+}
+
+model AiCacheUse {
+  key       String
+  studentId String
+  cache     AiCache @relation(fields: [key], references: [key], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([key, studentId])
+  @@index([studentId])
 }
 
 model Setting {

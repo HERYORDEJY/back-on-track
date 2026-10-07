@@ -3,16 +3,19 @@ import { resolveLanguage, t, type MessageKey } from "@/lib/i18n";
 import Link from "next/link";
 import { StartDemo } from "@/components/shared/StartDemo";
 
-export default async function LandingPage() {
+export default async function LandingPage({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
+  const { deleted } = await searchParams;
   const language = resolveLanguage((await cookies()).get("lang")?.value);
   const learners = ["amaka", "tunde", "zainab"] as const;
   return (
     <main id="main" className="page-width landing">
       <section className="introduction" aria-labelledby="landing-title">
+        {deleted === "1" && <p role="status">{t("learner.delete.done", language)}</p>}
         <p className="eyebrow">{t("landing.eyebrow", language)}</p>
         <h1 id="landing-title">{t("landing.title", language)}</h1>
         <p className="intro-copy">{t("landing.description", language)}</p>
         <StartDemo language={language} />
+        <Link className="persona-link" href="/advisor">{t("landing.openAdvisor", language)}</Link>
       </section>
       <section aria-labelledby="learners-title" className="learners">
         <div className="section-heading">

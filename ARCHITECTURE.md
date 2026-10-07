@@ -108,11 +108,14 @@ Pure `prisma/course.ts` and `prisma/personas.ts` export fresh deterministic seed
 | Reminder | id, studentId, sessionId, at, text Localized |
 | Outreach | id, studentId, message, nextStep, contacted, createdAt |
 | AiCache | key (primary), response Json, createdAt |
+| AiCacheUse | key, studentId (composite primary key); records which learner used a cached response so deletion retains shared entries |
 | Setting | key (primary), value |
 
 Every timestamp is read "as of now" (time rules in `docs/specs/data.md`).
 
-The initial Prisma schema and migration are implemented. Localized arrays (`warnings`) and structured lists (`sourceRefs`, `pieces`, `unscheduled`) use JSON arrays in Json columns; services validate their shape. IDs are explicit strings so seeds can remain deterministic. Uniqueness protects topic order, student/topic progress, student/assessment submissions, plan versions/items and one session per plan/date. Personalised AiCache deletion is still pending and is not implemented by the initial schema.
+The initial Prisma schema and migration are implemented. Localized arrays (`warnings`) and structured lists (`sourceRefs`, `pieces`, `unscheduled`) use JSON arrays in Json columns; services validate their shape. IDs are explicit strings so seeds can remain deterministic. Uniqueness protects topic order, student/topic progress, student/assessment submissions, plan versions/items and one session per plan/date. The D4 additive migration introduces AiCacheUse and removes the three pre-ownership cache rows once, as approved by the maintainer. It refuses to purge more than three legacy rows.
+
+Complete reseeding reattaches AiCacheUse rows after restoring those stable student ids. The live two-reseed verification checks both the cache response and its ownership survive; deletion can then identify the responsible learner.
 
 Removing sessions must preserve retained Progress records: clear their session provenance rather than cascading deletion into university course records. Today-only reversal deletes rows with that session's provenance, never independent course records.
 
@@ -123,9 +126,11 @@ Removing sessions must preserve retained Progress records: clear their session p
 3. Check in (`PATCH /api/sessions/[id]`): only today's session is editable. Set status and `checkedAt` to simulated now, create Progress for fully finished topics with `sessionId` provenance, and set `lastSeenAt`. Reversing done to missed deletes only that session's Progress rows. Earlier sessions are locked; handling delayed offline first check-ins is pending in `docs/PLANS.md`.
 4. Offline mutations: `lib/offline.ts` queues check-ins and language edits and replays them when online. Check-ins receive simulated time at sync; language edits use last write wins. Deletion clears that student's snapshot, queued mutations and service-worker cached learner pages on that device.
 5. Advisor list: `listStudents` loads students, events and current-plan sessions, computes risk, then sorts and filters. Numeric scores stay internal. Advisor responses expose call-priority band, reasons, last activity and escalation, never goal or context; the learner panel exposes the same fields for that student.
+   Its explicit read-only SQL projection aggregates only the academic and plan fields needed for 303 learners in one database round trip; goals and context are absent from the query. It leaves scoring in pure `lib/risk` on every read.
 6. Outreach (`POST /api/advisor/outreach`): `draftOutreach` builds the input from risk reasons, calls `outreach` from `lib/ai` (cache, `DEMO_MODE` and fallback as in `docs/specs/ai.md`), replaces `{firstName}`, and saves the Outreach row.
 7. Mark contacted: save the final edited outreach message with the contacted flag. Unsaved edits stay in the text box; Copy copies that edited text.
 8. Demo reset (`POST /api/demo/reset`): `resetDemo`, defined in `docs/specs/data.md`.
+9. Delete my data (`DELETE /api/students/[id]`): remove app plans, reminders, outreach and this student's cache ownership; remove a cache response only if no learner still owns it. Preserve course records. The learner control then clears this student's local snapshot/queue keys and cached learner pages on the current device.
 
 ## Environment
 
