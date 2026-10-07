@@ -5,6 +5,7 @@ out/
 coverage/
 playwright-report/
 test-results/
+.playwright-mcp/
 *.tsbuildinfo
 
 # Runtime secrets; keep the documented example

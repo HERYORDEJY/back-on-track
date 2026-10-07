@@ -166,14 +166,14 @@ export async function createPlan(studentId: string): Promise<PlanView> {
   return getPlanView(studentId);
 }
 
-export async function checkInSession(sessionId: string, status: "done" | "missed"): Promise<PlanView> {
+export async function checkInSession(sessionId: string, status: "done" | "missed", offlineSessionDate?: string): Promise<PlanView> {
   const db = getDb();
   const now = await getNow();
-  const studentId = await db.$transaction((tx) => checkInSessionInTransaction(tx, sessionId, status, now));
+  const studentId = await db.$transaction((tx) => checkInSessionInTransaction(tx, sessionId, status, now, offlineSessionDate));
   return getPlanView(studentId);
 }
 
-export async function checkInSessionInTransaction(tx: Prisma.TransactionClient, sessionId: string, status: "done" | "missed", now: Date): Promise<string> {
+export async function checkInSessionInTransaction(tx: Prisma.TransactionClient, sessionId: string, status: "done" | "missed", now: Date, offlineSessionDate?: string): Promise<string> {
   const today = calendarDate(now);
   const candidate = await tx.session.findUnique({ where: { id: sessionId }, include: { plan: true } });
   if (!candidate) throw new SessionServiceError("SESSION_NOT_FOUND");
@@ -183,7 +183,8 @@ export async function checkInSessionInTransaction(tx: Prisma.TransactionClient, 
   if (!students[0]) throw new SessionServiceError("SESSION_NOT_FOUND");
   const session = await tx.session.findUnique({ where: { id: sessionId }, include: { plan: true } });
   if (!session || session.plan.studentId !== studentId) throw new SessionServiceError("SESSION_NOT_FOUND");
-  if (!session.plan.isCurrent || session.date !== today) throw new SessionServiceError("SESSION_LOCKED");
+  const delayedOffline = offlineSessionDate === session.date && session.date < today;
+  if (!session.plan.isCurrent || (session.date !== today && !delayedOffline)) throw new SessionServiceError("SESSION_LOCKED");
   if (effectiveStatus(session, now) !== status) {
     if (status === "missed") {
       await tx.progress.deleteMany({ where: { studentId, sessionId } });

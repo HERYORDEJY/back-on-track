@@ -93,6 +93,11 @@ h3 { font-size: 20px; margin: 0 0 6px; line-height: 1.25; letter-spacing: -0.3px
 .advisor-visibility ul { max-width: 62ch; margin: 0 0 22px; padding-left: 22px; }
 .advisor-visibility li { padding-block: 5px; }
 .advisor-visibility [role="alert"] a { display: inline-flex; min-height: 44px; align-items: center; font-weight: 700; text-decoration: underline; }
+.offline-notice { margin: 18px 0 26px; padding: 14px 18px; border-left: 4px solid #126e61; background: #edf4f1; color: #102e3d; }
+.offline-notice p { margin: 0; }
+.offline-notice p + p { margin-top: 8px; }
+.offline-notice [role="alert"] { color: #8b3034; }
+.offline-notice button { min-height: 44px; margin-top: 8px; font-weight: 700; text-decoration: underline; }
 @media (max-width: 640px) {
   .page-width { width: calc(100% - 40px); }
   .site-header { min-height: 108px; gap: 10px; }

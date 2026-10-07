@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { headers } from "next/headers";
 import { LanguageSwitch } from "@/components/shared/LanguageSwitch";
 import { SimulatedBadge } from "@/components/shared/SimulatedBadge";
+import { ServiceWorkerRegistration } from "@/components/shared/ServiceWorkerRegistration";
 import { ClockControl } from "@/components/shared/ClockControl";
 import { getClockView } from "@/lib/services/clock";
 import { getStudentLanguage } from "@/lib/services/students";
@@ -27,15 +28,16 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang={language}>
       <body>
+        <ServiceWorkerRegistration />
         <a href="#main" className="skip-link">{t("app.skip", language)}</a>
         <header className="site-header page-width">
           <div className="brand-group">
             <Link className="brand" href="/">{t("app.name", language)}</Link>
-            <SimulatedBadge language={language} />
+            <SimulatedBadge language={language} studentId={learnerId} />
           </div>
           {!advisor && <LanguageSwitch language={language} studentId={savedLanguage ? learnerId : null} />}
         </header>
-        <div className="page-width"><ClockControl clock={clock} language={language} /></div>
+        <div className="page-width"><ClockControl clock={clock} language={language} studentId={learnerId} /></div>
         {children}
       </body>
     </html>

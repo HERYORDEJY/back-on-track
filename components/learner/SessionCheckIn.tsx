@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { t, type Language } from "@/lib/i18n";
 import type { SessionView } from "@/lib/types";
+import { enqueueMutation } from "@/lib/offline";
 
-export function SessionCheckIn({ session, language }: { session: SessionView; language: Language }) {
+export function SessionCheckIn({ session, language, studentId, queuedStatus, onQueued }: { session: SessionView; language: Language; studentId: string; queuedStatus: "done" | "missed" | null; onQueued: (sessionId: string, status: "done" | "missed") => void }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [refreshing, startTransition] = useTransition();
@@ -18,17 +19,23 @@ export function SessionCheckIn({ session, language }: { session: SessionView; la
     setBusy(true);
     setError(false);
     setLastAttempt(status);
+    function saveOnPhone() {
+      const queued = enqueueMutation(studentId, { kind: "checkin", sessionId: session.id, sessionDate: session.date, status });
+      if (!queued) { setError(true); return; }
+      onQueued(session.id, status);
+    }
     try {
+      if (!navigator.onLine) { saveOnPhone(); return; }
       const response = await fetch(`/api/sessions/${encodeURIComponent(session.id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
-      if (!response.ok) throw new Error("Check-in unavailable");
+      if (response.status === 409 || response.status === 404) { setError(true); return; }
+      if (!response.ok) { saveOnPhone(); return; }
       startTransition(() => router.refresh());
     } catch {
-      setError(true);
-      router.refresh();
+      saveOnPhone();
     } finally {
       setBusy(false);
     }
@@ -41,6 +48,7 @@ export function SessionCheckIn({ session, language }: { session: SessionView; la
       <Button type="button" variant="outline" disabled={busy || refreshing || session.status === "missed"} onClick={() => checkIn("missed")}>{t("learner.checkIn.missed", language)}</Button>
     </div>
     {(busy || refreshing) && <p role="status">{t("learner.checkIn.saving", language)}</p>}
+    {queuedStatus && <p role="status">{t("offline.checkInQueued", language)}</p>}
     {error && <div role="alert"><p>{t("learner.checkIn.failed", language)}</p><Button type="button" variant="outline" onClick={() => lastAttempt && checkIn(lastAttempt)}>{t("learner.retry", language)}</Button></div>}
   </div>;
 }

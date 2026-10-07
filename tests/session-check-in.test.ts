@@ -48,4 +48,20 @@ describe("today-only check-in transaction", () => {
     expect(await checkInSessionInTransaction(tx as never, "s1", "done", now)).toBe("tunde");
     expect(tx.student.update).toHaveBeenCalledWith({ where: { id: "tunde" }, data: { lastSeenAt: now } });
   });
+
+  it("syncs an original offline check-in after its day when the current plan still owns the session", async () => {
+    const tx = fixture({ date: "2026-10-18" });
+    await checkInSessionInTransaction(tx as never, "s1", "done", now, "2026-10-18");
+    expect(tx.session.update).toHaveBeenCalledWith({ where: { id: "s1" }, data: { status: "done", checkedAt: now } });
+    expect(tx.progress.createMany).toHaveBeenCalledOnce();
+  });
+
+  it("does not let an offline date open a future or superseded session", async () => {
+    const future = fixture({ date: "2026-10-20" });
+    await expect(checkInSessionInTransaction(future as never, "s1", "done", now, "2026-10-20")).rejects.toMatchObject({ code: "SESSION_LOCKED" });
+    const stale = fixture({ date: "2026-10-18", plan: { studentId: "amaka", isCurrent: false } });
+    await expect(checkInSessionInTransaction(stale as never, "s1", "done", now, "2026-10-18")).rejects.toMatchObject({ code: "SESSION_LOCKED" });
+    const wrongDate = fixture({ date: "2026-10-18" });
+    await expect(checkInSessionInTransaction(wrongDate as never, "s1", "done", now, "2026-10-17")).rejects.toMatchObject({ code: "SESSION_LOCKED" });
+  });
 });

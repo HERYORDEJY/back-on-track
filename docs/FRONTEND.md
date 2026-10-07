@@ -11,7 +11,7 @@ Screens, copy, languages, offline behaviour and accessibility. Product voice is 
 
 ## Visual direction from D4 onward
 
-The D1–D3 screens work, but their pale background, repeated rounded cards and uniform hierarchy need a deliberate visual pass before final completion. Keep the current flows stable while building D4; revisit the landing, shared header and learner screens together during D5 before feature freeze.
+The D1–D3 screens work, but their pale background, repeated rounded cards and uniform hierarchy need a deliberate visual pass before final completion. The maintainer deferred all UI overhaul work on 2026-10-07 while writing a new instruction for a dedicated D6 whole-project milestone. Keep the existing presentation stable during D5; D6 will cover landing, shared controls, learner, advisor and offline screens together before feature freeze.
 
 - Let the study task shape each screen. Give tonight's session a strong focal point and make deadlines, actions and course evidence visibly different. The advisor view should read as a concise call list, with priority and next action easy to scan.
 - Use a restrained, stronger palette: deep ink `#102e3d`, clear paper `#f7faf7`, active teal `#126e61`, warm deadline amber `#9b5b19`, and quiet rule `#b6c9c7`. Check text and control contrast before applying these tokens broadly. Use colour for meaning, with words and structure carrying the same meaning.
@@ -70,7 +70,7 @@ Also on the plan screen:
 - After a re-plan, a change-summary banner.
 - When hours vary and the plan is 7 or more days old, a banner asking the student to update this week's hours.
 - An in-app reminders panel listing reminders for pending sessions.
-- Only today's session can be changed; earlier sessions are locked. Reversing a done check-in to missed removes only the Progress that check-in created. A missed session stays editable today and can trigger re-planning on the next visit starting tomorrow. Delayed offline check-ins remain a pending decision in `PLANS.md`.
+- Only today's session can be edited online; earlier sessions are locked. Reversing a done check-in to missed removes only the Progress that check-in created. A missed session stays editable today and can trigger re-planning on the next visit starting tomorrow. A check-in saved offline can sync on a later day while that session still belongs to the current plan, with a visible late-sync note; a superseded plan leaves a visible, retained queue conflict.
 - Course facts derived from demo weights, dates and prerequisite links are labelled simulated; source readings are traceable through their links.
 
 Infeasible screen: honest summary, work that fits through the next assessment due date in prerequisite-first priority order, and the rest under "Won't fit before {date}". No session is scheduled after that due date or on/after the exam. Next step: "Your advisor has been told. Ask about an extension or a study break." Read the summary and next step aloud. On the next visit after that date, re-plan for the following assessment; the exam is the next assessment after the final quiz. MIVA's published guidance and its approval/deadline limits are in `RESEARCH.md`; do not promise eligibility or an extension. Never show the word "infeasible".
@@ -84,7 +84,7 @@ Infeasible screen: honest summary, work that fits through the next assessment du
 - Advisor screens are English only.
 - Goal and context never appear in advisor responses or screens. Outreach edits stay in the text box; Copy copies the edited text and Mark contacted saves the final message.
 
-D4 implementation (2026-10-07): the landing links to the English-only advisor call list. The page gives the action a strong heading, a compact simulated metric, band filters and ranked rows; the detail drawer keeps reasons, dated activity, missed sessions and the editable outreach note together. Local browser checks at 1280 px and 375 px found no page overflow; the drawer opens with focus and readable content at 375 px. A live simulated Tunde plan placed him first, and editing then marking his fallback outreach note contacted persisted the edited text after reload. At Week 10, the metric read 23 of 31, and all 180 on-track cohort rows were Low. Reset returned to Week 7. The learner panel showed Tunde the same band, reasons, last activity and escalation, and Delete my data returned to a landing confirmation. The broad D1–D3 visual pass and human Pidgin copy review remain D5.
+D4 implementation (2026-10-07): the landing links to the English-only advisor call list. The page gives the action a strong heading, a compact simulated metric, band filters and ranked rows; the detail drawer keeps reasons, dated activity, missed sessions and the editable outreach note together. Local browser checks at 1280 px and 375 px found no page overflow; the drawer opens with focus and readable content at 375 px. A live simulated Tunde plan placed him first, and editing then marking his fallback outreach note contacted persisted the edited text after reload. At Week 10, the metric read 23 of 31, and all 180 on-track cohort rows were Low. Reset returned to Week 7. The learner panel showed Tunde the same band, reasons, last activity and escalation, and Delete my data returned to a landing confirmation. Human Pidgin copy review remains D5; the whole-project UI overhaul awaits the D6 instruction.
 
 ## Languages
 
@@ -108,9 +108,11 @@ Pure engine templates for summaries, rationales, reminders, deadline/change warn
 - `public/sw.js`, registered from the root layout. Navigation requests to `/learner/*` are network first, with the cached copy as fallback. Never cache `/api` requests.
 - After the plan renders, `lib/offline.ts` saves a snapshot (Localized text included) in `localStorage`.
 - Offline, show the plan with a "Saved on this phone" note.
-- Check-ins and language changes made offline go into a queue and replay their respective PATCH requests when the browser fires `online`. Check-ins are stamped with simulated time at sync. The treatment of check-ins from an earlier date is pending in `PLANS.md`; never silently discard a queued mutation.
+- Check-ins and language changes made offline go into a queue and replay their respective PATCH requests when the browser fires `online`. Check-ins are stamped with simulated time at sync, including an original session check-in replayed on a later day (maintainer choice, 2026-10-07). The learner sees a late-sync note. A superseded plan or failed replay keeps the action queued with a visible conflict/retry state; never silently discard it.
 - Delete my data clears that student's browser snapshot, queued check-ins/language edits and service-worker cached learner pages on this device, as well as the server data listed in `specs/data.md`; an offline reload must not restore deleted input.
 - Wrap every `localStorage` call in try/catch; the page must work without it.
+
+D5 implementation (2026-10-07): a versioned plan snapshot and service-worker learner page/static cache support a later offline visit. The local production-browser test reopened Amaka's plan offline at 375 px, queued a Pidgin switch and Done check-in, advanced the simulated clock three days, then confirmed sync, the late-sync note and change summary. It also checked the advisor first row, Amaka's device snapshot/cache deletion, demo Reset and no horizontal overflow at 375/1280 px. The development hot-reload server does not provide a reliable offline hydration path; run `npm run build` before `npm run test:e2e`. A physical Android airplane-mode pass remains D5.
 
 ## Accessibility
 
@@ -130,6 +132,6 @@ Chrome's Slow 4G profile stays usable. Lighthouse on mobile: performance 80+, ac
 
 - `tests/i18n.test.ts`: every key in `en.json` exists in `pcm.json`, and the reverse.
 - Verify landing-cookie versus student-language behavior, offline language switching/sync, privacy-panel parity, hidden numeric score and goal/context excluded from advisor views, both read-aloud views, deletion clearing snapshots/queues/cached pages, same-day reversal and earlier-session locking. The learner's own goal remains visible. Delayed-sync and same-day re-plan cases need the pending decisions first.
-- `tests/e2e/demo.spec.ts` (local, `DEMO_MODE=true`): Start demo; Amaka's plan has `data-status="cut"` and shows in Pidgin; switch to English; go offline, mark tonight's session done, see the offline note, go back online; +3 days; the change summary shows; Tunde shows the infeasible message; the first advisor row is Tunde. Assert structure, never AI wording.
+- `tests/e2e/demo.spec.ts` (local production build, `DEMO_MODE=true`): Start demo; Amaka's plan has `data-status="cut"` and shows in Pidgin; switch to English; reopen offline, switch to Pidgin and mark tonight's session done; +3 simulated days while offline; reconnect, see late sync and the change summary; Tunde shows the infeasible message and ranks first for advisors; delete Amaka's data and confirm her device copy is gone; Reset. Assert structure, never AI wording.
 
 Test ids: `start-demo`, `build-plan`, `plan-status` (with `data-status`), `language-switch`, `session-done`, `offline-note`, `clock-plus-3`, `change-summary`, `infeasible-message`, `advisor-row`.
