@@ -47,6 +47,7 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | D4 advisor and privacy | demo-verified | [Task plan](plans/d4-advisor-privacy.md); risk and advisor lanes integrated, approved ownership migration deployed, local Tunde call-list/outreach/deletion path verified at 375/1280 px. At Week 10, 180/180 on-track rows were Low and metric was 23 of 31. Warm 303-row service reads met the 1-second target; full page HTTP remains slower. Live reseed ownership check, 219 tests, `npm run check` and production build passed |
 | D5 offline learner flow | tested | [Task plan](plans/d5-offline.md); production-browser Playwright path passes through online build, 375 px offline reopen, queued Pidgin switch and Done, +3 day late sync and change summary, Tunde first on advisor list, deletion of Amaka's local snapshot/cache and demo reset. Unit suite has 230 tests; physical Android/airplane-mode and other D5 hardening remain |
 | D5 demo cache warmer | demo-verified | [Task plan](plans/d5-cache-warm.md); guarded CLI and local replay pass. Public live-AI warm, final cache-only replay and reset pass on [the Ready Production deployment](https://vercel.com/heryordejys-projects/back-on-track/D6uDPeWtjkZ9Go6vQ54Mtfm5DZuL); [CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37690351139) passes |
+| D5 advisor response-size pass | locally tested | [Task plan](plans/d5-advisor-performance.md); 40-row pages cut local response to 80,583 bytes from the earlier 478,659-byte public list. Warm local first byte remained 2.07 s; public timing, Slow 4G and Lighthouse remain |
 | Official submission date, judging rubric, team/pre-build rules | pending | Maintainer has no explicit rubric and gave no confirmed rules/date |
 | Demo mapping and remaining behavior choices | tested | Source and exact mapping approved; next-day re-planning, cache ownership/deletion and later-day offline check-in replay decided. A superseded-plan action remains queued with a visible conflict |
 
@@ -126,7 +127,7 @@ Exit on the warm demo path: the service returns 303 ranked students in 0.86–0.
 - [x] Verify a fresh Production deployment uses warmed Sol cache and `DEMO_MODE=true`; full public replay returned Amaka cache/cache, Zainab fit, Tunde infeasible and outreach cache, then reset
 - [ ] Configure Preview live-AI credentials only after separate approval; they are currently Production-only
 - [x] Offline: `public/sw.js`, plan snapshot, check-in/language queue and sync ([task plan](plans/d5-offline.md)); local production-browser proof complete, physical Android check remains below
-- [ ] Improve the measured full-page advisor latency, then run a low-bandwidth pass on Chrome's Slow 4G profile and Lighthouse on mobile
+- [ ] Improve the measured full-page advisor latency, then run a low-bandwidth pass on Chrome's Slow 4G profile and Lighthouse on mobile; 40-row pages reduce response size 83%, but warm local first byte remains 2.07 s ([measurement](plans/d5-advisor-performance.md))
 - [ ] Accessibility pass, including TalkBack through the demo path once
 - [ ] Loading, empty and error states
 - [ ] Copy pass in both languages; a human checks every Pidgin string

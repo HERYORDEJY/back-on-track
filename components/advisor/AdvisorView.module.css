@@ -31,6 +31,9 @@
 .meta span + span { margin-top: 7px; }
 .flag { color: #8b3034; font-weight: 750; }
 .empty { padding: 40px 0; font-size: 16px; }
+.pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 24px 0; color: #425b64; font-size: 14px; }
+.pagination a { display: inline-flex; min-height: 44px; align-items: center; color: #126e61; font-weight: 700; }
+.pagination a:focus-visible { outline: 3px solid #126e61; outline-offset: 3px; }
 .scrim { position: fixed; inset: 0; z-index: 40; background: rgb(16 46 61 / 45%); }
 .drawer { position: fixed; z-index: 41; inset: 0 0 0 auto; width: min(100%, 590px); overflow-y: auto; background: #f7faf7; box-shadow: -12px 0 40px rgb(16 46 61 / 20%); padding: 28px clamp(24px, 4vw, 44px) 70px; }
 .drawerTop { display: flex; justify-content: space-between; align-items: start; gap: 16px; }

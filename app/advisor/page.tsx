@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 type Band = "high" | "medium" | "low";
 const bands: (Band | "all")[] = ["all", "high", "medium", "low"];
+const pageSize = 40;
 type Reason = { code: string; params: Record<string, string | number> };
 
 function date(iso: string | null): string {
@@ -23,19 +24,24 @@ function planText(status: "fit" | "cut" | "infeasible" | null): string {
   return t(`advisor.plan.${status ?? "none"}` as MessageKey, "en");
 }
 
-function href(band: Band | null, student?: string): string {
+function href(band: Band | null, page = 1, student?: string): string {
   const query = new URLSearchParams();
   if (band) query.set("band", band);
+  if (page > 1) query.set("page", String(page));
   if (student) query.set("student", student);
   return `/advisor${query.size ? `?${query}` : ""}`;
 }
 
-export default async function AdvisorPage({ searchParams }: { searchParams: Promise<{ band?: string; student?: string }> }) {
+export default async function AdvisorPage({ searchParams }: { searchParams: Promise<{ band?: string; page?: string; student?: string }> }) {
   const query = await searchParams;
   const band: Band | null = query.band === "high" || query.band === "medium" || query.band === "low" ? query.band : null;
   const selectedId = typeof query.student === "string" && query.student.length <= 80 ? query.student : null;
   const [list, detail] = await Promise.all([listStudents({ band }), selectedId ? getStudentDetail(selectedId) : Promise.resolve(null)]);
-  const closeHref = href(band);
+  const pages = Math.max(1, Math.ceil(list.rows.length / pageSize));
+  const requestedPage = typeof query.page === "string" && /^[1-9]\d{0,5}$/.test(query.page) ? Number(query.page) : 1;
+  const page = Math.min(requestedPage, pages);
+  const rows = list.rows.slice((page - 1) * pageSize, page * pageSize);
+  const closeHref = href(band, page);
 
   return <main id="main" className={styles.page}>
     <section className={styles.intro} aria-labelledby="advisor-title">
@@ -53,8 +59,8 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
       </nav>
     </div>
     {list.rows.length ? <ul className={styles.list}>
-      {list.rows.map((row, index) => <li className={`${styles.row} ${styles[row.risk.band]}`} key={row.id} data-testid={index === 0 ? "advisor-row" : undefined}>
-        <Link href={href(band, row.id)} aria-label={t("advisor.open", "en", { name: row.name })}>
+      {rows.map((row, index) => <li className={`${styles.row} ${styles[row.risk.band]}`} key={row.id} data-testid={index === 0 ? "advisor-row" : undefined}>
+        <Link href={href(band, page, row.id)} aria-label={t("advisor.open", "en", { name: row.name })}>
           <span className={styles.priorityRule} aria-hidden="true" />
           <span><span className={styles.name}>{row.name}</span><span className={styles.band}>{t(`advisor.band.${row.risk.band}` as MessageKey, "en")}</span></span>
           <ul className={styles.reasonList}>{row.risk.reasons.slice(0, 2).map((reason, i) => <li key={`${reason.code}-${i}`}>{reasonText(reason)}</li>)}</ul>
@@ -62,6 +68,11 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
         </Link>
       </li>)}
     </ul> : <p className={styles.empty}>{t("advisor.empty", "en")}</p>}
+    {list.rows.length > pageSize && <nav className={styles.pagination} aria-label={t("advisor.pages.label", "en")}>
+      {page > 1 ? <Link href={href(band, page - 1)}>{t("advisor.pages.previous", "en")}</Link> : <span />}
+      <span aria-live="polite">{t("advisor.pages.status", "en", { page, pages })}</span>
+      {page < pages ? <Link href={href(band, page + 1)}>{t("advisor.pages.next", "en")}</Link> : <span />}
+    </nav>}
 
     {detail && <>
       <Link className={styles.scrim} href={closeHref} tabIndex={-1} aria-hidden="true" />

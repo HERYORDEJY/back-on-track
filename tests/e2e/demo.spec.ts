@@ -41,6 +41,16 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await expect(page.getByTestId("infeasible-message")).toBeVisible();
   await page.goto("/advisor");
   await expect(page.getByTestId("advisor-row").first()).toContainText("Tunde");
+  await expect(page.locator("main > ul > li")).toHaveCount(40);
+  await page.getByRole("link", { name: "Next page" }).click();
+  await expect(page).toHaveURL(/\/advisor\?page=2$/);
+  await expect(page.getByText("Page 2 of 8")).toBeVisible();
+  await page.getByTestId("advisor-row").getByRole("link").click();
+  await expect(page).toHaveURL(/\/advisor\?page=2&student=/);
+  await page.getByRole("link", { name: "Close details" }).click();
+  await expect(page).toHaveURL(/\/advisor\?page=2$/);
+  await page.getByRole("link", { name: "Previous page" }).click();
+  await expect(page.getByTestId("advisor-row").first()).toContainText("Tunde");
 
   await page.goto("/learner/amaka");
   await expect.poll(() => page.evaluate(() => localStorage.getItem("back-on-track:student:amaka:snapshot") !== null)).toBeTruthy();
