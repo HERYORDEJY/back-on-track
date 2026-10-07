@@ -233,6 +233,23 @@ describe("plan assembly", () => {
     expect(result.status).toBe("cut"); expect(result.source).toBe("cache"); expect(result.summary).toEqual(proposal.summary);
     expect(result.decisions.find(({ topicId }) => topicId === "c")?.rationale).toEqual(rationale);
   });
+  it("gives a cut triage the remaining-minute target of a feasible fallback", async () => {
+    const value = personaInput("amaka");
+    const state = planState(value);
+    const fallback = fallbackTriage(value, state);
+    const triage = vi.fn().mockResolvedValue(null);
+    await buildPlan(value, triage);
+    expect(triage.mock.calls[0][0].placementTargetMin).toBe(fallback.decisions.reduce((sum, item) => sum + item.minutes, 0));
+  });
+  it("quotes the rejected cut actions when asking for a capacity correction", () => {
+    const value = personaInput("amaka");
+    const state = planState(value);
+    const proposal = output([{ topicId: "t11", action: "skip", rationale }]);
+    const violation = validate(proposal, "cut", state, value).violations[0];
+    expect(violation.code).toBe("OVER_CAPACITY");
+    expect(violation.message).toContain("t11: skip");
+    expect(violation.message).toContain("more rounded minutes");
+  });
   it("does not call AI when protected work is infeasible and targets the next assessment with parents", async () => {
     const value = input({ availability: hours(20), topics: [topic("a", 1), topic("b", 2, { prereqIds: ["a"] })], assessments: [coursework] });
     const triage = vi.fn(); const result = await buildPlan(value, triage);
@@ -268,6 +285,8 @@ describe("plan assembly", () => {
     const context = triageContext(value, state, "cut");
     expect(context.deficitMin).toBe(60); expect(context.nextCoursework?.title).toBe("Assignment 2");
     expect(context.topics.find(({ id }) => id === "b")?.deadline).toBe("2026-10-19");
+    expect(context.topics.find(({ id }) => id === "b")?.cutSavingsMin.light).toBe(12);
+    expect(context.topics.find(({ id }) => id === "b")?.cutSavingsMin.skip).toBeUndefined();
     expect(JSON.stringify(context)).not.toContain("completedAt");
     expect(context).not.toHaveProperty("order");
   });

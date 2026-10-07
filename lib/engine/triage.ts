@@ -30,12 +30,17 @@ export function decisionsFor(state: PlanState, actions = new Map<string, Action>
   });
 }
 
-export function triageContext(input: PlanInput, state: PlanState, status: "fit" | "cut"): TriageContext {
+export function triageContext(input: PlanInput, state: PlanState, status: "fit" | "cut", placementTargetMin?: number): TriageContext {
   return {
     today: state.today, week: state.week, examDate: input.course.examDate, status,
     nextCoursework: state.coursework ? { title: state.coursework.title, dueDate: state.coursework.dueDate, weight: state.coursework.weight } : null,
     student: { ...input.student }, requiredMin: state.requiredMin, capacityMin: state.capacityMin,
     deficitMin: Math.max(0, state.requiredMin - state.capacityMin),
-    topics: state.unfinished.map((topic) => ({ id: topic.id, title: topic.title, week: topic.week, estMinutes: topic.estMinutes, examWeightPct: Math.round(topic.examWeight * 100), protected: state.protectedIds.has(topic.id), basis: courseBasis(topic, state.unfinished, state.coursework, state.highIds).en, prereqIds: [...topic.prereqIds], deadline: state.deadlines.get(topic.id) ?? null })),
+    ...(placementTargetMin === undefined ? {} : { placementTargetMin }),
+    topics: state.unfinished.map((topic) => ({ id: topic.id, title: topic.title, week: topic.week, estMinutes: topic.estMinutes, examWeightPct: Math.round(topic.examWeight * 100), protected: state.protectedIds.has(topic.id), basis: courseBasis(topic, state.unfinished, state.coursework, state.highIds).en, prereqIds: [...topic.prereqIds], deadline: state.deadlines.get(topic.id) ?? null,
+      cutSavingsMin: state.protectedIds.has(topic.id)
+        ? { light: topic.estMinutes - actionMinutes(topic, "compress_light") }
+        : { light: topic.estMinutes - actionMinutes(topic, "compress_light"), heavy: topic.estMinutes - actionMinutes(topic, "compress_heavy"), skip: topic.estMinutes },
+    })),
   };
 }

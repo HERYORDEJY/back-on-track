@@ -12,7 +12,7 @@ import type { TriageContext } from "@/lib/engine/types";
 const context: TriageContext = {
   today: "2026-10-19", week: 7, examDate: "2026-12-01", status: "cut", nextCoursework: null,
   student: {}, capacityMin: 300, requiredMin: 600, deficitMin: 300,
-  topics: [{ id: "t01", title: "Management", week: 1, estMinutes: 80, examWeightPct: 2, protected: false, basis: "Simulated exam weight", prereqIds: [], deadline: null }],
+  topics: [{ id: "t01", title: "Management", week: 1, estMinutes: 80, examWeightPct: 2, protected: false, basis: "Simulated exam weight", prereqIds: [], deadline: null, cutSavingsMin: { light: 24, heavy: 40, skip: 80 } }],
 };
 
 describe("AI privacy and payloads", () => {
@@ -58,9 +58,17 @@ describe("AI privacy and payloads", () => {
     const proposal = validate({ items, summary: { en: "Plan", pcm: "Plan" } }, "cut", state, input);
     expect(proposal.decisions.reduce((sum, item) => sum + item.minutes, 0)).toBe(state.capacityMin);
     expect(proposal.violations).toContainEqual(expect.objectContaining({ code: "OVER_CAPACITY" }));
-    const prompt = triagePrompt(triageContext(input, state, "cut"));
+    const prompt = triagePrompt(triageContext(input, state, "cut", state.capacityMin - 20));
     expect(prompt).toMatch(/20.minute block/i);
-    expect(prompt).toMatch(/less than.*capacity/i);
+    expect(prompt).toMatch(/at or below.*placementTargetMin/i);
+    expect(prompt).toContain(`"placementTargetMin":${state.capacityMin - 20}`);
+  });
+  it("tells cut triage the engine's concrete remaining-minute target", () => {
+    const prompt = triagePrompt({ ...context, placementTargetMin: 260 });
+    expect(prompt).toContain("260");
+    expect(prompt).toContain("340 minutes of reductions");
+    expect(prompt).toMatch(/at or below.*placementTargetMin/i);
+    expect(prompt).toMatch(/sum the cutSavingsMin values/i);
   });
 });
 

@@ -18,7 +18,7 @@ export async function triage(context: TriageContext, violations: Violation[] = [
     if (process.env.DEMO_MODE === "true" || signal?.aborted) return null;
     const sdk = client();
     if (!sdk) return null;
-    const response = await sdk.responses.parse({ model, input: triagePrompt(context, violations), text: { format: zodTextFormat(TriageOutput, "triage") } }, { signal });
+    const response = await sdk.responses.parse({ model, reasoning: { effort: "none" }, input: triagePrompt(context, violations), text: { format: zodTextFormat(TriageOutput, "triage") } }, { signal });
     const parsed = TriageOutput.safeParse(response.output_parsed);
     if (!parsed.success) return null;
     const output = limitTriage(parsed.data);

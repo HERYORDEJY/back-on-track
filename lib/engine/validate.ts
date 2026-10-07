@@ -23,6 +23,10 @@ export function validate(output: TriageOutput, status: "fit" | "cut", state: Pla
     return item ? { ...decision, rationale: { ...item.rationale } } : decision;
   });
   const placement = schedule(decisions, state.days, input.availability, state.unfinished);
-  if (placement.unscheduled.length) violations.push({ code: "OVER_CAPACITY", message: `${placement.unscheduled.reduce((sum, topic) => sum + topic.minutes, 0)} rounded minutes cannot be placed before the exam.` });
+  if (placement.unscheduled.length) {
+    const unplaced = placement.unscheduled.reduce((sum, topic) => sum + topic.minutes, 0);
+    const changes = output.items.map(({ topicId, action }) => `${topicId}: ${action}`).join(", ") || "none";
+    violations.push({ code: "OVER_CAPACITY", message: `${unplaced} rounded minutes cannot be placed before the exam. Rejected changes: ${changes}. Keep those cuts and add at least ${unplaced} more rounded minutes of reductions using other unprotected topics. Return the complete changed-topic list.` });
+  }
   return { violations, decisions, placement };
 }

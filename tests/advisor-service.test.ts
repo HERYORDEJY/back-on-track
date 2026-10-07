@@ -55,6 +55,7 @@ describe("advisor privacy projection", () => {
     expect(outreach).toHaveBeenCalledWith(expect.objectContaining({ language: "pcm" }), undefined, "amaka");
     expect(JSON.stringify(vi.mocked(outreach).mock.calls[0][0])).not.toContain("Amaka");
     expect(draft.message).toMatch(/^Amaka,/);
+    expect(draft.source).toBe("fallback");
     expect(db.outreach.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ studentId: "amaka" }) }));
   });
 

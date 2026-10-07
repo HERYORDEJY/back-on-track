@@ -138,7 +138,7 @@ export async function draftOutreach(studentId: string) {
   const student = facts.students[0];
   if (!student) throw new AdvisorServiceError("STUDENT_NOT_FOUND");
   const existing = await getDb().outreach.findFirst({ where: { studentId, contacted: false }, orderBy: { createdAt: "desc" }, select: { id: true, message: true, nextStep: true, contacted: true } });
-  if (existing) return existing;
+  if (existing) return { ...existing, source: "saved" as const };
   const result = scoreRisk(riskInput(student, facts), facts.now);
   const context = {
     reasons: result.reasons.map(({ code, params }) => ({ code, params })),
@@ -156,7 +156,7 @@ export async function draftOutreach(studentId: string) {
   if (!message.toLocaleLowerCase().startsWith(firstName.toLocaleLowerCase())) message = `${firstName}, ${message}`;
   const nextStep = generated?.output.nextStep || t("outreach.fallback.nextStep", "en");
   const saved = await getDb().outreach.create({ data: { id: randomUUID(), studentId, message, nextStep, createdAt: facts.now }, select: { id: true, message: true, nextStep: true, contacted: true } });
-  return saved;
+  return { ...saved, source: generated?.source ?? "fallback" as const };
 }
 
 export async function markContacted(outreachId: string, message: string) {

@@ -61,11 +61,13 @@ export async function buildPlan(input: PlanInput, triage: TriageFn): Promise<Pla
     const minimum = new Map<string, Action>(state.unfinished.map(({ id }) => [id, state.protectedIds.has(id) ? "compress_light" : "skip"]));
     if (schedule(decisionsFor(state, minimum), state.days, input.availability, state.unfinished).unscheduled.length) return infeasible(input, state);
   }
+  const fallback = status === "cut" ? fallbackTriage(input, state) : undefined;
+  const placementTargetMin = fallback?.decisions.reduce((sum, item) => sum + item.minutes, 0);
   let violations: Violation[] | undefined;
   for (let attempt = 0; attempt <= ENGINE.maxAiRetries; attempt++) {
     // The injected service owns timeout, refusal, parsing and privacy handling.
     let response: Awaited<ReturnType<TriageFn>>;
-    try { response = await triage(triageContext(input, state, status), violations); } catch { break; }
+    try { response = await triage(triageContext(input, state, status, placementTargetMin), violations); } catch { break; }
     if (!response) break;
     const validated = validate(response.output, status, state, input);
     if (validated.violations.length) { violations = validated.violations; continue; }
@@ -76,13 +78,13 @@ export async function buildPlan(input: PlanInput, triage: TriageFn): Promise<Pla
       requiredMin: state.requiredMin, capacityMin: state.capacityMin, escalate: false,
     };
   }
-  const fallback = fallbackTriage(input, state);
-  if (fallback.unscheduled.length) return infeasible(input, state);
+  const finalFallback = fallback ?? fallbackTriage(input, state);
+  if (finalFallback.unscheduled.length) return infeasible(input, state);
   const summary = status === "fit" ? localized("plan.summary.fit") : localized("plan.summary.cut", {
-    scheduledHours: Math.round(fallback.sessions.reduce((sum, session) => sum + session.minutes, 0) / 6) / 10,
-    kept: fallback.decisions.filter(({ action }) => action === "keep").length,
-    shortened: fallback.decisions.filter(({ action }) => action === "compress_light" || action === "compress_heavy").length,
-    skipped: fallback.decisions.filter(({ action }) => action === "skip").length,
+    scheduledHours: Math.round(finalFallback.sessions.reduce((sum, session) => sum + session.minutes, 0) / 6) / 10,
+    kept: finalFallback.decisions.filter(({ action }) => action === "keep").length,
+    shortened: finalFallback.decisions.filter(({ action }) => action === "compress_light" || action === "compress_heavy").length,
+    skipped: finalFallback.decisions.filter(({ action }) => action === "skip").length,
   });
-  return { status, source: "fallback", ...fallback, summary, warnings: warnings(input, state, fallback.sessions), changeSummary: changeSummary(input, fallback.decisions, fallback.sessions), requiredMin: state.requiredMin, capacityMin: state.capacityMin, escalate: false };
+  return { status, source: "fallback", ...finalFallback, summary, warnings: warnings(input, state, finalFallback.sessions), changeSummary: changeSummary(input, finalFallback.decisions, finalFallback.sessions), requiredMin: state.requiredMin, capacityMin: state.capacityMin, escalate: false };
 }

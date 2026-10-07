@@ -93,8 +93,8 @@ type TriageFn = (ctx: TriageContext, violations?: Violation[]) =>
 2. Mark protected topics. Compute rounded minutes once as `round(estMinutes x factor)`; every feasibility check uses these exact minutes and the same scheduler, including the 20-minute block rule.
 3. Try scheduling all unfinished topics at keep before the exam. Full placement gives `fit`; skip step 4. All decisions are keep with template rationales and code-generated bases; AI may write the summary, never the order.
 4. If all-keep placement failed, check the protected minimum (protected topics at compress_light, unprotected topics skipped) with the same scheduler. Success permits `cut`. Failure returns `infeasible` without an AI call: target the next assessment's unfinished topics and prerequisites, each at keep in prerequisite-first priority order; schedule only through its due date, bounded by the day before the exam. Show unplaced work under "Won't fit before {date}", persist focus assessment/date, and set `escalate=true`. The exam can be the next assessment after the final quiz. With no assessment remaining, use protected work and the exam cutoff as a safeguard.
-5. For fit or cut, obtain triage output within the shared budget. Fit items must be empty; cut items contain only changed topics. Expand omitted unfinished topics to keep with template rationale and computed basis, then order in code as below.
-6. Validate the expanded decisions and actual scheduler placement. On violations retry up to twice with quoted violations, within the single 20-second budget injected through the service/AI wrapper. If the budget expires, triage returns null, or the third response is invalid, use fallback and source fallback.
+5. For fit or cut, obtain triage output within the shared budget. Fit items must be empty; cut items contain only changed topics. For a cut, code also supplies the selected-minute total of its already-feasible deterministic fallback as a placement target, plus exact minute savings for each allowed topic action. AI chooses the topics; these numbers only guide its choice. Expand omitted unfinished topics to keep with template rationale and computed basis, then order in code as below.
+6. Validate the expanded decisions and actual scheduler placement. On violations retry up to twice with quoted violations, within the single 20-second budget injected through the service/AI wrapper. An `OVER_CAPACITY` correction quotes the rejected changed actions and the additional unplaced minutes. If the budget expires, triage returns null, or the third response is invalid, use fallback and source fallback.
 7. Fit/cut results must have zero unscheduled minutes: every non-skipped minute is placed before the exam. Attach basis and deadline warnings; capacity never overrides a failed placement check.
 8. Summary: AI/cache summary where returned, otherwise fit/cut templates; infeasible always uses the honest template. Add a change summary when previous is given. A fit/cut result has `escalate=false`; the service clears any prior escalation.
 
@@ -110,9 +110,11 @@ type TriageContext = {
   nextCoursework: { title: string; dueDate: string; weight: number } | null;
   student: { goal?: string; context?: string };
   capacityMin: number; requiredMin: number; deficitMin: number;   // display deficit = max(0, required - capacity), not feasibility
+  placementTargetMin?: number; // for cut: selected minutes in a feasible fallback
   topics: { id: string; title: string; week: number; estMinutes: number;
             examWeightPct: number; protected: boolean; basis: string;
-            prereqIds: string[]; deadline: string | null }[];  // inherited deadline; basis in English, simulated metadata labelled
+            prereqIds: string[]; deadline: string | null;
+            cutSavingsMin: { light: number; heavy?: number; skip?: number } }[];  // allowed actions only; inherited deadline; simulated basis
 };
 ```
 

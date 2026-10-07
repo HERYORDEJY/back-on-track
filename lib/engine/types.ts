@@ -25,7 +25,8 @@ export type TriageContext = {
   today: string; week: number; examDate: string; status: "fit" | "cut";
   nextCoursework: { title: string; dueDate: string; weight: number } | null;
   student: PlanInput["student"]; capacityMin: number; requiredMin: number; deficitMin: number;
-  topics: { id: string; title: string; week: number; estMinutes: number; examWeightPct: number; protected: boolean; basis: string; prereqIds: string[]; deadline: string | null }[];
+  placementTargetMin?: number;
+  topics: { id: string; title: string; week: number; estMinutes: number; examWeightPct: number; protected: boolean; basis: string; prereqIds: string[]; deadline: string | null; cutSavingsMin: { light: number; heavy?: number; skip?: number } }[];
 };
 export type TriageOutput = { items: { topicId: string; action: Exclude<Action, "keep">; rationale: Localized }[]; summary: Localized };
 export type Violation = { code: "DUPLICATE_TOPIC" | "UNKNOWN_TOPIC" | "ACTION_NOT_ALLOWED" | "OVER_CAPACITY"; topicId?: string; message: string };
