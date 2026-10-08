@@ -11,3 +11,26 @@ No dependency, schema, risk threshold or persona change is planned.
 ## Local result (2026-10-08)
 
 The 40-row response is 80,583 bytes, versus 478,659 bytes from the public full-list page before this change, an 83% reduction. A warm local production request still took 2.07 seconds to first byte; the service itself scored all 303 rows in 0.86–0.94 seconds on its second and third calls. Pagination improves the transmitted page and avoids hundreds of rendered rows on a phone, but the remote database/server response remains the dominant latency. The production build and local browser demo pass, including page 2, drawer open/close with the page query preserved, and return to Tunde on page 1. Public deployment timing, Slow 4G and Lighthouse remain to verify.
+
+## Function region follow-up (2026-10-08)
+
+The current public advisor response reports `cpt1::iad1` in `x-vercel-id`:
+the request entered from Cape Town and ran in Vercel's default `iad1`
+function region. The configured Neon host identifies `us-east-2`. Vercel
+lists `cle1` as its matching compute region and recommends running functions
+near their database. A read-only run of the unchanged 303-student service
+against the isolated loopback database took 220 ms cold, then 127 and 121 ms;
+the earlier remote Neon service took 0.86–0.94 seconds warm. Two public page
+requests before the change took 3.57 and 1.58 seconds to first byte. This is
+evidence for a region mismatch, not a measured post-change improvement.
+
+Set the project's function region to `cle1` in `vercel.json`. Keep all clock
+and advisor reads dynamic and the full cohort scored on every list request.
+After deployment, repeat public first-byte and Slow 4G measurements, check
+the reported execution region, and replay the demo path. Record the result
+before marking the D5 latency item complete. No dependency, schema, threshold,
+persona or copy change is involved.
+
+Local verification: `npm run check` passed 241 tests, `npm run build` passed,
+and both isolated production-browser demo tests passed. The deployment and
+post-change latency measurement remain open.

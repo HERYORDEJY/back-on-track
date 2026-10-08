@@ -143,6 +143,9 @@ Removing sessions must preserve retained Progress records: clear their session p
 | `DEMO_MODE` | `true`: AI calls read AiCache only and fall back on a miss |
 
 `.env` is git-ignored. `.env.example` lists every variable with a placeholder.
+`vercel.json` places the app's functions in `cle1`, the Vercel region matching
+the configured Neon's `us-east-2` region. The setting changes compute location,
+not dynamic page caching or the simulated clock.
 
 ## Existing infrastructure
 
