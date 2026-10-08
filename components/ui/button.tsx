@@ -5,15 +5,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#315FCB] disabled:pointer-events-none disabled:opacity-50",
+  "btn inline-flex min-h-12 items-center justify-center rounded-lg border-2 px-5 py-2 text-base font-bold no-underline active:translate-y-px focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-night disabled:pointer-events-none disabled:border-rail disabled:bg-mist disabled:text-slate",
   {
     variants: {
       variant: {
-        default: "bg-[#315FCB] text-white hover:bg-[#244BA6]",
-        outline: "border border-[#D8E3F5] bg-white text-[#13213A] hover:bg-[#EDF2FB]",
+        now: "btn--now border-night bg-lamp text-night hover:bg-lamp",
+        plain: "border-night bg-paper text-night hover:bg-mist",
+        text: "min-h-11 border-transparent bg-transparent px-0 text-night underline underline-offset-4 hover:decoration-[3px]",
       },
     },
-    defaultVariants: { variant: "default" },
+    defaultVariants: { variant: "now" },
   },
 );
 

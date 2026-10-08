@@ -42,3 +42,19 @@ utilities; 0 gradient utilities; 2 CSS radii above 8 px; 0 Lucide imports;
 6 default-palette colour utilities; 135 hex-colour occurrences; 1 uppercase
 label and 1 other tracked label; 0 uses of shadcn Card, Badge, Alert, Skeleton
 or toast.
+
+## Phase 1 evidence
+
+The nine palette tokens and shadcn mapping now live in `app/globals.css` and
+Tailwind's inline theme. The root viewport fixes light color scheme and the
+night theme colour. Base text uses the system stack and lining numerals;
+controls use the new 8 px plates, 2 px borders and 3 px focus outline.
+`Button` now exposes only `now`, `plain` and `text` variants. Existing pages
+retain their layouts while their colours, button variants and form fields move
+to the new palette. The current page-turn and old section structures are
+replaced in later phases, as the design instruction specifies.
+
+`npm run check` passed 241 tests, the production build succeeded, and both
+isolated local browser demo tests passed. Phone and wide screenshots were
+inspected against the Phase 0 images; the final after screenshots will be
+captured again once the full overhaul is complete.

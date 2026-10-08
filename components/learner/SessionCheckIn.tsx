@@ -41,14 +41,14 @@ export function SessionCheckIn({ session, language, studentId, queuedStatus, onQ
     }
   }
 
-  if (!session.editable) return <p className="text-sm text-[#475973]">{t(session.status === "pending" ? "learner.checkIn.notToday" : "learner.checkIn.locked", language)}</p>;
+  if (!session.editable) return <p className="text-sm text-slate">{t(session.status === "pending" ? "learner.checkIn.notToday" : "learner.checkIn.locked", language)}</p>;
   return <div className="mt-4">
     <div className="flex flex-wrap gap-2">
       <Button data-testid="session-done" type="button" disabled={busy || refreshing || session.status === "done"} onClick={() => checkIn("done")}>{t("learner.checkIn.done", language)}</Button>
-      <Button type="button" variant="outline" disabled={busy || refreshing || session.status === "missed"} onClick={() => checkIn("missed")}>{t("learner.checkIn.missed", language)}</Button>
+      <Button type="button" variant="plain" disabled={busy || refreshing || session.status === "missed"} onClick={() => checkIn("missed")}>{t("learner.checkIn.missed", language)}</Button>
     </div>
     {(busy || refreshing) && <p role="status">{t("learner.checkIn.saving", language)}</p>}
     {queuedStatus && <p role="status">{t("offline.checkInQueued", language)}</p>}
-    {error && <div role="alert"><p>{t("learner.checkIn.failed", language)}</p><Button type="button" variant="outline" onClick={() => lastAttempt && checkIn(lastAttempt)}>{t("learner.retry", language)}</Button></div>}
+    {error && <div role="alert"><p>{t("learner.checkIn.failed", language)}</p><Button type="button" variant="plain" onClick={() => lastAttempt && checkIn(lastAttempt)}>{t("learner.retry", language)}</Button></div>}
   </div>;
 }

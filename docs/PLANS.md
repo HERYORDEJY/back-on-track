@@ -22,7 +22,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Privacy panel and Delete my data | demo-verified | Learner/advisor parity and edited outreach verified in browser. Approved AiCacheUse migration applied; Tunde deletion cleared app data; D5 browser test confirms Amaka's local snapshot and cached learner page clear on Delete my data |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | in progress | Isolated local Playwright passes three serial repeats; the restored Production cache passes three public runs. Clean-profile mobile Lighthouse scored 99 performance / 100 accessibility on landing, Amaka plan and advisor. Android offline/speech spot checks passed; further TalkBack interaction was skipped at the maintainer's request |
 | Pitch assets (video, slides, README) | not started | |
-| Visual design (the line) | in progress | The [D6 instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) and nine reference frames are reviewed. Phase 0 baseline screenshots are captured at both sizes; [implementation plan](plans/d6-ui-overhaul.md). The supplied docs stay in their staging folder until D6 is complete |
+| Visual design (the line) | in progress | Phase 0 baseline screenshots and Phase 1 palette, type and primitive controls are complete; [implementation plan](plans/d6-ui-overhaul.md). The supplied docs stay in their staging folder until D6 is complete |
 
 ## Current progress
 

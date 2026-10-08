@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { headers } from "next/headers";
@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   title: t("app.name", "en"),
   description: t("app.description", "en"),
 };
+
+export const viewport: Viewport = { colorScheme: "light", themeColor: "#0F1F4D" };
 
 export const dynamic = "force-dynamic";
 

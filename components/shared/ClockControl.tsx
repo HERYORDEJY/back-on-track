@@ -31,14 +31,14 @@ export function ClockControl({ clock, language, studentId = null }: { clock: Clo
     } catch { setFailedJump(value); }
     finally { setPending(false); }
   }
-  if (!clock) return <div className="clock-bar"><p role="status">{t(refreshing ? "clock.checking" : "clock.unavailable", shown)}</p><Button variant="outline" disabled={refreshing} onClick={refresh}>{t("clock.retry", shown)}</Button><DemoReset language={shown} /></div>;
+  if (!clock) return <div className="clock-bar"><p role="status">{t(refreshing ? "clock.checking" : "clock.unavailable", shown)}</p><Button variant="plain" disabled={refreshing} onClick={refresh}>{t("clock.retry", shown)}</Button><DemoReset language={shown} /></div>;
   return (
     <section className="clock-bar" aria-label={t("clock.label", shown)}>
       <p><span className="clock-caption">{t("clock.label", shown)}</span><strong>{clock.date[shown]} · {t("clock.week", shown, { week: clock.week })}</strong></p>
       <div className="clock-actions">
         <DemoReset language={shown} disabled={pending || refreshing} onBusyChange={setResetting} onReset={refresh} />
-        <Button variant="outline" disabled={pending || refreshing || resetting || Boolean(failedJump) || clock.atLimit} onClick={() => jump({ jumpDays: 1 })}>{t("clock.day", shown)}</Button>
-        <Button variant="outline" data-testid="clock-plus-3" disabled={pending || refreshing || resetting || Boolean(failedJump) || clock.atLimit} onClick={() => jump({ jumpDays: 3 })}>{t("clock.days", shown)}</Button>
+        <Button variant="plain" disabled={pending || refreshing || resetting || Boolean(failedJump) || clock.atLimit} onClick={() => jump({ jumpDays: 1 })}>{t("clock.day", shown)}</Button>
+        <Button variant="plain" data-testid="clock-plus-3" disabled={pending || refreshing || resetting || Boolean(failedJump) || clock.atLimit} onClick={() => jump({ jumpDays: 3 })}>{t("clock.days", shown)}</Button>
         <label className="clock-week">
           <span className="sr-only">{t("clock.jump", shown)}</span>
           <select value="" disabled={pending || refreshing || resetting || Boolean(failedJump) || clock.atLimit} onChange={(event) => jump({ toWeek: Number(event.target.value) })}>
@@ -51,7 +51,7 @@ export function ClockControl({ clock, language, studentId = null }: { clock: Clo
         {pending && <p>{t("clock.loading", shown)}</p>}
         {!pending && refreshing && <p>{t("clock.checking", shown)}</p>}
         {clock.atLimit && <p>{t("clock.limit", shown)}</p>}
-        {failedJump && <><p>{t("clock.failed", shown)}</p><Button variant="outline" disabled={pending || refreshing} onClick={refresh}>{t("clock.refresh", shown)}</Button></>}
+        {failedJump && <><p>{t("clock.failed", shown)}</p><Button variant="plain" disabled={pending || refreshing} onClick={refresh}>{t("clock.refresh", shown)}</Button></>}
       </div>
     </section>
   );
