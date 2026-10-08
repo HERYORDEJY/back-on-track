@@ -14,4 +14,8 @@ The configured production database had only two AI cache entries after the local
 
 A three-repeat browser run exposed another shared-fixture issue: Playwright started the repeats in parallel, so one reset or deletion changed another run's plan. The config now uses one worker to serialize the demo flow before any repeat-run result is counted.
 
-With one worker, all six cases across three repeats passed in 32 seconds. A read-only Production check afterward still showed exactly the two pre-existing Zainab/Tunde cache rows, confirming the local test did not touch that database. Amaka's row remains absent until the public warm is restored.
+With one worker, all six cases across three repeats passed in 32 seconds. A read-only Production check afterward still showed exactly the two pre-existing Zainab/Tunde cache rows, confirming the local test did not touch that database. Amaka's row was absent until the public warm below restored it.
+
+## Production restoration and repeat proof
+
+After isolation was verified, the maintainer approved a temporary public live-AI warm under the existing $5 cap. Amaka's first and revised plans returned `cut/ai`; the public sequence reset successfully. Production was restored to `DEMO_MODE=true` and the [Ready deployment](https://vercel.com/heryordejys-projects/back-on-track/3TXdEedmjabKyWawoeMmwUBM3QPY) passed three consecutive public cache-only sequences. Each returned Amaka `cut/cache` for both versions, Zainab `fit`, Tunde `infeasible`, Tunde outreach `cache`, and a successful reset. Read-only Production checks found two Amaka cache ownership rows, one each for Zainab and Tunde, no persona plans or outreach, and the clock at the demo start. The local browser deletion test remains restricted to the loopback test database.
