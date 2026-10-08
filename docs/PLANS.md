@@ -22,7 +22,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Privacy panel and Delete my data | demo-verified | Learner/advisor parity and edited outreach verified in browser. Approved AiCacheUse migration applied; Tunde deletion cleared app data; D5 browser test confirms Amaka's local snapshot and cached learner page clear on Delete my data |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | in progress | Isolated local Playwright passes three serial repeats; the restored Production cache passes three public runs. Clean-profile mobile Lighthouse scored 99 performance / 100 accessibility on landing, Amaka plan and advisor. Android offline/speech spot checks passed; further TalkBack interaction was skipped at the maintainer's request |
 | Pitch assets (video, slides, README) | not started | |
-| Whole-project UI overhaul | deferred | The maintainer is writing a new instruction for a dedicated D6 milestone covering the whole product. Resume only after that instruction is received and recorded; keep the current UI stable during D5 |
+| Visual design (the line) | in progress | The [D6 instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) and nine reference frames are reviewed. Phase 0 baseline screenshots are captured at both sizes; [implementation plan](plans/d6-ui-overhaul.md). The supplied docs stay in their staging folder until D6 is complete |
 
 ## Current progress
 
@@ -58,7 +58,7 @@ After each work session, record completed tasks, the current task, next steps, b
 
 D1 foundation completed on 2026-10-05 under the approved sequencing adjustment. Public URL: [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app). All 137 tests, required checks, production build and remote CI pass. Production landing, clock and reset return 200; public +3 day/Reset and English/Pidgin reload persistence verified at 375/1280 px with no horizontal overflow. Two identical complete reseeds and persona resets preserve their specified cache/cohort boundaries. Clock restored to 19 October 18:00 Lagos.
 
-Current task: D5 demo hardening. The local browser test uses an isolated PostgreSQL database and passed three serial runs. An approved public rewarm restored Amaka's cache after the former Production-backed deletion test; the Ready cache-only deployment passed three consecutive public demo runs and resets. Clean-profile mobile Lighthouse meets the 80/90 target on landing, Amaka's plan and advisor. Route loading/recovery states pass local production browser checks. The [physical Android check](plans/d5-phone-check.md) passed offline reopen and check-in sync; the maintainer heard the session read-aloud and asked to skip further TalkBack interaction. The `cle1` deployment and public cache-only replay passed; warm advisor first-byte samples improved, though cold requests still exceed one second. Human Pidgin copy review remains. The maintainer moved the UI overhaul to a dedicated D6 milestone covering the entire project and is writing its instruction; no visual overhaul work starts before that instruction. The maintainer chose later-day replay with a visible late-sync note for an offline check-in, and next-day re-planning for today's missed session. No feature was cut or abandoned.
+Current task: D6 whole-project UI overhaul. The new [design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) has been read with all nine browser-rendered frames. Ten original screen screenshots are captured at 375 x 812 and 1280 x 800 against the isolated seeded demo database. Work follows the six-phase [D6 plan](plans/d6-ui-overhaul.md), with learner-screen review before the advisor phase. The D5 human Pidgin copy pass is deferred while D6 proceeds. The supplied instruction and reference remain in their current directory until the overhaul is fully complete, per the maintainer. No feature has been cut or abandoned.
 
 D2 implementation commit `7d0c61e` is pushed. [GitHub CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed and Vercel reported deployment success. The public landing, Amaka and Tunde routes return 200; the public mutation path has not been exercised, so the local browser evidence remains the D2 interaction check.
 
@@ -133,7 +133,7 @@ Exit on the warm demo path: the service returns 303 ranked students in 0.86–0.
 - [x] Improve the measured full-page advisor latency and run the low-bandwidth/mobile checks; 40-row pages reduce response size 83%, deployed `cle1` warm first-byte samples reached 0.74–1.06 s in four of five following requests, and a 375 px emulated Slow 4G load took 3.49 s with 40 rows and no overflow ([measurement](plans/d5-advisor-performance.md)). Clean-profile mobile Lighthouse was 99 performance / 100 accessibility before the region change; cold latency remains above one second
 - [x] Accessibility spot check: clean-profile mobile Lighthouse scored 100; TalkBack launched and the maintainer heard speech on Android. Remaining gesture traversal skipped at the maintainer's request ([record](plans/d5-phone-check.md))
 - [x] Loading, empty and error states: route-level bilingual loading/retry/not-found added; advisor list/detail empties and mutation progress/retry states already present. Local production browser verified English/Pidgin missing learner and advisor failure screens
-- [ ] Copy pass in both languages; a human checks every Pidgin string
+- [ ] Copy pass in both languages; a human checks every Pidgin string (deferred at the maintainer's request until after D6)
 - [x] Playwright demo test, run locally in production mode
 - [x] Check on a mid-range Android phone and a laptop; the [phone check](plans/d5-phone-check.md) includes offline reload/sync and 360 px width, while local production-browser tests cover the laptop path
 
@@ -141,7 +141,7 @@ Exit: the demo path runs 3 times in a row with nothing off-script, the plan open
 
 ### D6: whole-project UI overhaul, then feature freeze
 
-The maintainer is writing a new task instruction. This milestone covers the full product, including landing, shared controls, learner journey, advisor view, offline states and both languages. Do not begin the overhaul or narrow it to the landing/learner screens before the instruction arrives. Record its scope, plan and exit checks here, then implement and verify it before feature freeze.
+The [design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) and [phase plan](plans/d6-ui-overhaul.md) cover the landing, shared controls, learner journey, infeasible and offline states, and advisor view. Work in six commits: baseline; tokens/primitives; shared blocks and tested view helpers; learner screens; advisor; proof and final doc placement. Phase 3 stops for learner screenshot review before Phase 4. Finish the design guard, full checks, local demo test, mobile Lighthouse 80/90 and ten after screenshots before feature freeze. Human Pidgin copy review remains a separate deferred D5 task.
 
 ### D7: pitch and proof, no new features
 
@@ -225,6 +225,8 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 | Date | Decision | Why |
 | --- | --- | --- |
 | 2026-10-06 | Re-plan a missed session starting tomorrow, while today's check-in stays editable | Prevents a same-day plan replacement from locking the student's chance to reverse the check-in |
+| 2026-10-08 | Keep the supplied D6 instruction and reference in their staging directory until the overhaul is complete | Maintainer wants the old implementation available for comparison throughout the work; ten baseline screenshots preserve its appearance |
+| 2026-10-08 | Draw the visual system from the product's line and stops within the bandwidth rules; put time above the week, group topics by outcome, fold reminders into the night block and line, and share one demo bar for the clock and simulated label | The reviewed D6 instruction defines the whole-product UI direction; existing behavior and data rules remain in force |
 | 2026-10-03 | Added the student's goal, a basis for every reason, offline use, English and Pidgin, read-aloud and the privacy panel | Every requirement in the capstone brief maps to a feature |
 | 2026-10-03 | End-to-end tests run locally only | Invention sprint: protect the demo, skip production hardening |
 | 2026-10-04 | Split the single AGENTS.md into a short map plus `docs/` | Codex loads only what a task needs; each fact has one home |

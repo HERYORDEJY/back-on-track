@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Back on Track: design reference</title>
+<style>
+/* ==========================================================================
+   Back on Track design reference. Static HTML and CSS only: no images, no web
+   fonts, no JavaScript. Port the structure and the CSS into the app; never
+   ship this file. The rules live in docs/DESIGN.md.
+
+   Each .screen is a size container, so the frames below switch layout by
+   their own width. In the app, use ordinary breakpoints: "wide" = 1024 px up.
+   ========================================================================== */
+
+/* ---- Tokens ------------------------------------------------------------- */
+:root {
+  --paper: #FFFFFF;      /* page */
+  --night: #0F1F4D;      /* text, the line, the one dark block */
+  --lamp:  #FFC72C;      /* "now": tonight, the course's week, the next action */
+  --lamp-wash: #FFEDB8;  /* the week column behind the landing lines */
+  --rail:  #A9B3CC;      /* line not yet travelled, hairlines */
+  --slate: #49557A;      /* secondary text */
+  --mist:  #EEF1F8;      /* quiet surfaces, demo equipment */
+  --night-soft: #D5DCF2; /* secondary text on night */
+  --error: #B3261E;      /* system and form errors only */
+
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --plate: 8px;          /* radius for buttons, notices, panels */
+  --gutter: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: #DFE4EF;
+  color: var(--night);
+  font: 400 16px/1.5 var(--font);
+  font-variant-numeric: lining-nums;
+}
+h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--night); outline-offset: 3px; }
+
+/* ---- Reference page scaffolding (not part of the product) ---------------- */
+.ref { padding: 32px 24px 64px; }
+.ref__title { font-size: 28px; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; }
+.ref__note { max-width: 70ch; margin-top: 8px; color: var(--slate); }
+.frames { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px; margin-top: 28px; }
+.frame__name { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.screen { container: screen / inline-size; background: var(--paper); overflow: hidden; }
+.screen--phone { width: 375px; }
+.screen--desk { width: 1200px; }
+
+/* ---- Demo equipment: dashed means "not part of the product" -------------- */
+.demo { background: var(--mist); border-bottom: 2px dashed var(--slate); font-size: 14px; line-height: 1.3; }
+.demo__row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 4px var(--gutter); }
+.demo__what { font-weight: 700; }
+.demo__when { color: var(--slate); font-variant-numeric: tabular-nums; }
+.demo__toggle, .demo__btn {
+  min-height: 44px; padding: 0 12px;
+  border: 2px dashed var(--slate); border-radius: var(--plate);
+  background: var(--paper); font-size: 14px; font-weight: 700; white-space: nowrap; cursor: pointer;
+}
+.demo__toggle { margin-left: auto; }
+.demo__controls { display: flex; gap: 6px; padding: 0 var(--gutter) 10px; overflow-x: auto; }
+.demo__controls[hidden] { display: none; }
+
+/* ---- Product header ------------------------------------------------------ */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px var(--gutter); }
+.mark { display: inline-flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; color: var(--night); text-decoration: none; }
+.mark__glyph { position: relative; flex: none; width: 34px; height: 16px; }
+.mark__glyph::before { content: ""; position: absolute; left: 0; top: 5px; width: 24px; height: 6px; border-radius: 3px 0 0 3px; background: var(--night); }
+.mark__glyph::after { content: ""; position: absolute; right: 0; top: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--lamp); border: 4px solid var(--night); }
+
+.lang { display: inline-flex; border: 2px solid var(--night); border-radius: var(--plate); overflow: hidden; }
+.lang__opt { min-height: 44px; padding: 0 12px; border: 0; background: var(--paper); font-size: 14px; font-weight: 700; cursor: pointer; }
+.lang__opt[aria-pressed="true"] { background: var(--night); color: var(--paper); }
+
+/* ---- Type roles ---------------------------------------------------------- */
+.display { font-size: 34px; line-height: 1.06; font-weight: 800; letter-spacing: -0.02em; }
+.heading { font-size: 21px; line-height: 1.2; font-weight: 800; letter-spacing: -0.01em; }
+.detail { font-size: 14px; line-height: 1.45; color: var(--slate); }
+
+.block { padding: 0 var(--gutter); margin-top: 28px; }
+.block > .heading { margin-bottom: 12px; }
+
+/* ---- Buttons: plates ----------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 0 22px;
+  border: 2px solid var(--night); border-radius: var(--plate);
+  background: var(--paper); color: var(--night);
+  font-size: 16px; font-weight: 700; text-decoration: none; white-space: nowrap; cursor: pointer;
+}
+.btn:hover { background: var(--mist); }
+.btn:active { transform: translateY(1px); }
+.btn--now { background: var(--lamp); }
+.btn--now:hover { background: var(--lamp); filter: brightness(0.96); }
+.btn--text { min-height: 44px; padding: 0 2px; border-color: transparent; background: none; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+.btn--text:hover { background: none; text-decoration-thickness: 3px; }
+
+/* ---- Notices and status chips -------------------------------------------- */
+.notice { border: 2px solid var(--night); border-radius: var(--plate); padding: 12px 14px; }
+.notice b { font-weight: 800; }
+.chip { display: inline-flex; align-items: center; gap: 7px; padding: 3px 11px 3px 9px; border: 2px solid var(--night); border-radius: 999px; font-size: 14px; font-weight: 700; }
+.chip::before { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--night); }
+
+/* ---- Goal ---------------------------------------------------------------- */
+.goal { padding: 6px var(--gutter) 16px; }
+.goal__text { font-size: 19px; line-height: 1.25; font-weight: 800; letter-spacing: -0.01em; }
+
+/* ---- The one dark block -------------------------------------------------- */
+.night { background: var(--night); color: var(--paper); padding: 18px var(--gutter) 20px; }
+.night :focus-visible { outline-color: var(--lamp); }
+.night__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.night__label { font-size: 18px; font-weight: 700; }
+.night__big { margin: 0 0 8px; font-size: 68px; line-height: 1; font-weight: 800; letter-spacing: -0.035em; color: var(--lamp); font-variant-numeric: tabular-nums lining-nums; }
+.night__unit { font-size: 0.4em; letter-spacing: 0; margin-left: 0.12em; }
+.night__what { font-size: 18px; line-height: 1.35; color: var(--night-soft); }
+.night__what b { color: var(--paper); font-weight: 700; }
+.night__say { font-size: 23px; line-height: 1.22; font-weight: 800; letter-spacing: -0.015em; }
+.night__say + .night__what { margin-top: 12px; }
+.night__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; }
+.night .btn { border-color: var(--paper); background: transparent; color: var(--paper); }
+.night .btn--now { border-color: var(--lamp); background: var(--lamp); color: var(--night); }
+.night .btn--text { border-color: transparent; }
+
+/* ---- The line ------------------------------------------------------------ */
+.line { padding: 0 var(--gutter); }
+.stop { position: relative; min-height: 42px; padding: 0 0 18px 46px; }
+.stop::before {            /* the segment from this stop down to the next one */
+  content: ""; position: absolute; left: 11px; top: 12px; bottom: -12px; width: 6px;
+  background: var(--rail);
+}
+.stop:last-child { padding-bottom: 0; }
+.stop:last-child::before { display: none; }
+.stop--past::before { background: var(--night); }
+.stop--gap::before { background: repeating-linear-gradient(to bottom, var(--rail) 0 6px, transparent 6px 12px); }
+
+.stop__mark {              /* planned stop: a ring */
+  position: absolute; z-index: 1; left: 5px; top: 3px; width: 18px; height: 18px;
+  border-radius: 50%; background: var(--paper); border: 4px solid var(--night);
+}
+.stop--done .stop__mark { background: var(--night); }
+.stop--done .stop__mark::after {   /* tick */
+  content: ""; position: absolute; left: 3px; top: 0; width: 4px; height: 8px;
+  border: solid var(--paper); border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+.stop--missed .stop__mark { border: 3px dashed var(--slate); }
+.stop--now .stop__mark { left: 0; top: -2px; width: 28px; height: 28px; background: var(--lamp); }
+.stop--due .stop__mark {   /* a deadline: ring with a centre dot */
+  left: 2px; top: 0; width: 24px; height: 24px;
+  background: radial-gradient(circle, var(--night) 0 4px, var(--paper) 4.5px);
+}
+.stop--end .stop__mark { left: 0; top: 8px; width: 28px; height: 8px; border: 0; border-radius: 2px; background: var(--night); }
+.stop--rest .stop__mark { left: 17px; top: 10px; width: 11px; height: 4px; border: 0; border-radius: 0 2px 2px 0; background: var(--slate); }
+.stop--gap .stop__mark { display: none; }
+
+.stop__when { display: flex; align-items: baseline; gap: 10px; line-height: 24px; font-weight: 700; }
+.stop__mins { font-weight: 400; font-variant-numeric: tabular-nums; }
+.stop__flag { margin-left: auto; padding: 0 9px; border-radius: 4px; background: var(--lamp); font-size: 14px; font-weight: 800; }
+.stop__state { margin-left: auto; font-size: 14px; font-weight: 400; color: var(--slate); }
+.stop__what { margin-top: 1px; font-size: 15px; line-height: 1.4; }
+.stop__do { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.stop--missed .stop__when, .stop--missed .stop__what,
+.stop--rest .stop__when, .stop--gap .stop__when { font-weight: 400; color: var(--slate); }
+.stop--wont .stop__when { color: var(--night); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .line--draw .stop { opacity: 0; animation: stop-in 0.3s ease-out forwards; animation-delay: calc(var(--i, 0) * 45ms); }
+  @keyframes stop-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+}
+
+/* ---- What's in the plan, and why ----------------------------------------- */
+.group { border-top: 2px solid var(--night); }
+.group:last-of-type { border-bottom: 2px solid var(--night); }
+.group__head { display: flex; align-items: center; gap: 10px; min-height: 52px; font-size: 17px; font-weight: 800; list-style: none; cursor: pointer; }
+.group__head::-webkit-details-marker { display: none; }
+.group__count { font-weight: 400; color: var(--slate); font-variant-numeric: tabular-nums; }
+.group__head::after { content: ""; margin: -4px 4px 0 auto; width: 10px; height: 10px; border: solid var(--night); border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.group[open] > .group__head::after { margin-top: 6px; transform: rotate(-135deg); }
+
+.meter { position: relative; flex: none; width: 30px; height: 12px; border: 2px solid var(--night); border-radius: 3px; }
+.meter::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--f, 100%); background: var(--night); }
+
+.topic { padding: 12px 0 14px; border-top: 1px solid var(--rail); }
+.topic__head { display: flex; align-items: baseline; gap: 12px; }
+.topic__name { font-weight: 700; }
+.topic__mins { margin-left: auto; white-space: nowrap; font-size: 14px; color: var(--slate); font-variant-numeric: tabular-nums; }
+.topic__why { margin-top: 2px; }
+.topic__basis { margin-top: 6px; padding-left: 10px; border-left: 3px solid var(--rail); font-size: 14px; line-height: 1.45; color: var(--slate); }
+
+/* ---- Time: lines on one scale -------------------------------------------- */
+.time__say { margin-bottom: 16px; }
+.time { display: grid; gap: 14px; }
+.time__row { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: baseline; }
+.time__val { font-weight: 800; font-variant-numeric: tabular-nums; }
+.time__track { grid-column: 1 / -1; height: 12px; }
+.time__fill { display: block; height: 100%; width: var(--w); border-radius: 6px; background: var(--night); }
+.time__row--course .time__fill { background: repeating-linear-gradient(135deg, var(--slate) 0 2px, var(--paper) 2px 7px); border: 2px solid var(--slate); }
+.time__row--plan .time__fill { background: var(--lamp); border: 2px solid var(--night); }
+
+/* ---- What your advisor sees ---------------------------------------------- */
+.signal { display: inline-flex; gap: 3px; margin-right: 8px; vertical-align: -1px; }
+.signal i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--night); }
+.signal i.on { background: var(--night); }
+.signal--bare { margin-right: 0; }
+.seen { border: 2px solid var(--night); border-radius: var(--plate); padding: 14px; }
+.seen__level { font-weight: 800; }
+.dashes { display: grid; gap: 6px; }
+.seen .dashes { margin-top: 8px; }
+.dashes li { position: relative; padding-left: 16px; }
+.dashes li::before { content: ""; position: absolute; left: 0; top: 10px; width: 8px; height: 3px; border-radius: 2px; background: var(--night); }
+
+/* ---- Landing: three people, one course ----------------------------------- */
+.hero { padding: 18px var(--gutter) 0; }
+.hero__lede { margin-top: 12px; font-size: 17px; line-height: 1.45; }
+.hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 20px; }
+.people { position: relative; margin: 30px var(--gutter) 28px; }
+.people__scale { position: relative; height: 32px; }
+.people__now { position: absolute; z-index: 0; top: 4px; bottom: 0; left: var(--now); width: 14px; margin-left: -7px; border-radius: 7px; background: var(--lamp-wash); }
+.people__nowname { position: absolute; z-index: 2; top: 0; left: var(--now); transform: translateX(-50%); white-space: nowrap; padding: 2px 10px; border-radius: 4px; background: var(--lamp); font-size: 14px; font-weight: 800; }
+.person { position: relative; z-index: 1; display: block; padding: 16px 0 18px; border-top: 1px solid var(--rail); color: inherit; text-decoration: none; }
+.person:last-child { border-bottom: 1px solid var(--rail); }
+.person__name { font-size: 19px; line-height: 1.2; font-weight: 800; letter-spacing: -0.01em; }
+.person__who { font-size: 15px; color: var(--slate); }
+.person__where { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 15px; }
+.person__open { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+
+/* A person's whole course as one short line */
+.mini { position: relative; height: 16px; margin-top: 12px; }
+.mini::before { content: ""; position: absolute; left: 0; right: 0; top: 5px; height: 6px; border-radius: 3px; background: var(--rail); }
+.mini__done { position: absolute; left: 0; top: 5px; height: 6px; width: var(--done); border-radius: 3px 0 0 3px; background: var(--night); }
+.mini__at { position: absolute; top: 0; left: var(--done); width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--paper); border: 4px solid var(--night); }
+.mini__end { position: absolute; right: 0; top: 1px; width: 6px; height: 14px; border-radius: 2px; background: var(--night); }
+.mini__now { position: absolute; top: -3px; left: var(--now); width: 7px; height: 22px; margin-left: -3.5px; border-radius: 3px; background: var(--lamp); border: 1.5px solid var(--night); }
+
+/* ---- Advisor: who to call this week -------------------------------------- */
+.desk { display: grid; grid-template-columns: minmax(0, 1fr) 400px; }
+.desk__main { padding: 8px 32px 40px 40px; }
+.desk__main .bar { padding-left: 0; padding-right: 0; }
+.desk__title { margin-top: 14px; font-size: 40px; }
+.desk__lede { max-width: 62ch; margin-top: 10px; font-size: 17px; }
+.filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 6px; }
+.filter__opt { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 2px solid var(--night); border-radius: var(--plate); font-size: 15px; font-weight: 700; color: var(--night); text-decoration: none; }
+.filter__opt[aria-current="true"] { background: var(--night); color: var(--paper); }
+.filter__n { font-weight: 400; font-variant-numeric: tabular-nums; }
+
+.board { width: 100%; border-collapse: collapse; }
+.board th { padding: 12px 14px 10px 0; border-bottom: 2px solid var(--night); text-align: left; white-space: nowrap; font-size: 14px; font-weight: 700; color: var(--slate); }
+.board td { padding: 14px 14px 16px 0; border-bottom: 1px solid var(--rail); vertical-align: top; font-size: 15px; line-height: 1.4; }
+.board th:first-child, .board td:first-child { padding-left: 14px; }
+.board__who { font-size: 16px; font-weight: 800; color: var(--night); text-decoration: none; white-space: nowrap; }
+.board__seen { margin-top: 2px; font-size: 14px; color: var(--slate); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.board__first { display: block; width: max-content; margin-top: 6px; padding: 1px 9px; line-height: 1.45; border-radius: 4px; background: var(--lamp); font-size: 14px; font-weight: 800; }
+.board__line { width: 168px; }
+.board__line .mini { margin-top: 3px; }
+.board__week { margin-top: 5px; font-size: 14px; color: var(--slate); }
+.board__level { white-space: nowrap; font-weight: 700; }
+.board__why li + li { margin-top: 3px; }
+.board tr[aria-selected="true"] td { background: var(--mist); }
+.board tr[aria-selected="true"] td:first-child { position: relative; }
+.board tr[aria-selected="true"] td:first-child::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--night); }
+
+.drawer { border-left: 2px solid var(--night); padding: 28px 24px 32px; }
+.drawer__name { font-size: 24px; line-height: 1.15; font-weight: 800; letter-spacing: -0.015em; }
+.drawer__level { margin-top: 6px; font-weight: 700; }
+.drawer__part { margin-top: 24px; }
+.drawer__part > .heading { font-size: 17px; margin-bottom: 8px; }
+.draft { display: block; width: 100%; min-height: 196px; padding: 12px; border: 2px solid var(--night); border-radius: var(--plate); background: var(--paper); line-height: 1.5; resize: vertical; }
+.drawer__actions { display: flex; gap: 10px; margin-top: 12px; }
+.drawer__actions .btn { flex: 1 1 0; padding: 0 12px; }
+.log { display: grid; gap: 6px; font-size: 15px; }
+.log li { display: grid; grid-template-columns: 62px 1fr; gap: 10px; }
+.log time { color: var(--slate); font-variant-numeric: tabular-nums; }
+
+/* ---- Forms -------------------------------------------------------------- */
+.intake { padding: 10px var(--gutter) 32px; }
+.intake__title { font-size: 30px; }
+.intake__lede { margin-top: 10px; font-size: 17px; line-height: 1.45; }
+.field { margin: 24px 0 0; padding: 0; border: 0; min-width: 0; }
+.field__label { display: block; padding: 0; margin-bottom: 8px; font-size: 16px; font-weight: 800; }
+.field__opt { margin-left: 6px; font-weight: 400; color: var(--slate); }
+.field__hint { margin-top: 6px; font-size: 14px; line-height: 1.45; color: var(--slate); }
+.field__error { margin-top: 6px; font-size: 14px; line-height: 1.45; font-weight: 700; color: var(--error); }
+.input {
+  display: block; width: 100%; min-height: 48px; padding: 0 12px;
+  border: 2px solid var(--night); border-radius: var(--plate);
+  background: var(--paper); font-size: 16px;
+}
+.input::placeholder { color: var(--slate); }
+.input[aria-invalid="true"] { border-color: var(--error); }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.day__name { display: block; margin-bottom: 4px; text-align: center; font-size: 14px; color: var(--slate); }
+.day__in { padding: 0; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.presets { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.presets__say { flex-basis: 100%; font-size: 14px; color: var(--slate); }
+.btn--small { min-height: 44px; padding: 0 14px; font-size: 15px; }
+.btn--wide { width: 100%; }
+.btn[disabled] { border-color: var(--rail); background: var(--mist); color: var(--slate); cursor: not-allowed; }
+.check { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 18px; font-weight: 700; cursor: pointer; }
+.check__box { appearance: none; -webkit-appearance: none; flex: none; display: grid; place-content: center; width: 24px; height: 24px; margin: 0; border: 2px solid var(--night); border-radius: 4px; background: var(--paper); cursor: pointer; }
+.check__box:checked { background: var(--night); }
+.check__box:checked::after { content: ""; width: 6px; height: 11px; margin-top: -3px; border: solid var(--paper); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+.intake__go { margin-top: 28px; }
+
+/* ---- Waiting: a stop travelling along the line ---------------------------- */
+.travel { position: relative; height: 16px; }
+.travel::before { content: ""; position: absolute; left: 0; right: 0; top: 5px; height: 6px; border-radius: 3px; background: var(--rail); }
+.travel::after { content: ""; position: absolute; top: 0; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--lamp); border: 4px solid var(--night); }
+@media (prefers-reduced-motion: no-preference) {
+  .travel::after { animation: travel 1.4s ease-in-out infinite alternate; }
+  @keyframes travel { from { left: 0; } to { left: calc(100% - 16px); } }
+}
+
+.notice--error { border-color: var(--error); }
+.notice__act { margin-top: 10px; }
+
+/* ---- Reference sheet for controls and states ----------------------------- */
+.kit { padding: 6px var(--gutter) 28px; }
+.kit__part { margin-top: 22px; }
+.kit__part > .heading { font-size: 17px; margin-bottom: 10px; }
+.kit__row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.kit__night { margin: 12px calc(var(--gutter) * -1) 0; padding: 14px var(--gutter); }
+.kit__key { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 10px 12px; }
+.kit__key .stop { min-height: 28px; padding: 0; }
+.kit__key .stop::before { display: none; }
+.kit__key .meter { justify-self: start; }
+
+/* ---- Wide layouts (1024 px up in the app) -------------------------------- */
+@container screen (min-width: 1000px) {
+  .demo__row { padding: 2px 40px; }
+  .demo__row .demo__controls { margin-left: auto; padding: 0; overflow: visible; }
+  .demo__toggle { display: none; }
+  .bar { padding: 14px 40px; }
+
+  .landing { display: grid; grid-template-columns: 5fr 6fr; column-gap: 80px; align-items: start; padding: 28px 40px 64px; }
+  .landing .hero { padding: 12px 0 0; }
+  .landing .display { font-size: 54px; line-height: 1.02; letter-spacing: -0.03em; }
+  .landing .hero__lede { margin-top: 18px; font-size: 19px; max-width: 30ch; }
+  .landing .hero__actions { margin-top: 28px; }
+  .landing .people { margin: 0; }
+
+  .intake { max-width: 600px; padding: 20px 40px 56px; }
+  .intake__title { font-size: 40px; }
+  .plan { display: grid; grid-template-columns: 400px minmax(0, 620px); column-gap: 72px; align-items: start; padding: 12px 40px 56px; --gutter: 0px; }
+  .plan__side { position: sticky; top: 16px; }
+  .plan .goal { padding-top: 0; }
+  .plan .night { padding: 20px 24px 24px; border-radius: var(--plate); }
+  .plan__main > .block:first-child { margin-top: 0; }
+  .plan .line { max-width: 540px; }
+}
+</style>
+</head>
+<body>
+<main class="ref">
+  <h1 class="ref__title">Back on Track: design reference</h1>
+  <p class="ref__note">Static reference for docs/DESIGN.md. The copy is real and the data is simulated. Port the structure and the CSS into the app's components; strings stay in the message files.</p>
+
+  <div class="frames">
+
+    <!-- ================= Landing, phone ================= -->
+    <section class="frame" aria-labelledby="n-landing">
+      <h2 class="frame__name" id="n-landing">Landing (375 px)</h2>
+      <div class="screen screen--phone" id="f-landing">
+        <div class="demo">
+          <div class="demo__row"><span class="demo__what">Simulated data</span><span class="demo__when">Mon 19 Oct, Week 7</span><button class="demo__toggle" aria-expanded="false">Clock</button></div>
+        </div>
+        <header class="bar">
+          <a class="mark" href="#"><span class="mark__glyph" aria-hidden="true"></span>Back on Track</a>
+          <div class="lang" role="group" aria-label="Language"><button class="lang__opt" aria-pressed="true">English</button><button class="lang__opt" aria-pressed="false">Pidgin</button></div>
+        </header>
+
+        <div class="landing">
+          <div class="hero">
+            <h1 class="display">A catch-up plan that fits the hours you actually have.</h1>
+            <p class="hero__lede">Three students are behind on the same course. Open one to see the plan that gets them back.</p>
+            <div class="hero__actions">
+              <a class="btn btn--now" href="#">Start demo</a>
+              <a class="btn btn--text" href="#">Advisor view</a>
+            </div>
+          </div>
+
+          <div class="people" style="--now: 50%">
+            <div class="people__now" aria-hidden="true"></div>
+            <div class="people__scale"><span class="people__nowname">The course is at Week 7</span></div>
+
+            <a class="person" href="#">
+              <h2 class="person__name">Amaka Okafor</h2>
+              <p class="person__who">Nurse in Lagos, two children, night shifts</p>
+              <div class="mini" style="--done: 25%" aria-hidden="true"><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div>
+              <p class="person__where"><span>Done through Week 3</span><span class="person__open">Open plan</span></p>
+            </a>
+            <a class="person" href="#">
+              <h2 class="person__name">Tunde Adeyemi</h2>
+              <p class="person__who">Civil servant in Abuja</p>
+              <div class="mini" style="--done: 8.33%" aria-hidden="true"><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div>
+              <p class="person__where"><span>Done through Week 1</span><span class="person__open">Open plan</span></p>
+            </a>
+            <a class="person" href="#">
+              <h2 class="person__name">Zainab Bello</h2>
+              <p class="person__who">Software developer in Kano</p>
+              <div class="mini" style="--done: 41.67%" aria-hidden="true"><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div>
+              <p class="person__where"><span>Done through Week 5</span><span class="person__open">Open plan</span></p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Intake ================= -->
+    <section class="frame" aria-labelledby="n-intake">
+      <h2 class="frame__name" id="n-intake">Intake (375 px)</h2>
+      <div class="screen screen--phone" id="f-intake">
+        <div class="demo">
+          <div class="demo__row"><span class="demo__what">Simulated data</span><span class="demo__when">Mon 19 Oct, Week 7</span><button class="demo__toggle" aria-expanded="false">Clock</button></div>
+        </div>
+        <header class="bar">
+          <a class="mark" href="#"><span class="mark__glyph" aria-hidden="true"></span>Back on Track</a>
+          <div class="lang" role="group" aria-label="Language"><button class="lang__opt" aria-pressed="true">English</button><button class="lang__opt" aria-pressed="false">Pidgin</button></div>
+        </header>
+
+        <form class="intake">
+          <h1 class="display intake__title">Let's get you back on track.</h1>
+          <p class="intake__lede">Tell us the time you really have, even if it's small. A plan that fits is one you can keep.</p>
+
+          <fieldset class="field">
+            <legend class="field__label">Minutes you can study each day</legend>
+            <div class="days">
+              <label class="day"><span class="day__name">Mon</span><input class="input day__in" inputmode="numeric" value="40"></label>
+              <label class="day"><span class="day__name">Tue</span><input class="input day__in" inputmode="numeric" value="40"></label>
+              <label class="day"><span class="day__name">Wed</span><input class="input day__in" inputmode="numeric" value="40"></label>
+              <label class="day"><span class="day__name">Thu</span><input class="input day__in" inputmode="numeric" value="40"></label>
+              <label class="day"><span class="day__name">Fri</span><input class="input day__in" inputmode="numeric" value="40"></label>
+              <label class="day"><span class="day__name">Sat</span><input class="input day__in" inputmode="numeric" value="0"></label>
+              <label class="day"><span class="day__name">Sun</span><input class="input day__in" inputmode="numeric" value="90"></label>
+            </div>
+            <p class="field__hint">That's 4 h 50 min a week.</p>
+            <div class="presets" role="group" aria-label="Set every day to">
+              <span class="presets__say">Or set every day to</span>
+              <button type="button" class="btn btn--small">20 min</button>
+              <button type="button" class="btn btn--small">40 min</button>
+              <button type="button" class="btn btn--small">60 min</button>
+              <button type="button" class="btn btn--small">90 min</button>
+            </div>
+          </fieldset>
+
+          <label class="check"><input class="check__box" type="checkbox">My hours change every week</label>
+
+          <div class="field">
+            <label class="field__label" for="i-goal">Your goal<span class="field__opt">optional</span></label>
+            <input class="input" id="i-goal" value="Promotion to senior nursing officer" maxlength="80">
+            <p class="field__hint">What is this course for? Leave out names, phone numbers and employers.</p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="i-more">Anything else we should know<span class="field__opt">optional</span></label>
+            <input class="input" id="i-more" value="Night shifts, two children" maxlength="120">
+          </div>
+
+          <button type="button" class="btn btn--now btn--wide intake__go">Get me back on track</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ================= Plan, phone ================= -->
+    <section class="frame" aria-labelledby="n-plan">
+      <h2 class="frame__name" id="n-plan">Plan, first build (375 px)</h2>
+      <div class="screen screen--phone" id="f-plan">
+        <div class="demo">
+          <div class="demo__row"><span class="demo__what">Simulated data</span><span class="demo__when">Mon 19 Oct, Week 7</span><button class="demo__toggle" aria-expanded="false">Clock</button></div>
+        </div>
+        <header class="bar">
+          <a class="mark" href="#"><span class="mark__glyph" aria-hidden="true"></span>Back on Track</a>
+          <div class="lang" role="group" aria-label="Language"><button class="lang__opt" aria-pressed="true">English</button><button class="lang__opt" aria-pressed="false">Pidgin</button></div>
+        </header>
+
+        <div class="plan">
+          <div class="plan__side">
+            <div class="goal">
+              <p class="detail">Your goal</p>
+              <p class="goal__text">Promotion to senior nursing officer</p>
+            </div>
+
+            <section class="night" aria-labelledby="p-tonight">
+              <div class="night__top"><h2 class="night__label" id="p-tonight">Tonight</h2><button class="btn btn--text">Listen</button></div>
+              <p class="night__big">40<span class="night__unit">min</span></p>
+              <p class="night__what">Starting with <b>Organisational structure</b></p>
+              <div class="night__actions">
+                <button class="btn btn--now">Done</button>
+                <button class="btn">Missed</button>
+              </div>
+            </section>
+
+            <section class="block" aria-labelledby="p-time">
+              <h2 class="heading" id="p-time">Your time before the exam</h2>
+              <p class="time__say">This plan fits about 30 hours before the exam. It keeps 18 topics, shortens 6 and skips 3.</p>
+              <dl class="time">
+                <div class="time__row time__row--course"><dt>The course as written needs</dt><dd class="time__val">36 h</dd><dd class="time__track" aria-hidden="true"><span class="time__fill" style="--w: 100%"></span></dd></div>
+                <div class="time__row time__row--have"><dt>You have</dt><dd class="time__val">29 h 40 min</dd><dd class="time__track" aria-hidden="true"><span class="time__fill" style="--w: 82.4%"></span></dd></div>
+                <div class="time__row time__row--plan"><dt>This plan needs</dt><dd class="time__val">29 h 36 min</dd><dd class="time__track" aria-hidden="true"><span class="time__fill" style="--w: 82.2%"></span></dd></div>
+              </dl>
+            </section>
+          </div>
+
+          <div class="plan__main">
+            <section class="block" aria-labelledby="p-week">
+              <h2 class="heading" id="p-week">Your week</h2>
+            </section>
+            <ol class="line line--draw">
+              <li class="stop stop--now" style="--i: 0"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Mon 19 Oct <span class="stop__mins">40 min</span><span class="stop__flag">Tonight</span></p>
+                <p class="stop__what">Organisational structure</p></li>
+              <li class="stop" style="--i: 1"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Tue 20 Oct <span class="stop__mins">40 min</span></p>
+                <p class="stop__what">Organisational structure</p></li>
+              <li class="stop" style="--i: 2"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Wed 21 Oct <span class="stop__mins">40 min</span></p>
+                <p class="stop__what">Delegation and authority</p></li>
+              <li class="stop" style="--i: 3"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Thu 22 Oct <span class="stop__mins">40 min</span></p>
+                <p class="stop__what">Delegation and authority</p></li>
+              <li class="stop" style="--i: 4"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Fri 23 Oct <span class="stop__mins">40 min</span></p>
+                <p class="stop__what">Departmentalisation</p></li>
+              <li class="stop stop--rest" style="--i: 5"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sat 24 Oct, no study time</p></li>
+              <li class="stop" style="--i: 6"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sun 25 Oct <span class="stop__mins">90 min</span></p>
+                <p class="stop__what">Departmentalisation, Motivation theories</p></li>
+              <li class="stop stop--gap" style="--i: 7"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">6 more sessions</p></li>
+              <li class="stop stop--due" style="--i: 8"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sun 1 Nov</p>
+                <p class="stop__what">Assignment 2 due, 15% of your grade</p></li>
+              <li class="stop stop--gap" style="--i: 9"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">25 more sessions</p></li>
+              <li class="stop stop--end" style="--i: 10"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Tue 1 Dec</p>
+                <p class="stop__what">Final exam</p></li>
+            </ol>
+
+            <div class="block">
+              <p class="notice"><b>5 topics for Assignment 2 land after its due date (Sun 1 Nov).</b> Ask your advisor about an extension.</p>
+            </div>
+
+            <section class="block" aria-labelledby="p-cuts">
+              <h2 class="heading" id="p-cuts">What's in your plan, and why</h2>
+              <details class="group" open>
+                <summary class="group__head"><span class="meter" style="--f: 0%" aria-hidden="true"></span>Skipped <span class="group__count">3 topics</span></summary>
+                <div class="topic">
+                  <p class="topic__head"><span class="topic__name">Forecasting for small firms</span><span class="topic__mins">0 of 70 min</span></p>
+                  <p class="topic__why">Nothing later in the course builds on it.</p>
+                  <p class="topic__basis">Low exam weight: about 1% of the exam</p>
+                </div>
+                <div class="topic">
+                  <p class="topic__head"><span class="topic__name">Management information systems</span><span class="topic__mins">0 of 90 min</span></p>
+                  <p class="topic__why">The lightest topic left after the quiz.</p>
+                  <p class="topic__basis">Low exam weight: about 1% of the exam</p>
+                </div>
+              </details>
+              <details class="group" open>
+                <summary class="group__head"><span class="meter" style="--f: 70%" aria-hidden="true"></span>Shortened <span class="group__count">6 topics</span></summary>
+                <div class="topic">
+                  <p class="topic__head"><span class="topic__name">Motivation theories</span><span class="topic__mins">56 of 80 min</span></p>
+                  <p class="topic__why">Enough to answer the assignment question on it.</p>
+                  <p class="topic__basis">Needed for Assignment 2 (15%, due Sun 1 Nov)</p>
+                </div>
+              </details>
+              <details class="group">
+                <summary class="group__head"><span class="meter" aria-hidden="true"></span>Kept in full <span class="group__count">18 topics</span></summary>
+              </details>
+            </section>
+
+            <section class="block" aria-labelledby="p-seen">
+              <h2 class="heading" id="p-seen">What your advisor sees</h2>
+              <div class="seen">
+                <p class="seen__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>Medium priority for a call</p>
+                <ul class="dashes">
+                  <li>Missed work is 1.7x the time left before Assignment 2</li>
+                  <li>Assessments missed: 1</li>
+                  <li>Last active today</li>
+                </ul>
+              </div>
+            </section>
+
+            <div class="block" style="margin-top: 14px; padding-bottom: 28px">
+              <button class="btn btn--text">Delete my data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= After a re-plan, offline ================= -->
+    <section class="frame" aria-labelledby="n-replan">
+      <h2 class="frame__name" id="n-replan">Plan after two missed sessions, offline, clock open (375 px)</h2>
+      <div class="screen screen--phone" id="f-replan">
+        <div class="demo">
+          <div class="demo__row"><span class="demo__what">Simulated data</span><span class="demo__when">Thu 22 Oct, Week 7</span><button class="demo__toggle" aria-expanded="true">Clock</button></div>
+          <div class="demo__controls"><button class="demo__btn">+1 day</button><button class="demo__btn">+3 days</button><select class="demo__btn" aria-label="Go to week"><option>Go to week</option></select><button class="demo__btn">Reset</button></div>
+        </div>
+        <header class="bar">
+          <a class="mark" href="#"><span class="mark__glyph" aria-hidden="true"></span>Back on Track</a>
+          <div class="lang" role="group" aria-label="Language"><button class="lang__opt" aria-pressed="true">English</button><button class="lang__opt" aria-pressed="false">Pidgin</button></div>
+        </header>
+
+        <div class="block" style="margin-top: 0"><span class="chip">Saved on this phone</span></div>
+        <div class="block" style="margin-top: 12px">
+          <p class="notice"><b>Your plan has been updated.</b> Moved 4 topics, shortened 2, dropped 1.</p>
+        </div>
+
+        <div class="goal" style="padding-top: 18px">
+          <p class="detail">Your goal</p>
+          <p class="goal__text">Promotion to senior nursing officer</p>
+        </div>
+
+        <section class="night" aria-labelledby="r-tonight">
+          <div class="night__top"><h2 class="night__label" id="r-tonight">Tonight</h2><button class="btn btn--text">Listen</button></div>
+          <p class="night__big">40<span class="night__unit">min</span></p>
+          <p class="night__what">Starting with <b>Organisational structure</b></p>
+          <div class="night__actions">
+            <button class="btn btn--now">Done</button>
+            <button class="btn">Missed</button>
+          </div>
+        </section>
+
+        <section class="block" aria-labelledby="r-week">
+          <h2 class="heading" id="r-week">Your week</h2>
+        </section>
+        <ol class="line">
+          <li class="stop stop--done stop--past"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Mon 19 Oct <span class="stop__mins">40 min</span><span class="stop__state">Done</span></p>
+            <p class="stop__what">Organisational structure</p></li>
+          <li class="stop stop--missed stop--past"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Tue 20 Oct <span class="stop__mins">40 min</span><span class="stop__state">Missed</span></p></li>
+          <li class="stop stop--missed stop--past"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Wed 21 Oct <span class="stop__mins">40 min</span><span class="stop__state">Missed</span></p></li>
+          <li class="stop stop--now"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Thu 22 Oct <span class="stop__mins">40 min</span><span class="stop__flag">Tonight</span></p>
+            <p class="stop__what">Organisational structure</p></li>
+          <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Fri 23 Oct <span class="stop__mins">40 min</span></p>
+            <p class="stop__what">Delegation and authority</p></li>
+          <li class="stop stop--rest"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Sat 24 Oct, no study time</p></li>
+          <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Sun 25 Oct <span class="stop__mins">90 min</span></p>
+            <p class="stop__what">Delegation and authority, Departmentalisation</p></li>
+          <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Mon 26 Oct <span class="stop__mins">40 min</span></p>
+            <p class="stop__what">Departmentalisation</p></li>
+          <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Tue 27 Oct <span class="stop__mins">40 min</span></p>
+            <p class="stop__what">Motivation theories</p></li>
+          <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Wed 28 Oct <span class="stop__mins">40 min</span></p>
+            <p class="stop__what">Motivation theories</p></li>
+          <li class="stop stop--gap"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">3 more sessions</p></li>
+          <li class="stop stop--due"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Sun 1 Nov</p>
+            <p class="stop__what">Assignment 2 due, 15% of your grade</p></li>
+          <li class="stop stop--gap"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">25 more sessions</p></li>
+          <li class="stop stop--end"><span class="stop__mark" aria-hidden="true"></span>
+            <p class="stop__when">Tue 1 Dec</p>
+            <p class="stop__what">Final exam</p></li>
+        </ol>
+        <div style="height: 28px"></div>
+      </div>
+    </section>
+
+    <!-- ================= Can't catch up ================= -->
+    <section class="frame" aria-labelledby="n-cant">
+      <h2 class="frame__name" id="n-cant">Can't catch up before the exam (375 px)</h2>
+      <div class="screen screen--phone" id="f-cant">
+        <div class="demo">
+          <div class="demo__row"><span class="demo__what">Simulated data</span><span class="demo__when">Thu 22 Oct, Week 7</span><button class="demo__toggle" aria-expanded="false">Clock</button></div>
+        </div>
+        <header class="bar">
+          <a class="mark" href="#"><span class="mark__glyph" aria-hidden="true"></span>Back on Track</a>
+          <div class="lang" role="group" aria-label="Language"><button class="lang__opt" aria-pressed="true">English</button><button class="lang__opt" aria-pressed="false">Pidgin</button></div>
+        </header>
+
+        <div class="plan">
+          <div class="plan__side">
+            <div class="goal">
+              <p class="detail">Your goal</p>
+              <p class="goal__text">A policy analyst role</p>
+            </div>
+
+            <section class="night" aria-labelledby="c-say">
+              <h2 class="night__say" id="c-say">You have about 13 hours before the exam, and the core topics need about 20.</h2>
+              <p class="night__what">This plan gets you ready for <b>Assignment 2</b> first. A study break may be the better path, and <b>your advisor has been told</b>.</p>
+              <div class="night__actions"><button class="btn btn--text">Listen</button></div>
+            </section>
+
+            <section class="block" aria-labelledby="c-time">
+              <h2 class="heading" id="c-time">Your time before the exam</h2>
+              <dl class="time">
+                <div class="time__row time__row--course"><dt>The course as written needs</dt><dd class="time__val">44 h</dd><dd class="time__track" aria-hidden="true"><span class="time__fill" style="--w: 100%"></span></dd></div>
+                <div class="time__row time__row--have"><dt>You have</dt><dd class="time__val">13 h 20 min</dd><dd class="time__track" aria-hidden="true"><span class="time__fill" style="--w: 30.3%"></span></dd></div>
+              </dl>
+            </section>
+          </div>
+
+          <div class="plan__main">
+            <section class="block" aria-labelledby="c-next">
+              <h2 class="heading" id="c-next">Until Assignment 2</h2>
+            </section>
+            <ol class="line">
+              <li class="stop stop--now"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Thu 22 Oct <span class="stop__mins">20 min</span><span class="stop__flag">Tonight</span></p>
+                <p class="stop__what">Organisational structure</p>
+                <p class="stop__do"><button class="btn btn--now">Done</button><button class="btn">Missed</button></p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Fri 23 Oct <span class="stop__mins">20 min</span></p>
+                <p class="stop__what">Organisational structure</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sat 24 Oct <span class="stop__mins">20 min</span></p>
+                <p class="stop__what">Organisational structure</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sun 25 Oct <span class="stop__mins">20 min</span></p>
+                <p class="stop__what">Organisational structure</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Mon 26 Oct <span class="stop__mins">20 min</span></p>
+                <p class="stop__what">Delegation and authority</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Tue 27 Oct <span class="stop__mins">20 min</span></p>
+                <p class="stop__what">Delegation and authority</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Wed 28 Oct <span class="stop__mins">20 min</span></p>
+                <p class="stop__what">Delegation and authority</p></li>
+              <li class="stop stop--gap"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">3 more sessions</p></li>
+              <li class="stop stop--due"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sun 1 Nov</p>
+                <p class="stop__what">Assignment 2 due, 15% of your grade</p></li>
+              <li class="stop stop--gap stop--wont"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Won't fit before Sun 1 Nov: 10 topics</p></li>
+              <li class="stop stop--end"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Tue 1 Dec</p>
+                <p class="stop__what">Final exam</p></li>
+            </ol>
+
+            <section class="block" aria-labelledby="c-break">
+              <h2 class="heading" id="c-break">About a study break</h2>
+              <p>A study break pauses your course so you can come back when you have more time. Your advisor can explain how it works for you.</p>
+            </section>
+
+            <section class="block" aria-labelledby="c-seen">
+              <h2 class="heading" id="c-seen">What your advisor sees</h2>
+              <div class="seen">
+                <p class="seen__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>High priority for a call</p>
+                <ul class="dashes">
+                  <li>Your plan says catching up before the exam isn't possible</li>
+                  <li>Missed work is 5.5x the time left before Assignment 2</li>
+                  <li>Assessments missed: 1</li>
+                  <li>Last active today</li>
+                </ul>
+              </div>
+            </section>
+
+            <div class="block" style="margin-top: 14px; padding-bottom: 28px">
+              <button class="btn btn--text">Delete my data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Controls and states ================= -->
+    <section class="frame" aria-labelledby="n-kit">
+      <h2 class="frame__name" id="n-kit">Controls and states (375 px)</h2>
+      <div class="screen screen--phone" id="f-kit">
+        <div class="kit">
+          <section class="kit__part">
+            <h3 class="heading">Buttons</h3>
+            <div class="kit__row"><button class="btn btn--now">Do it now</button><button class="btn">Other choice</button><button class="btn btn--text">Text link</button></div>
+            <div class="kit__row" style="margin-top: 10px"><button class="btn" disabled>Not available</button><button class="btn btn--small">Small</button></div>
+            <div class="night kit__night"><div class="kit__row"><button class="btn btn--now">Do it now</button><button class="btn">Other choice</button><button class="btn btn--text">Text link</button></div></div>
+          </section>
+
+          <section class="kit__part">
+            <h3 class="heading">The night block after a check-in, and on a rest day</h3>
+            <div class="night kit__night">
+              <div class="night__top"><h4 class="night__label">Tonight</h4><button class="btn btn--text">Listen</button></div>
+              <p class="night__big">Done</p>
+              <p class="night__what">Next: <b>Tue 20 Oct, 40 min</b></p>
+              <div class="night__actions"><button class="btn btn--text">Change to missed</button></div>
+            </div>
+            <div class="night kit__night">
+              <div class="night__top"><h4 class="night__label">Tonight</h4><button class="btn btn--text">Listen</button></div>
+              <p class="night__say">Marked as missed. Your plan will make room for this from tomorrow.</p>
+              <div class="night__actions"><button class="btn btn--text">Change to done</button></div>
+            </div>
+            <div class="night kit__night">
+              <div class="night__top"><h4 class="night__label">Today</h4><button class="btn btn--text">Listen</button></div>
+              <p class="night__say">No study time today.</p>
+              <p class="night__what">Next: <b>Sun 25 Oct, 90 min</b>, starting with Departmentalisation</p>
+            </div>
+          </section>
+
+          <section class="kit__part">
+            <h3 class="heading">While a plan is being built</h3>
+            <button class="btn btn--wide" disabled>Building your plan</button>
+            <div class="travel" style="margin-top: 12px" role="progressbar" aria-label="Building your plan"></div>
+          </section>
+
+          <section class="kit__part">
+            <h3 class="heading">When something fails</h3>
+            <div class="notice notice--error" role="alert"><b>Your plan didn't build.</b> Your answers are saved.<div class="notice__act"><button class="btn btn--small">Try again</button></div></div>
+            <div class="field" style="margin-top: 14px">
+              <label class="field__label" for="k-min">Minutes on a typical day</label>
+              <input class="input" id="k-min" value="5" aria-invalid="true" aria-describedby="k-err">
+              <p class="field__error" id="k-err">Enter 20 minutes or more.</p>
+            </div>
+          </section>
+
+          <section class="kit__part">
+            <h3 class="heading">Labels</h3>
+            <div class="kit__row"><span class="stop__flag" style="margin: 0">Tonight</span><span class="board__first" style="margin: 0">Call first</span><span class="chip">Saved on this phone</span></div>
+            <div class="kit__row" style="margin-top: 12px; gap: 18px">
+              <span><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>High</span>
+              <span><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>Medium</span>
+              <span><span class="signal" aria-hidden="true"><i class="on"></i><i></i><i></i></span>Low</span>
+            </div>
+          </section>
+
+          <section class="kit__part">
+            <h3 class="heading">Stops on the line</h3>
+            <div class="kit__key">
+              <span class="stop"><span class="stop__mark"></span></span><span>Planned session</span>
+              <span class="stop stop--now"><span class="stop__mark" style="top: 0"></span></span><span>Tonight</span>
+              <span class="stop stop--done"><span class="stop__mark"></span></span><span>Done</span>
+              <span class="stop stop--missed"><span class="stop__mark"></span></span><span>Missed</span>
+              <span class="stop stop--due"><span class="stop__mark" style="top: 2px"></span></span><span>Coursework due</span>
+              <span class="stop stop--rest"><span class="stop__mark"></span></span><span>A day with no study time</span>
+              <span class="stop stop--end"><span class="stop__mark"></span></span><span>Final exam</span>
+            </div>
+          </section>
+
+          <section class="kit__part">
+            <h3 class="heading">What happened to a topic</h3>
+            <div class="kit__key">
+              <span class="meter"></span><span>Kept in full</span>
+              <span class="meter" style="--f: 70%"></span><span>Shortened to 70%</span>
+              <span class="meter" style="--f: 50%"></span><span>Shortened to 50%</span>
+              <span class="meter" style="--f: 0%"></span><span>Skipped</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Landing, wide ================= -->
+    <section class="frame" aria-labelledby="n-landing-w">
+      <h2 class="frame__name" id="n-landing-w">Landing (1200 px)</h2>
+      <div class="screen screen--desk" id="f-landing-w">
+        <div class="demo">
+          <div class="demo__row"><span class="demo__what">Simulated data</span><span class="demo__when">Mon 19 Oct, Week 7</span>
+            <div class="demo__controls"><button class="demo__btn">+1 day</button><button class="demo__btn">+3 days</button><select class="demo__btn" aria-label="Go to week"><option>Go to week</option></select><button class="demo__btn">Reset</button></div></div>
+        </div>
+        <header class="bar">
+          <a class="mark" href="#"><span class="mark__glyph" aria-hidden="true"></span>Back on Track</a>
+          <div class="lang" role="group" aria-label="Language"><button class="lang__opt" aria-pressed="true">English</button><button class="lang__opt" aria-pressed="false">Pidgin</button></div>
+        </header>
+
+        <div class="landing">
+          <div class="hero">
+            <h1 class="display">A catch-up plan that fits the hours you actually have.</h1>
+            <p class="hero__lede">Three students are behind on the same course. Open one to see the plan that gets them back.</p>
+            <div class="hero__actions">
+              <a class="btn btn--now" href="#">Start demo</a>
+              <a class="btn btn--text" href="#">Advisor view</a>
+            </div>
+          </div>
+
+          <div class="people" style="--now: 50%">
+            <div class="people__now" aria-hidden="true"></div>
+            <div class="people__scale"><span class="people__nowname">The course is at Week 7</span></div>
+
+            <a class="person" href="#">
+              <h2 class="person__name">Amaka Okafor</h2>
+              <p class="person__who">Nurse in Lagos, two children, night shifts</p>
+              <div class="mini" style="--done: 25%" aria-hidden="true"><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div>
+              <p class="person__where"><span>Done through Week 3</span><span class="person__open">Open plan</span></p>
+            </a>
+            <a class="person" href="#">
+              <h2 class="person__name">Tunde Adeyemi</h2>
+              <p class="person__who">Civil servant in Abuja</p>
+              <div class="mini" style="--done: 8.33%" aria-hidden="true"><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div>
+              <p class="person__where"><span>Done through Week 1</span><span class="person__open">Open plan</span></p>
+            </a>
+            <a class="person" href="#">
+              <h2 class="person__name">Zainab Bello</h2>
+              <p class="person__who">Software developer in Kano</p>
+              <div class="mini" style="--done: 41.67%" aria-hidden="true"><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div>
+              <p class="person__where"><span>Done through Week 5</span><span class="person__open">Open plan</span></p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Plan, wide ================= -->
+    <section class="frame" aria-labelledby="n-plan-w">
+      <h2 class="frame__name" id="n-plan-w">Plan (1200 px)</h2>
+      <div class="screen screen--desk" id="f-plan-w">
+        <div class="demo">
+          <div class="demo__row"><span class="demo__what">Simulated data</span><span class="demo__when">Mon 19 Oct, Week 7</span>
+            <div class="demo__controls"><button class="demo__btn">+1 day</button><button class="demo__btn">+3 days</button><select class="demo__btn" aria-label="Go to week"><option>Go to week</option></select><button class="demo__btn">Reset</button></div></div>
+        </div>
+        <header class="bar">
+          <a class="mark" href="#"><span class="mark__glyph" aria-hidden="true"></span>Back on Track</a>
+          <div class="lang" role="group" aria-label="Language"><button class="lang__opt" aria-pressed="true">English</button><button class="lang__opt" aria-pressed="false">Pidgin</button></div>
+        </header>
+
+        <div class="plan">
+          <div class="plan__side">
+            <div class="goal">
+              <p class="detail">Your goal</p>
+              <p class="goal__text">Promotion to senior nursing officer</p>
+            </div>
+
+            <section class="night" aria-labelledby="w-tonight">
+              <div class="night__top"><h2 class="night__label" id="w-tonight">Tonight</h2><button class="btn btn--text">Listen</button></div>
+              <p class="night__big">40<span class="night__unit">min</span></p>
+              <p class="night__what">Starting with <b>Organisational structure</b></p>
+              <div class="night__actions">
+                <button class="btn btn--now">Done</button>
+                <button class="btn">Missed</button>
+              </div>
+            </section>
+
+            <section class="block" aria-labelledby="w-time">
+              <h2 class="heading" id="w-time">Your time before the exam</h2>
+              <p class="time__say">This plan fits about 30 hours before the exam. It keeps 18 topics, shortens 6 and skips 3.</p>
+              <dl class="time">
+                <div class="time__row time__row--course"><dt>The course as written needs</dt><dd class="time__val">36 h</dd><dd class="time__track" aria-hidden="true"><span class="time__fill" style="--w: 100%"></span></dd></div>
+                <div class="time__row time__row--have"><dt>You have</dt><dd class="time__val">29 h 40 min</dd><dd class="time__track" aria-hidden="true"><span class="time__fill" style="--w: 82.4%"></span></dd></div>
+                <div class="time__row time__row--plan"><dt>This plan needs</dt><dd class="time__val">29 h 36 min</dd><dd class="time__track" aria-hidden="true"><span class="time__fill" style="--w: 82.2%"></span></dd></div>
+              </dl>
+            </section>
+          </div>
+
+          <div class="plan__main">
+            <section class="block" aria-labelledby="w-week">
+              <h2 class="heading" id="w-week">Your week</h2>
+            </section>
+            <ol class="line">
+              <li class="stop stop--now"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Mon 19 Oct <span class="stop__mins">40 min</span><span class="stop__flag">Tonight</span></p>
+                <p class="stop__what">Organisational structure</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Tue 20 Oct <span class="stop__mins">40 min</span></p>
+                <p class="stop__what">Organisational structure</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Wed 21 Oct <span class="stop__mins">40 min</span></p>
+                <p class="stop__what">Delegation and authority</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Thu 22 Oct <span class="stop__mins">40 min</span></p>
+                <p class="stop__what">Delegation and authority</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Fri 23 Oct <span class="stop__mins">40 min</span></p>
+                <p class="stop__what">Departmentalisation</p></li>
+              <li class="stop stop--rest"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sat 24 Oct, no study time</p></li>
+              <li class="stop"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sun 25 Oct <span class="stop__mins">90 min</span></p>
+                <p class="stop__what">Departmentalisation, Motivation theories</p></li>
+              <li class="stop stop--gap"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">6 more sessions</p></li>
+              <li class="stop stop--due"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Sun 1 Nov</p>
+                <p class="stop__what">Assignment 2 due, 15% of your grade</p></li>
+              <li class="stop stop--gap"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">25 more sessions</p></li>
+              <li class="stop stop--end"><span class="stop__mark" aria-hidden="true"></span>
+                <p class="stop__when">Tue 1 Dec</p>
+                <p class="stop__what">Final exam</p></li>
+            </ol>
+
+            <div class="block">
+              <p class="notice"><b>5 topics for Assignment 2 land after its due date (Sun 1 Nov).</b> Ask your advisor about an extension.</p>
+            </div>
+
+            <section class="block" aria-labelledby="w-cuts">
+              <h2 class="heading" id="w-cuts">What's in your plan, and why</h2>
+              <details class="group" open>
+                <summary class="group__head"><span class="meter" style="--f: 0%" aria-hidden="true"></span>Skipped <span class="group__count">3 topics</span></summary>
+                <div class="topic">
+                  <p class="topic__head"><span class="topic__name">Forecasting for small firms</span><span class="topic__mins">0 of 70 min</span></p>
+                  <p class="topic__why">Nothing later in the course builds on it.</p>
+                  <p class="topic__basis">Low exam weight: about 1% of the exam</p>
+                </div>
+                <div class="topic">
+                  <p class="topic__head"><span class="topic__name">Management information systems</span><span class="topic__mins">0 of 90 min</span></p>
+                  <p class="topic__why">The lightest topic left after the quiz.</p>
+                  <p class="topic__basis">Low exam weight: about 1% of the exam</p>
+                </div>
+              </details>
+              <details class="group" open>
+                <summary class="group__head"><span class="meter" style="--f: 70%" aria-hidden="true"></span>Shortened <span class="group__count">6 topics</span></summary>
+                <div class="topic">
+                  <p class="topic__head"><span class="topic__name">Motivation theories</span><span class="topic__mins">56 of 80 min</span></p>
+                  <p class="topic__why">Enough to answer the assignment question on it.</p>
+                  <p class="topic__basis">Needed for Assignment 2 (15%, due Sun 1 Nov)</p>
+                </div>
+              </details>
+              <details class="group">
+                <summary class="group__head"><span class="meter" aria-hidden="true"></span>Kept in full <span class="group__count">18 topics</span></summary>
+              </details>
+            </section>
+
+            <section class="block" aria-labelledby="w-seen">
+              <h2 class="heading" id="w-seen">What your advisor sees</h2>
+              <div class="seen">
+                <p class="seen__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>Medium priority for a call</p>
+                <ul class="dashes">
+                  <li>Missed work is 1.7x the time left before Assignment 2</li>
+                  <li>Assessments missed: 1</li>
+                  <li>Last active today</li>
+                </ul>
+              </div>
+            </section>
+
+            <div class="block" style="margin-top: 14px">
+              <button class="btn btn--text">Delete my data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Advisor ================= -->
+    <section class="frame" aria-labelledby="n-advisor">
+      <h2 class="frame__name" id="n-advisor">Advisor, with a student open (1200 px)</h2>
+      <div class="screen screen--desk" id="f-advisor">
+        <div class="demo">
+          <div class="demo__row"><span class="demo__what">Simulated data</span><span class="demo__when">Thu 22 Oct, Week 7</span>
+            <div class="demo__controls"><button class="demo__btn">+1 day</button><button class="demo__btn">+3 days</button><select class="demo__btn" aria-label="Go to week"><option>Go to week</option></select><button class="demo__btn">Reset</button></div></div>
+        </div>
+        <div class="desk">
+          <div class="desk__main">
+            <header class="bar">
+              <a class="mark" href="#"><span class="mark__glyph" aria-hidden="true"></span>Back on Track</a>
+              <a class="btn btn--text" href="#">Student view</a>
+            </header>
+
+            <h1 class="display desk__title">Who to call this week</h1>
+            <p class="desk__lede">19 of 27 students on a catch-up plan kept 70% or more of their sessions in the last 14 days.</p>
+
+            <nav class="filter" aria-label="Priority">
+              <a class="filter__opt" aria-current="true" href="#">Everyone <span class="filter__n">300</span></a>
+              <a class="filter__opt" href="#"><span class="signal signal--bare" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>High <span class="filter__n">34</span></a>
+              <a class="filter__opt" href="#"><span class="signal signal--bare" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>Medium <span class="filter__n">61</span></a>
+              <a class="filter__opt" href="#"><span class="signal signal--bare" aria-hidden="true"><i class="on"></i><i></i><i></i></span>Low <span class="filter__n">205</span></a>
+            </nav>
+
+            <table class="board">
+              <thead><tr><th scope="col">Student</th><th scope="col">Where they are</th><th scope="col">Priority</th><th scope="col">Why</th></tr></thead>
+              <tbody>
+                <tr aria-selected="true">
+                  <td><a class="board__who" href="#">Tunde Adeyemi</a><p class="board__seen">Last active today</p><span class="board__first">Call first</span></td>
+                  <td class="board__line"><div class="mini" style="--done: 8.33%; --now: 50%" role="img" aria-label="Done through Week 1 of 12. The course is at Week 7."><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div><p class="board__week">Week 1 of 12</p></td>
+                  <td class="board__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>High</td>
+                  <td><ul class="board__why"><li>Their plan says catching up before the exam isn't possible</li><li>Missed work is 5.5x the time left before Assignment 2</li></ul></td>
+                </tr>
+                <tr>
+                  <td><a class="board__who" href="#">Ngozi Eze</a><p class="board__seen">Last active 18 Sep</p></td>
+                  <td class="board__line"><div class="mini" style="--done: 16.67%; --now: 50%" role="img" aria-label="Done through Week 2 of 12. The course is at Week 7."><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div><p class="board__week">Week 2 of 12</p></td>
+                  <td class="board__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>High</td>
+                  <td><ul class="board__why"><li>No activity for 34 days</li><li>Missed work is 3.2x the time left before Assignment 2</li></ul></td>
+                </tr>
+                <tr>
+                  <td><a class="board__who" href="#">Ibrahim Musa</a><p class="board__seen">Last active 25 Sep</p></td>
+                  <td class="board__line"><div class="mini" style="--done: 25%; --now: 50%" role="img" aria-label="Done through Week 3 of 12. The course is at Week 7."><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div><p class="board__week">Week 3 of 12</p></td>
+                  <td class="board__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>High</td>
+                  <td><ul class="board__why"><li>No activity for 27 days</li><li>Assessments missed: 1</li></ul></td>
+                </tr>
+                <tr>
+                  <td><a class="board__who" href="#">Amaka Okafor</a><p class="board__seen">Last active today</p></td>
+                  <td class="board__line"><div class="mini" style="--done: 25%; --now: 50%" role="img" aria-label="Done through Week 3 of 12. The course is at Week 7."><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div><p class="board__week">Week 3 of 12, on a catch-up plan</p></td>
+                  <td class="board__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>Medium</td>
+                  <td><ul class="board__why"><li>Missed work is 1.9x the time left before Assignment 2</li><li>Assessments missed: 1</li></ul></td>
+                </tr>
+                <tr>
+                  <td><a class="board__who" href="#">Chidi Nwosu</a><p class="board__seen">Last active 13 Oct</p></td>
+                  <td class="board__line"><div class="mini" style="--done: 33.33%; --now: 50%" role="img" aria-label="Done through Week 4 of 12. The course is at Week 7."><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div><p class="board__week">Week 4 of 12</p></td>
+                  <td class="board__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>Medium</td>
+                  <td><ul class="board__why"><li>No activity for 9 days</li><li>Missed work is 0.8x the time left before Assignment 2</li></ul></td>
+                </tr>
+                <tr>
+                  <td><a class="board__who" href="#">Zainab Bello</a><p class="board__seen">Last active today</p></td>
+                  <td class="board__line"><div class="mini" style="--done: 50%; --now: 50%" role="img" aria-label="Done through Week 6 of 12. The course is at Week 7."><span class="mini__done"></span><span class="mini__now"></span><span class="mini__at"></span><span class="mini__end"></span></div><p class="board__week">Week 6 of 12, on a catch-up plan</p></td>
+                  <td class="board__level"><span class="signal" aria-hidden="true"><i class="on"></i><i></i><i></i></span>Low</td>
+                  <td><ul class="board__why"><li>Nothing needs attention</li></ul></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="drawer" aria-labelledby="a-name">
+            <h2 class="drawer__name" id="a-name">Tunde Adeyemi</h2>
+            <p class="drawer__level"><span class="signal" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>High priority for a call</p>
+
+            <section class="drawer__part" aria-labelledby="a-msg">
+              <h3 class="heading" id="a-msg">Message to send</h3>
+              <textarea class="draft" aria-labelledby="a-msg">Tunde, I saw that your plan says catching up before the exam isn't possible on the time you have. That is not the end of the road. Can we talk this week about an extension or a study break, and pick what works for you?</textarea>
+              <p class="detail" style="margin-top: 8px">Next step: call this week and explain the study-break option.</p>
+              <div class="drawer__actions"><button class="btn btn--now">Copy message</button><button class="btn">Mark contacted</button></div>
+            </section>
+
+            <section class="drawer__part" aria-labelledby="a-why">
+              <h3 class="heading" id="a-why">Why they're on the list</h3>
+              <ul class="dashes">
+                <li>Their plan says catching up before the exam isn't possible</li>
+                <li>Missed work is 5.5x the time left before Assignment 2</li>
+                <li>Assessments missed: 1</li>
+              </ul>
+            </section>
+
+            <section class="drawer__part" aria-labelledby="a-log">
+              <h3 class="heading" id="a-log">Activity</h3>
+              <ol class="log">
+                <li><time>22 Oct</time><span>Opened their plan. It can't reach the exam in time.</span></li>
+                <li><time>4 Oct</time><span>Assignment 1 not submitted</span></li>
+                <li><time>13 Sep</time><span>Last study session before today</span></li>
+              </ol>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+</body>
+</html>
