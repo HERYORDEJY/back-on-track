@@ -58,7 +58,7 @@ lib/
 messages/    en.json pcm.json
 public/      sw.js
 prisma/      schema.prisma seed.ts course.ts personas.ts cohort.ts
-scripts/     docs-check.mjs demo-warm.ts
+scripts/     docs-check.mjs demo-warm.ts e2e-database.ts
 proxy.ts     supplies the learner id to the shared header for saved-language rendering
 tests/       fixtures/ engine/ risk/ i18n.test.ts ai-privacy.test.ts e2e/demo.spec.ts
 docs/        PRODUCT_SENSE.md PLANS.md FRONTEND.md RESEARCH.md specs/ references/

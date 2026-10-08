@@ -1,16 +1,21 @@
 import { defineConfig } from "@playwright/test";
+import "dotenv/config";
+import { e2eDatabaseUrl } from "./scripts/e2e-database";
 
-const baseURL = "http://127.0.0.1:3000";
+const baseURL = "http://127.0.0.1:3100";
+const databaseUrl = e2eDatabaseUrl(process.env.E2E_DATABASE_URL, process.env.DATABASE_URL);
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  workers: 1,
   timeout: 120_000,
   expect: { timeout: 20_000 },
   use: { baseURL, browserName: "chromium" },
   webServer: {
-    command: "DEMO_MODE=true npm run start -- --hostname 127.0.0.1 --port 3000",
+    command: "npm run start -- --hostname 127.0.0.1 --port 3100",
     url: baseURL,
-    reuseExistingServer: true,
+    env: { DATABASE_URL: databaseUrl, DEMO_MODE: "true" },
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

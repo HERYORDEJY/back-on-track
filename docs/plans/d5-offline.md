@@ -24,3 +24,5 @@ After a successful online plan visit on a basic phone, that learner can reopen t
 ## Result
 
 The production-mode local Playwright path passed on 2026-10-07: online build and English switch, offline reopen at 375 px, queued Pidgin switch and Done check-in, delayed sync after a three-day clock jump, change summary, Tunde's infeasible/advisor path, Amaka device-copy deletion and demo Reset. The 230-test unit suite, `npm run check` and production build passed. The development hot-reload server did not hydrate reliably on an offline reload, so the e2e test runs against a production build. Physical Android/airplane-mode testing remains in the parent D5 milestone.
+
+D5 follow-up (2026-10-08): the original Playwright run used `.env`'s Production database and its Amaka Delete my data step removed her owned AI cache. The [isolation fix](d5-e2e-isolation.md) requires a named local test database and serial test workers. Three repeated local browser paths now pass without mutating Production. Public cache restoration remains in the parent D5 work.

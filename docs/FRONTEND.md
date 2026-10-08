@@ -88,6 +88,8 @@ D4 implementation (2026-10-07): the landing links to the English-only advisor ca
 
 D5 response-size pass (2026-10-08): the advisor list still scores all 303 learners against the current simulated clock, then renders 40 rows per page after the chosen band filter. Page links keep the band and preserve the current page through the detail drawer. The local production-browser path verified page 2 and return to Tunde on page 1. A local response fell to 80,583 bytes from the earlier 478,659-byte public all-row response; warm first byte was still 2.07 seconds, so Slow 4G and public timing remain D5 work.
 
+D5 public performance check (2026-10-08): the deployed first page was 80,583 bytes uncompressed and 6,765 bytes with gzip; public first-byte readings varied from 1.47 to 3.09 seconds across page requests. A throttled 375 px Playwright run loaded the advisor page in 6.9 seconds, rendered 40 rows and showed the page control without overflow. Chrome's built-in mobile Lighthouse scored landing, Amaka's Pidgin plan and advisor at 99 performance / 100 accessibility in a clean Incognito window. The normal Chrome profile scored Amaka's plan at 78 performance because installed extensions contributed most of the unused JavaScript; do not treat that run as a product score. Physical Android, TalkBack and audible read-aloud checks remain.
+
 ## Languages
 
 Pure engine templates for summaries, rationales, reminders, deadline/change warnings and labelled simulated bases are in both message files, with key/parameter parity checked and rendered on learner pages. All new Pidgin copy still needs human review.
