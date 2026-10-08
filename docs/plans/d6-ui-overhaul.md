@@ -71,3 +71,25 @@ Read-only plan and advisor view-model fields expose those values; the engine's
 planning and risk decisions remain unchanged. New Pidgin labels await the
 deferred human copy pass. `npm run check` passed 246 tests, the production build
 succeeded and both isolated local Playwright demo tests passed.
+
+## Phase 3 evidence and review gate
+
+Landing, intake, plan and can't-catch-up screens use the reviewed line layout at
+375 × 812 and 1280 × 800. The landing draws each person's completed weeks from
+course progress. Intake keeps all saved-hour and optional-note behaviour while
+showing the seven day cells and a live weekly total. Plan and infeasible states
+share one night block, one dated line, common-scale time bars, topic groups and
+the advisor-visible band and reasons. The line shows historical and upcoming
+sessions, rest ticks, coursework and the exam from read-only view data. The
+separate reminders panel is folded into the night block and line. The offline
+snapshot is version 2 and includes the stops, titles and time-bar values; the
+browser demo verifies the offline line and bars match the online counts.
+
+Eight English viewport screenshots are in the staged design folder's
+[`design/review/`](../D6-UI-Overhaul-Task-Documentation/design/review/); eight
+Pidgin screenshots are in
+[`design/review-pcm/`](../D6-UI-Overhaul-Task-Documentation/design/review-pcm/).
+`npm run check` passed 246 tests, the production build succeeded and both
+isolated local browser demo tests passed. Phase 4 waits for the maintainer's
+learner screenshot review, as required by the D6 instruction. Draft Pidgin
+strings are listed in [PLANS.md](../PLANS.md) for the deferred D5 human copy pass.

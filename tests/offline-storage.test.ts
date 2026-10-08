@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { enqueueMutation, readMutationQueue, readPlanSnapshot, removeMutation, savePlanSnapshot, studentStoragePrefix, clearAllDemoLocalData, syncMutationQueue, LEARNER_PAGE_CACHE } from "@/lib/offline";
 import type { PlanView } from "@/lib/types";
 
-const view = { today: "2026-10-19", student: { id: "amaka", language: "pcm" }, plan: { sessions: [], weekSessions: [], items: [], warnings: [], unscheduled: [], reminders: [] } } as unknown as PlanView;
+const view = { today: "2026-10-19", student: { id: "amaka", language: "pcm" }, plan: { sessions: [], weekSessions: [], items: [], warnings: [], unscheduled: [], reminders: [], stops: [], topicTitles: {}, plannedMin: 0 } } as unknown as PlanView;
 
 function storage() {
   const entries = new Map<string, string>();
@@ -25,6 +25,8 @@ describe("offline learner storage", () => {
     expect(savePlanSnapshot("amaka", view, null)).toBe(true);
     expect(readPlanSnapshot("amaka")?.view).toEqual(view);
     expect(readPlanSnapshot("tunde")).toBeNull();
+    entries.set(`${studentStoragePrefix("amaka")}snapshot`, JSON.stringify({ version: 1, studentId: "amaka", view, risk: null }));
+    expect(readPlanSnapshot("amaka")).toBeNull();
     entries.set(`${studentStoragePrefix("amaka")}snapshot`, "{broken");
     expect(readPlanSnapshot("amaka")).toBeNull();
   });

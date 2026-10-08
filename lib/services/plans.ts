@@ -132,7 +132,7 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
   const reminders = plan.sessions.flatMap((session) => session.reminders.filter(() => pendingIds.has(session.id)).map((reminder) => ({
     id: reminder.id, atLabel: reminderLabel(reminder.at), text: Localized.parse(reminder.text),
   })));
-  const items = plan.items.map((item) => ({ topicId: item.topicId, title: item.topic.title, action: item.action, minutes: item.minutes, rationale: Localized.parse(item.rationale), basis: Localized.parse(item.basis), sourceUrl: z.array(z.object({ url: z.string() })).parse(item.topic.sourceRefs)[0]?.url ?? null }));
+  const items = plan.items.map((item) => ({ topicId: item.topicId, title: item.topic.title, action: item.action, minutes: item.minutes, estimateMin: item.topic.estMinutes, rationale: Localized.parse(item.rationale), basis: Localized.parse(item.basis), sourceUrl: z.array(z.object({ url: z.string() })).parse(item.topic.sourceRefs)[0]?.url ?? null }));
   return { today, student: studentView, plan: {
     id: plan.id, version: plan.version, status: plan.status, source: plan.source, summary: Localized.parse(plan.summary),
     changeSummary: plan.changeSummary ? Localized.parse(plan.changeSummary) : null,

@@ -98,5 +98,5 @@ function sessionStop(session: LineSession, now: Date, editable: boolean): Stop {
 }
 
 function dueStop(assessment: LineAssessment): Stop {
-  return { kind: "due", date: assessment.dueDate, id: assessment.id, title: assessment.title, weight: assessment.weight };
+  return { kind: "due", date: assessment.dueDate, id: assessment.id, title: assessment.title, weight: Math.round(assessment.weight * 100) };
 }

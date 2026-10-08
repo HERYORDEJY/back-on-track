@@ -36,6 +36,6 @@ export function ReadAloud({ language, text, label }: { language: Language; text:
 
   if (!supported) return <p role="status">{t("readAloud.unavailable", language)}</p>;
   return <button className="read-aloud" type="button" onClick={toggle} aria-label={speaking ? t("readAloud.stop", language) : label ?? t("readAloud.play", language)}>
-    {t(speaking ? "readAloud.stop" : "readAloud.play", language)}
+    {speaking ? t("readAloud.stop", language) : label ?? t("readAloud.play", language)}
   </button>;
 }

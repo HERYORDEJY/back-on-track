@@ -10,7 +10,7 @@ export type OfflineRisk = {
   lastActivity: string | null;
   escalated: boolean;
 };
-export type PlanSnapshot = { version: 1; studentId: string; view: PlanView; risk: OfflineRisk | null };
+export type PlanSnapshot = { version: 2; studentId: string; view: PlanView; risk: OfflineRisk | null };
 export type PendingOfflineMutation =
   | { kind: "checkin"; sessionId: string; sessionDate: string; status: "done" | "missed" }
   | { kind: "language"; language: Language };
@@ -31,7 +31,7 @@ function storageKey(studentId: string, suffix: "snapshot" | "queue") {
 
 export function savePlanSnapshot(studentId: string, view: PlanView, risk: OfflineRisk | null): boolean {
   try {
-    localStorage.setItem(storageKey(studentId, "snapshot"), JSON.stringify({ version: 1, studentId, view, risk } satisfies PlanSnapshot));
+    localStorage.setItem(storageKey(studentId, "snapshot"), JSON.stringify({ version: 2, studentId, view, risk } satisfies PlanSnapshot));
     return true;
   } catch { return false; }
 }
@@ -41,11 +41,11 @@ export function readPlanSnapshot(studentId: string): PlanSnapshot | null {
     const raw = localStorage.getItem(storageKey(studentId, "snapshot"));
     if (!raw) return null;
     const value: unknown = JSON.parse(raw);
-    if (!record(value) || value.version !== 1 || value.studentId !== studentId || !record(value.view)) return null;
+    if (!record(value) || value.version !== 2 || value.studentId !== studentId || !record(value.view)) return null;
     const student = value.view.student;
     const plan = value.view.plan;
     if (!record(student) || student.id !== studentId || (student.language !== "en" && student.language !== "pcm") || typeof value.view.today !== "string") return null;
-    if (plan !== null && (!record(plan) || !Array.isArray(plan.sessions) || !Array.isArray(plan.weekSessions) || !Array.isArray(plan.items) || !Array.isArray(plan.warnings) || !Array.isArray(plan.unscheduled) || !Array.isArray(plan.reminders))) return null;
+    if (plan !== null && (!record(plan) || !Array.isArray(plan.sessions) || !Array.isArray(plan.weekSessions) || !Array.isArray(plan.items) || !Array.isArray(plan.warnings) || !Array.isArray(plan.unscheduled) || !Array.isArray(plan.reminders) || !Array.isArray(plan.stops) || !record(plan.topicTitles) || typeof plan.plannedMin !== "number" || !plan.items.every((item) => record(item) && typeof item.estimateMin === "number"))) return null;
     return value as PlanSnapshot;
   } catch { return null; }
 }

@@ -49,23 +49,13 @@ No current plan: show the intake, prefilled from the student record.
 - Goal and a one-line context are optional, capped at 80 and 120 characters respectively. Hint: do not include names, phone numbers or employers. Advisors never see these fields.
 - The main button reads "Get me back on track" and builds the plan.
 
-Plan screen, top to bottom:
-
-1. The student's goal.
-2. Tonight's session: minutes, topics, Done and Missed buttons, ReadAloud.
-3. This week's sessions.
-4. Deadline warnings.
-5. Each topic: action (kept, shortened or skipped), the rationale and the basis.
-6. Counts of kept, shortened and skipped topics.
-7. A required-versus-available bar.
-8. "What your advisor sees": call-priority band, reasons, last activity and escalation, in the learner's language. Numeric scores stay internal; outreach drafts are the advisor's private working notes.
-9. Delete my data, behind a confirmation (behaviour in `specs/data.md`).
+The plan screen's visual order and wide layout are in [Plan in the D6 design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md#plan-f-plan-f-plan-w-f-replan). The shared night block contains tonight's action and ReadAloud. The line shows sessions, rest days and deadlines, with past and future states. Time bars appear above the line; topic reasons are grouped by skipped, shortened and kept in full. The advisor panel shows the same band, reasons, last activity and escalation as the advisor view. Numeric scores stay internal; outreach drafts remain private. Delete my data stays behind a confirmation (behaviour in `specs/data.md`).
 
 Also on the plan screen:
 
 - After a re-plan, a change-summary banner.
 - When hours vary and the plan is 7 or more days old, a banner asking the student to update this week's hours.
-- An in-app reminders panel listing reminders for pending sessions.
+- In-app reminders are folded into the night block and the dated session line; there is no separate reminders panel.
 - Only today's session can be edited online; earlier sessions are locked. Reversing a done check-in to missed removes only the Progress that check-in created. A missed session stays editable today and can trigger re-planning on the next visit starting tomorrow. A check-in saved offline can sync on a later day while that session still belongs to the current plan, with a visible late-sync note; a superseded plan leaves a visible, retained queue conflict.
 - Course facts derived from demo weights, dates and prerequisite links are labelled simulated; source readings are traceable through their links.
 
@@ -108,7 +98,7 @@ Pure engine templates for summaries, rationales, reminders, deadline/change warn
 ## Offline
 
 - `public/sw.js`, registered from the root layout. Navigation requests to `/learner/*` are network first, with the cached copy as fallback. Never cache `/api` requests.
-- After the plan renders, `lib/offline.ts` saves a snapshot (Localized text included) in `localStorage`.
+- After the plan renders, `lib/offline.ts` saves a version 2 snapshot (Localized text, stops, topic titles and time-bar data included) in `localStorage`.
 - Offline, show the plan with a "Saved on this phone" note.
 - Check-ins and language changes made offline go into a queue and replay their respective PATCH requests when the browser fires `online`. Check-ins are stamped with simulated time at sync, including an original session check-in replayed on a later day (maintainer choice, 2026-10-07). The learner sees a late-sync note. A superseded plan or failed replay keeps the action queued with a visible conflict/retry state; never silently discard it.
 - Delete my data clears that student's browser snapshot, queued check-ins/language edits and service-worker cached learner pages on this device, as well as the server data listed in `specs/data.md`; an offline reload must not restore deleted input.

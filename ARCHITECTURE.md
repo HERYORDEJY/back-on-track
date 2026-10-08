@@ -49,9 +49,9 @@ app/
     advisor/outreach/route.ts      POST { studentId }: draft and save a message
     advisor/outreach/[id]/route.ts PATCH { contacted: true, message }: save final edited message
 components/
-  ui/  learner/  advisor/  shared/  (demo bar, mark, language, line/stops, mini line, time bars, night, notice, meter, signal, travel, read-aloud)
+  ui/  learner/ (PlanScreen, IntakeForm, check-in, offline shell) advisor/ shared/ (demo bar, mark, language, line/stops, mini line, time bars, night, notice, meter, signal, travel, read-aloud)
 lib/
-  services/  plans.ts students.ts advisor.ts demo.ts
+  services/  plans.ts students.ts advisor.ts landing.ts demo.ts
   engine/    config.ts types.ts time.ts display.ts backlog.ts capacity.ts rules.ts basis.ts triage.ts validate.ts fallback.ts schedule.ts plan.ts
   risk/      config.ts score.ts reasons.ts metric.ts
   ai/        client.ts schemas.ts prompts.ts cache.ts
@@ -59,7 +59,7 @@ lib/
 messages/    en.json pcm.json
 public/      sw.js
 prisma/      schema.prisma seed.ts course.ts personas.ts cohort.ts
-scripts/     docs-check.mjs demo-warm.ts e2e-database.ts
+scripts/     docs-check.mjs demo-warm.ts e2e-database.ts d6-capture.mjs
 proxy.ts     supplies the learner id to the shared header for saved-language rendering
 tests/       fixtures/ engine/ risk/ i18n.test.ts ai-privacy.test.ts e2e/demo.spec.ts
 docs/        PRODUCT_SENSE.md PLANS.md FRONTEND.md RESEARCH.md specs/ references/ D6-UI-Overhaul-Task-Documentation/ (staged design and reference)
@@ -76,7 +76,7 @@ AGENTS.md  ARCHITECTURE.md  CAPSTONE_PROJECT_BRIEF.md  CODEX_LOG.md  README.md  
 - After a mutation or a clock change, client components call `router.refresh()`.
 - UI copy comes only from `messages/*.json`; no hard-coded strings in components.
 - `lib/engine/triage.ts` builds the AI context and applies the result; the OpenAI call itself lives in `lib/ai/client.ts`.
-- `lib/offline.ts` runs in the browser only. It stores a versioned per-learner plan snapshot and a validated action queue in local storage; `public/sw.js` caches learner navigation HTML and static assets for a later offline visit. API and advisor requests are never service-worker cached.
+- `lib/offline.ts` runs in the browser only. It stores a version 2 per-learner plan snapshot, including line stops and time-bar data, and a validated action queue in local storage; `public/sw.js` caches learner navigation HTML and static assets for a later offline visit. API and advisor requests are never service-worker cached.
 
 Service functions:
 

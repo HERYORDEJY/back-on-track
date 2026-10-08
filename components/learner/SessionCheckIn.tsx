@@ -41,11 +41,13 @@ export function SessionCheckIn({ session, language, studentId, queuedStatus, onQ
     }
   }
 
-  if (!session.editable) return <p className="text-sm text-slate">{t(session.status === "pending" ? "learner.checkIn.notToday" : "learner.checkIn.locked", language)}</p>;
-  return <div className="mt-4">
+  if (!session.editable) return null;
+  return <div className="session-check-in">
     <div className="flex flex-wrap gap-2">
-      <Button data-testid="session-done" type="button" disabled={busy || refreshing || session.status === "done"} onClick={() => checkIn("done")}>{t("learner.checkIn.done", language)}</Button>
-      <Button type="button" variant="plain" disabled={busy || refreshing || session.status === "missed"} onClick={() => checkIn("missed")}>{t("learner.checkIn.missed", language)}</Button>
+      {session.status === "pending" ? <>
+        <Button data-testid="session-done" type="button" disabled={busy || refreshing} onClick={() => checkIn("done")}>{t("learner.checkIn.done", language)}</Button>
+        <Button type="button" variant="plain" disabled={busy || refreshing} onClick={() => checkIn("missed")}>{t("learner.checkIn.missed", language)}</Button>
+      </> : <Button data-testid={session.status === "missed" ? "session-done" : undefined} type="button" variant="text" disabled={busy || refreshing} onClick={() => checkIn(session.status === "done" ? "missed" : "done")}>{t(session.status === "done" ? "learner.checkIn.changeMissed" : "learner.checkIn.changeDone", language)}</Button>}
     </div>
     {(busy || refreshing) && <p role="status">{t("learner.checkIn.saving", language)}</p>}
     {queuedStatus && <p role="status">{t("offline.checkInQueued", language)}</p>}

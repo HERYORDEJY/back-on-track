@@ -64,7 +64,7 @@ Every requirement in the brief maps to something built and shown.
 - One approved 36-reading, 12-week demo adaptation of BCcampus / University of Minnesota Principles of Management, with 3 simulated coursework assessments and a final exam; reading attribution and simulated metadata are explicit.
 - Three scripted personas and 300 simulated students in one cohort.
 - A simulated clock the presenter can move forward.
-- Learner flow: intake, plan, check-in, re-plan with a change summary, in-app reminders, the infeasible screen.
+- Learner flow: intake, plan, check-in, re-plan with a change summary, in-app reminders shown in the night block and session line, the infeasible screen.
 - Offline plan view and queued check-ins/language edits; English and Nigerian Pidgin; read-aloud on the plan and infeasible screen.
 - Privacy: a "What your advisor sees" panel with call-priority band, reasons, last activity and escalation; numeric scores stay internal, goal/context stay learner-only and outreach drafts stay advisor-only. Delete my data removes app-collected data while retaining university course Progress/Submission.
 - Advisor view: risk-ranked list with reasons and drafted outreach in the student's language.

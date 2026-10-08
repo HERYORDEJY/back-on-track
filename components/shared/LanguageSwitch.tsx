@@ -76,7 +76,7 @@ export function LanguageSwitch({ language, studentId = null }: { language: Langu
   return (
     <div className="language-switch">
     <div className="lang" data-testid="language-switch" role="group" aria-label={t("language.label", localLanguage)}>
-      {(["en", "pcm"] as const).map((value) => <button key={value} type="button" className="lang__opt" data-language={value} aria-pressed={localLanguage === value} disabled={showing} onClick={() => void change(value)}>{t(`language.${value}`, localLanguage)}</button>)}
+      {(["en", "pcm"] as const).map((value) => <button key={value} type="button" className="lang__opt" data-language={value} aria-pressed={localLanguage === value} disabled={showing} onClick={() => void change(value)}>{t(`language.short.${value}`, localLanguage)}</button>)}
     </div>
     {failedLanguage && <span role="alert">{t("language.failed", localLanguage)} <button type="button" onClick={() => void change(failedLanguage)}>{t("clock.retry", localLanguage)}</button></span>}
     {showing && <span className="sr-only" role="status">{t("language.saving", localLanguage)}</span>}

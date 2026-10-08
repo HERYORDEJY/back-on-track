@@ -22,7 +22,7 @@ describe("read-only progress and line helpers", () => {
   it("uses the historical plan for past stops and the current plan for the window", () => {
     const stops = buildStops({
       now, availability, examDate: "2026-11-12",
-      assessments: [{ id: "assignment", title: "Coursework", dueDate: "2026-10-10", weight: 20, kind: "assignment" }],
+      assessments: [{ id: "assignment", title: "Coursework", dueDate: "2026-10-10", weight: 0.2, kind: "assignment" }],
       plans: [
         { version: 1, simNow: new Date("2026-10-05T09:00:00+01:00"), isCurrent: false, status: "cut", unscheduledCount: 0,
           sessions: [{ id: "old", date: "2026-10-07", minutes: 30, pieces: [{ topicId: "a" }], status: "done", checkedAt: new Date("2026-10-07T20:00:00+01:00") }] },
@@ -32,14 +32,15 @@ describe("read-only progress and line helpers", () => {
     });
     expect(stops[0]).toMatchObject({ kind: "session", id: "old", state: "done", editable: false });
     expect(stops.find((stop) => stop.kind === "session" && stop.id === "today")).toMatchObject({ state: "tonight", editable: true });
-    expect(stops.find((stop) => stop.kind === "due")).toMatchObject({ date: "2026-10-10", title: "Coursework" });
+    expect(stops.find((stop) => stop.kind === "rest" && stop.date === "2026-10-09")).toBeTruthy();
+    expect(stops.find((stop) => stop.kind === "due")).toMatchObject({ date: "2026-10-10", title: "Coursework", weight: 20 });
     expect(stops.find((stop) => stop.kind === "gap")).toMatchObject({ count: 1 });
     expect(stops.at(-1)).toEqual({ kind: "exam", date: "2026-11-12" });
   });
 
   it("counts sessions on either side of a later deadline and shows an infeasible tail", () => {
     const stops = buildStops({ now, availability, examDate: "2026-11-12",
-      assessments: [{ id: "quiz", title: "Quiz", dueDate: "2026-10-20", weight: 10, kind: "quiz" }],
+      assessments: [{ id: "quiz", title: "Quiz", dueDate: "2026-10-20", weight: 0.1, kind: "quiz" }],
       plans: [{ version: 1, simNow: now, isCurrent: true, status: "infeasible", unscheduledCount: 3, sessions: [
         { id: "a", date: "2026-10-16", minutes: 20, pieces: [], status: "pending" },
         { id: "b", date: "2026-10-21", minutes: 20, pieces: [], status: "pending" },

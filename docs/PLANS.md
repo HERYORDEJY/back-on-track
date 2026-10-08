@@ -22,7 +22,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Privacy panel and Delete my data | demo-verified | Learner/advisor parity and edited outreach verified in browser. Approved AiCacheUse migration applied; Tunde deletion cleared app data; D5 browser test confirms Amaka's local snapshot and cached learner page clear on Delete my data |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | in progress | Isolated local Playwright passes three serial repeats; the restored Production cache passes three public runs. Clean-profile mobile Lighthouse scored 99 performance / 100 accessibility on landing, Amaka plan and advisor. Android offline/speech spot checks passed; further TalkBack interaction was skipped at the maintainer's request |
 | Pitch assets (video, slides, README) | not started | |
-| Visual design (the line) | in progress | Phases 0–2 are complete: baseline, palette/primitives, shared blocks and tested display helpers; [implementation plan](plans/d6-ui-overhaul.md). The supplied docs stay in their staging folder until D6 is complete |
+| Visual design (the line) | in progress | Phases 0–3 are built: baseline, palette/primitives, shared blocks and learner screens. Eight English and eight Pidgin learner screenshots are ready for the required review before the advisor phase; [implementation plan](plans/d6-ui-overhaul.md). Supplied docs stay staged until D6 is complete |
 
 ## Current progress
 
@@ -43,7 +43,7 @@ Build starts on 2026-10-04. Work happens as the maintainer is available; no dail
 | Personal commit-message skill | tested | `git-commit-message` is installed under the personal Codex system skills directory. Existing YAML parser validates skill/UI metadata and independent staged-only dry run passes. Stock validator lacks PyYAML; no dependency or application milestone changed |
 | D2 AI/cache, plan service and thin learner page | demo-verified | [Task plan](plans/d2-learner-service.md); approved pinned OpenAI SDK; local demo-mode browser path verified for Amaka cut/Tunde infeasible and Start demo/reset at 375/1280 px, plus the revised cached Pidgin cut in the browser. Revised prompt produced a valid live `ai` Amaka cut in 18.9 seconds; cache-only engine replay and saved API returned valid `cache` plans. `npm run check` passes with 156 tests and build passes. The [prior implementation CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed; [GitHub Actions](https://github.com/HERYORDEJY/back-on-track/actions) tracks this follow-up's remote result |
 | D3 online learner loop | demo-verified | [Task plan](plans/d3-learner-loop.md); 179 tests, `npm run check` and production build pass. Local browser built all three persona outcomes, saved Zainab's language switch, checked Amaka done/reversal and +3 day change summary, used variable-hours intake, and restored the demo. No horizontal overflow at 375/1280 px. One transient reset 503 succeeded on retry; audio, offline queue and physical Android checks remain D5 |
-| Language transition and visual direction | tested | Custom full-screen page-turn transition verified on landing and saved learner language switching, including 375 px. Whole-project UI overhaul awaits the maintainer's D6 instruction |
+| Language control and visual direction | in progress | The D6 two-part language plate replaces the earlier page-turn transition; saved learner and offline language switching still pass the browser demo. Learner visual review is the next gate |
 | D4 advisor and privacy | demo-verified | [Task plan](plans/d4-advisor-privacy.md); risk and advisor lanes integrated, approved ownership migration deployed, local Tunde call-list/outreach/deletion path verified at 375/1280 px. At Week 10, 180/180 on-track rows were Low and metric was 23 of 31. Warm 303-row service reads met the 1-second target; full page HTTP remains slower. Live reseed ownership check, 219 tests, `npm run check` and production build passed |
 | D5 offline learner flow | demo-verified | [Task plan](plans/d5-offline.md); production-browser Playwright path passes through online build, 375 px offline reopen, queued Pidgin switch and Done, +3 day late sync and change summary, Tunde first on advisor list, deletion of Amaka's local snapshot/cache and demo reset. [Android check](plans/d5-phone-check.md) passed airplane-mode reopen and queued Done sync at 360 px; other D5 hardening remains |
 | D5 physical phone check | done | [Phone check](plans/d5-phone-check.md); Android 9 cached plan reopened by offline navigation/reload, Done queued and synced on reconnect, spoken session heard by the maintainer, no 360 px overflow. Original accessibility/network settings and demo intake restored. The maintainer waived the remaining TalkBack gesture traversal |
@@ -145,7 +145,73 @@ The [design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) and [phase
 
 #### Pidgin strings to check
 
-The following D6 Phase 2 strings are draft copy for the deferred human pass: Clock; Don finish reach Week {done} of {total}. Course dey Week {week}.; Tonight; Done; Missed; {date}, no study time; {assessment} go due, na {weight}% of your grade; 1 more study session; {count} more study sessions; E no go fit before {date}: 1 topic; E no go fit before {date}: {count} topics; Final exam; Course as dem write am; Time wey you get; This plan; Keep everything; Shorten to 70%; Shorten to 50%; Skip am; High priority; Medium priority; Low priority; We dey build your plan. Add Phase 3 strings here as screens are completed.
+The following D6 Phase 2 strings are draft copy for the deferred human pass: Clock; Don finish reach Week {done} of {total}. Course dey Week {week}.; Tonight; Done; Missed; {date}, no study time; {assessment} go due, na {weight}% of your grade; 1 more study session; {count} more study sessions; E no go fit before {date}: 1 topic; E no go fit before {date}: {count} topics; Final exam; Course as dem write am need; You get; This plan need; Keep everything; Shorten to 70%; Shorten to 50%; Skip am; High priority; Medium priority; Low priority; We dey build your plan.
+
+Phase 3 new and revised Pidgin strings (each still needs the deferred human check):
+
+- `app.simulated`: Simulated data
+- `language.short.en`: English
+- `language.short.pcm`: Pidgin
+- `landing.title`: Catch-up plan wey fit the hours wey you really get.
+- `landing.description`: Three students don fall behind for the same course. Open one make you see the plan wey go help dem catch up.
+- `landing.courseWeek`: Course dey Week {week}
+- `landing.doneThrough`: Don finish reach Week {week}
+- `landing.notStarted`: Never start yet
+- `landing.person.amaka.context`: Nurse for Lagos, two children, night shifts
+- `landing.person.tunde.context`: Civil servant for Abuja
+- `landing.person.zainab.context`: Software developer for Kano
+- `landing.openLearner`: Open plan
+- `landing.openAdvisor`: Advisor view
+- `time.bar.course`: Course as dem write am need
+- `time.bar.available`: You get
+- `time.bar.plan`: This plan need
+- `plan.savedPhone`: We don save am for this phone
+- `plan.goal`: Your goal
+- `plan.time.title`: Your time before exam
+- `plan.week`: Your week
+- `plan.until`: Before {assessment}
+- `plan.groups.title`: Wetin dey your plan, and why
+- `plan.groups.skipped`: Wetin we skip
+- `plan.groups.shortened`: Wetin we shorten
+- `plan.groups.kept`: Wetin remain full
+- `plan.groups.inPlan`: Wetin dey this plan
+- `plan.topicCount.one`: 1 topic
+- `plan.topicCount.many`: {count} topics
+- `plan.topicMinutes`: {minutes} of {estimate} min
+- `plan.night.today`: Today
+- `plan.night.noStudy`: No study time today.
+- `plan.night.next`: Next: {date}, {minutes}
+- `plan.night.nextTopic`: Next: {date}, {minutes}, start with {topic}
+- `plan.night.missed`: We mark am as missed. Your plan go make space for am from tomorrow.
+- `plan.night.starting`: Start with
+- `plan.break.title`: About study break
+- `plan.break.description`: Study break go pause your course so you fit come back when you get more time. Your advisor fit explain how e go work for you.
+- `learner.listen`: Listen
+- `learner.listenEnglish`: Listen in English
+- `learner.delete.keep`: Cancel
+- `learner.delete.remove`: Delete my data
+- `learner.intake.newTitle`: Make we help you catch up.
+- `learner.intake.newLede`: Tell us the time wey you really get, even if e small. Plan wey fit na plan wey you fit follow.
+- `learner.intake.dailyMinutes`: Minutes wey you fit study each day
+- `learner.intake.typicalDay`: Minutes for normal day
+- `learner.intake.weeklyTotal`: Na {duration} for one week.
+- `learner.intake.setEveryDay`: Or set every day to
+- `learner.intake.optional`: if you want
+- `learner.intake.goalNew`: Your goal
+- `learner.intake.goalHint`: Why you dey do this course? No put names, phone numbers or employers.
+- `learner.intake.contextNew`: Anything else we suppose know
+- `learner.intake.stillWorking`: We still dey work. E fit take up to 20 seconds.
+- `learner.intake.failedTitle`: Your plan no build.
+- `learner.intake.failedDetail`: We don save your answers.
+- `learner.day.short.mon`: Mon
+- `learner.day.short.tue`: Tue
+- `learner.day.short.wed`: Wed
+- `learner.day.short.thu`: Thu
+- `learner.day.short.fri`: Fri
+- `learner.day.short.sat`: Sat
+- `learner.day.short.sun`: Sun
+- `learner.checkIn.changeMissed`: Change am to missed
+- `learner.checkIn.changeDone`: Change am to done
 
 ### D7: pitch and proof, no new features
 

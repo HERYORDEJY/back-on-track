@@ -7,11 +7,19 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await expect(page.getByTestId("plan-status")).toHaveAttribute("data-status", "cut");
   await page.getByTestId("language-switch").locator('[data-language="en"]').click();
   await expect(page.getByTestId("language-switch").locator('[data-language="en"]')).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("plan-status")).toContainText("What to study");
+  await expect(page.getByTestId("plan-status")).toContainText("What's in your plan, and why");
+  const onlineStops = await page.locator(".line .stop").count();
+  const onlineBars = await page.locator(".time__row").count();
+  expect(onlineStops).toBeGreaterThan(0);
+  expect(onlineBars).toBe(3);
   await expect(page.getByTestId("offline-note")).toContainText("ready to open");
+  expect(await page.evaluate(() => {
+    const snapshot = JSON.parse(localStorage.getItem("back-on-track:student:amaka:snapshot") ?? "null");
+    return snapshot?.version === 2 && snapshot.view.plan.stops.length > 0 && snapshot.view.plan.plannedMin > 0 && Object.keys(snapshot.view.plan.topicTitles).length > 0;
+  })).toBeTruthy();
   await expect.poll(() => page.evaluate(async () => {
     const response = await (await caches.open("back-on-track-learner-pages-v1")).match(location.href);
-    return (await response?.text())?.includes("What to study") ?? false;
+    return (await response?.text())?.includes("Your week") ?? false;
   })).toBeTruthy();
   await page.setViewportSize({ width: 375, height: 812 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
@@ -19,6 +27,8 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByTestId("plan-status")).toHaveAttribute("data-status", "cut");
+  await expect(page.locator(".line .stop")).toHaveCount(onlineStops);
+  await expect(page.locator(".time__row")).toHaveCount(onlineBars);
   await expect(page.getByTestId("offline-note")).toContainText("saved on this phone");
   await page.getByTestId("language-switch").locator('[data-language="pcm"]').click();
   await expect(page.getByTestId("language-switch").locator('[data-language="pcm"]')).toHaveAttribute("aria-pressed", "true");
@@ -55,7 +65,7 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await page.goto("/learner/amaka");
   await expect.poll(() => page.evaluate(() => localStorage.getItem("back-on-track:student:amaka:snapshot") !== null)).toBeTruthy();
   await page.locator(".delete-data button").first().click();
-  await page.locator(".delete-data__actions button").last().click();
+  await page.locator(".delete-data__actions button").first().click();
   await expect(page).toHaveURL(/\?deleted=1$/);
   expect(await page.evaluate(() => localStorage.getItem("back-on-track:student:amaka:snapshot"))).toBeNull();
   expect(await page.evaluate(async () => (await (await caches.open("back-on-track-learner-pages-v1")).keys()).some((request) => new URL(request.url).pathname === "/learner/amaka"))).toBeFalsy();

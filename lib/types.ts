@@ -21,7 +21,7 @@ export type PlanView = {
     summary: Localized; changeSummary: Localized | null; requiredMin: number; capacityMin: number; scheduledMin: number; plannedMin: number;
     focusDueDate: string | null; focusDateLabel: Localized | null; warnings: Localized[];
     unscheduled: { topicId: string; minutes: number; title: string }[];
-    items: { topicId: string; title: string; action: "keep" | "compress_light" | "compress_heavy" | "skip"; minutes: number; rationale: Localized; basis: Localized; sourceUrl: string | null }[];
+    items: { topicId: string; title: string; action: "keep" | "compress_light" | "compress_heavy" | "skip"; minutes: number; estimateMin: number; rationale: Localized; basis: Localized; sourceUrl: string | null }[];
     sessions: SessionView[]; featuredSession: SessionView | null; weekSessions: SessionView[];
     counts: { kept: number; shortened: number; skipped: number }; weeklyHoursDue: boolean;
     reminders: { id: string; atLabel: Localized; text: Localized }[];
