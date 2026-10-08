@@ -87,8 +87,10 @@ html[lang="pcm"] .route-copy-pcm { display: inline; }
 .route-state__actions a { background: transparent; color: var(--night); }
 .busy-overlay { width: min(420px, calc(100% - 32px)); max-width: none; margin: auto; padding: 20px; border: 2px solid var(--night); border-radius: 8px; background: var(--paper); color: var(--night); }
 .busy-overlay::backdrop { background: color-mix(in srgb, var(--night) 18%, transparent); }
+.busy-overlay__content { text-align: center; }
 .busy-overlay__content p { margin: 12px 0 0; color: var(--slate); font-size: 14px; }
-.busy-overlay .travel { flex-basis: 84px; }
+.busy-overlay .travel-wrap { flex-direction: column; justify-content: center; gap: 16px; font-weight: 700; }
+.busy-overlay .travel { flex: none; width: 180px; }
 @keyframes route-progress { to { transform: translateX(164%); } }
 @media (prefers-reduced-motion: reduce) { .route-state__rule span { animation: none; } }
 .introduction { padding-block: 68px 60px; max-width: 800px; }

@@ -25,7 +25,7 @@ Language switching uses a two-part plate in the header. It persists the same lea
 | LanguageSwitch | landing and every learner screen | Landing uses a `lang` cookie, default English. Learner screens use the student's saved language (`PATCH /api/students/[id]`); offline changes use the bilingual snapshot and queue for sync, last write wins |
 | ReadAloud | plan and infeasible screens | Reads tonight's session plus plan summary, or infeasible summary plus next step, with `speechSynthesis`; for Pidgin use an English (Nigeria) voice if available, else any English voice; screen-reader labels remain available where speech isn't supported |
 | Mark, SessionLine, MiniLine, TimeBars, NightBlock, Notice, Chip, Meter, Signal, Travel | pages as designed | Shared visual blocks. Pure display helpers supply progress, line stops and bar widths; the services add their read-only data to view models |
-| BusyOverlay | major learner and advisor operations | A light whole-screen modal wait state with the shared Travel animation and a specific action label; prevents a second action while a request or navigation is pending. Copy remains immediate and reports success or failure inline |
+| BusyOverlay | major learner and advisor operations | A light whole-screen modal wait state with the shared Travel animation centered above its action description; prevents a second action while a request or navigation is pending. Copy remains immediate and reports success or failure inline |
 | EmphasizedText | assessment references | Marks published assessment titles, such as **Assignment 2**, distinctly within ordinary explanatory copy |
 
 After any mutation or clock change, call `router.refresh()`.

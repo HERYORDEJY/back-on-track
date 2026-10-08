@@ -108,7 +108,7 @@ Build each block once in `components/shared` and use it everywhere. Port the ref
 | Time bars | `.time` | Up to three bars on one scale, the largest value at full width: the course as written (hatched `slate`), the time you have (`night`), this plan (lamp with a `night` outline). The value sits in text beside each bar |
 | Meter | `.meter` | What happened to a topic: full, 70%, 50% or empty |
 | Signal | `.signal` | Call priority: three dots, filled 3, 2 or 1 for high, medium or low, always followed by the word |
-| Travel and BusyOverlay | `.travel`, `.busy-overlay` | The shared animated stop and a specific action label appear in a light, whole-screen modal overlay for major requests. The page stays visible under an 18% night tint but cannot receive pointer or keyboard actions until the request settles. Copy gives inline success/error feedback without an overlay |
+| Travel and BusyOverlay | `.travel`, `.busy-overlay` | The shared animated stop is centered above its action description in a light, whole-screen modal overlay for major requests. The page stays visible under an 18% night tint but cannot receive pointer or keyboard actions until the request settles. Copy gives inline success/error feedback without an overlay |
 
 The tab icon, `app/icon.svg`:
 
