@@ -88,7 +88,7 @@ D4 implementation (2026-10-07): the landing links to the English-only advisor ca
 
 D5 response-size pass (2026-10-08): the advisor list still scores all 303 learners against the current simulated clock, then renders 40 rows per page after the chosen band filter. Page links keep the band and preserve the current page through the detail drawer. The local production-browser path verified page 2 and return to Tunde on page 1. A local response fell to 80,583 bytes from the earlier 478,659-byte public all-row response; warm first byte was still 2.07 seconds, so Slow 4G and public timing remain D5 work.
 
-D5 public performance check (2026-10-08): the deployed first page was 80,583 bytes uncompressed and 6,765 bytes with gzip; public first-byte readings varied from 1.47 to 3.09 seconds across page requests. A throttled 375 px Playwright run loaded the advisor page in 6.9 seconds, rendered 40 rows and showed the page control without overflow. Chrome's built-in mobile Lighthouse scored landing, Amaka's Pidgin plan and advisor at 99 performance / 100 accessibility in a clean Incognito window. The normal Chrome profile scored Amaka's plan at 78 performance because installed extensions contributed most of the unused JavaScript; do not treat that run as a product score. Physical Android, TalkBack and audible read-aloud checks remain.
+D5 public performance check (2026-10-08): the deployed first page was 80,583 bytes uncompressed and 6,765 bytes with gzip; public first-byte readings varied from 1.47 to 3.09 seconds across page requests. A throttled 375 px Playwright run loaded the advisor page in 6.9 seconds, rendered 40 rows and showed the page control without overflow. Chrome's built-in mobile Lighthouse scored landing, Amaka's Pidgin plan and advisor at 99 performance / 100 accessibility in a clean Incognito window. The normal Chrome profile scored Amaka's plan at 78 performance because installed extensions contributed most of the unused JavaScript; do not treat that run as a product score. The later Android check is recorded below.
 
 ## Languages
 
@@ -116,13 +116,15 @@ Pure engine templates for summaries, rationales, reminders, deadline/change warn
 - Delete my data clears that student's browser snapshot, queued check-ins/language edits and service-worker cached learner pages on this device, as well as the server data listed in `specs/data.md`; an offline reload must not restore deleted input.
 - Wrap every `localStorage` call in try/catch; the page must work without it.
 
-D5 implementation (2026-10-07): a versioned plan snapshot and service-worker learner page/static cache support a later offline visit. The local production-browser test reopened Amaka's plan offline at 375 px, queued a Pidgin switch and Done check-in, advanced the simulated clock three days, then confirmed sync, the late-sync note and change summary. It also checked the advisor first row, Amaka's device snapshot/cache deletion, demo Reset and no horizontal overflow at 375/1280 px. The development hot-reload server does not provide a reliable offline hydration path; run `npm run build` before `npm run test:e2e`. A physical Android airplane-mode pass remains D5.
+D5 implementation (2026-10-07): a versioned plan snapshot and service-worker learner page/static cache support a later offline visit. The local production-browser test reopened Amaka's plan offline at 375 px, queued a Pidgin switch and Done check-in, advanced the simulated clock three days, then confirmed sync, the late-sync note and change summary. It also checked the advisor first row, Amaka's device snapshot/cache deletion, demo Reset and no horizontal overflow at 375/1280 px. The development hot-reload server does not provide a reliable offline hydration path; run `npm run build` before `npm run test:e2e`.
+
+D5 physical Android check (2026-10-08): on an Android 9 JKM-LX2, the public Amaka cut plan rendered in Pidgin at a 360 px CSS viewport with no horizontal overflow. Airplane-mode navigation and reload reopened its saved plan; Done queued offline and synced after reconnect, clearing the queue. The first network-toggle attempt briefly showed Chrome's no-internet page, followed by successful controlled offline navigation/reload. The maintainer heard the session read-aloud. Demo Reset cleared the device's learner page cache and returned Amaka to intake while preserving the AI cache. The original phone accessibility service and network settings were restored. See the [phone record](plans/d5-phone-check.md).
 
 ## Accessibility
 
 - Tap targets at least 44 px, visible focus, every input labelled, WCAG AA contrast.
 - Colour is never the only signal: risk bands also show the word.
-- Run TalkBack through the demo path once before the freeze.
+- Android spot check: TalkBack launched and the maintainer heard speech. ADB touch injection did not establish a full TalkBack gesture traversal; the maintainer asked to skip the remaining traversal on 2026-10-08. Keep semantic labels and visible focus in the D6 whole-product review.
 
 ## States
 
