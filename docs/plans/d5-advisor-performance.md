@@ -34,3 +34,25 @@ persona or copy change is involved.
 Local verification: `npm run check` passed 241 tests, `npm run build` passed,
 and both isolated production-browser demo tests passed. The deployment and
 post-change latency measurement remain open.
+
+## Public verification (2026-10-08)
+
+Commit `a2276e8` is on `origin/main`, and its [CI run](https://github.com/HERYORDEJY/back-on-track/actions/runs/37741218348)
+passed. Public landing, learner and advisor responses returned HTTP 200 with
+`cle1` as the function region in `x-vercel-id`. The first advisor request took
+3.76 seconds to first byte. Five following requests took 2.38, 1.06, 0.86,
+0.82 and 0.74 seconds; the warm median was 0.86 seconds, but cold and some
+warm requests still exceed one second. The HTML response stayed about 83 KB.
+
+At 375 px, a fresh headless Chromium page under emulated Chrome Slow 4G
+network conditions loaded in 3.49 seconds, rendered 40 rows and had no
+horizontal overflow. The earlier 6.9-second throttled run used a different
+session, so treat the comparison as directional. The clean-profile mobile
+Lighthouse result for this unchanged page remains 99 performance and 100
+accessibility from before the region change; Lighthouse was not rerun.
+
+The public `DEMO_MODE=true` API path returned Amaka `cache/cache`, Zainab
+`fit`, Tunde `infeasible` and Tunde outreach `cache`. The final reset returned
+the clock to Week 7 at the demo start. Region placement and the D5
+low-bandwidth pass are verified; a strict one-second response for every
+request remains unmet and is recorded as a demo limitation.

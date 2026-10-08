@@ -90,6 +90,8 @@ D5 response-size pass (2026-10-08): the advisor list still scores all 303 learne
 
 D5 public performance check (2026-10-08): the deployed first page was 80,583 bytes uncompressed and 6,765 bytes with gzip; public first-byte readings varied from 1.47 to 3.09 seconds across page requests. A throttled 375 px Playwright run loaded the advisor page in 6.9 seconds, rendered 40 rows and showed the page control without overflow. Chrome's built-in mobile Lighthouse scored landing, Amaka's Pidgin plan and advisor at 99 performance / 100 accessibility in a clean Incognito window. The normal Chrome profile scored Amaka's plan at 78 performance because installed extensions contributed most of the unused JavaScript; do not treat that run as a product score. The later Android check is recorded below.
 
+D5 region follow-up (2026-10-08): after the functions moved to `cle1` near the demo database, five following public advisor requests had a 0.86-second median first byte; the initial request took 3.76 seconds. A 375 px headless Chromium run with emulated Slow 4G loaded in 3.49 seconds, rendered 40 rows and had no horizontal overflow. The prior clean-profile Lighthouse result remains 99 performance / 100 accessibility; it was not rerun after this deployment. The cache-only public demo sequence passed and reset. See the [measurement record](plans/d5-advisor-performance.md); cold latency remains above one second.
+
 ## Languages
 
 Pure engine templates for summaries, rationales, reminders, deadline/change warnings and labelled simulated bases are in both message files, with key/parameter parity checked and rendered on learner pages. All new Pidgin copy still needs human review.
