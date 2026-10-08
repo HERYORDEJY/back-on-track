@@ -5,8 +5,8 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await page.getByTestId("start-demo").click();
   await page.getByTestId("build-plan").click();
   await expect(page.getByTestId("plan-status")).toHaveAttribute("data-status", "cut");
-  await page.getByTestId("language-switch").selectOption("en");
-  await expect(page.getByTestId("language-switch")).toHaveValue("en");
+  await page.getByTestId("language-switch").locator('[data-language="en"]').click();
+  await expect(page.getByTestId("language-switch").locator('[data-language="en"]')).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("plan-status")).toContainText("What to study");
   await expect(page.getByTestId("offline-note")).toContainText("ready to open");
   await expect.poll(() => page.evaluate(async () => {
@@ -20,8 +20,8 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await page.reload();
   await expect(page.getByTestId("plan-status")).toHaveAttribute("data-status", "cut");
   await expect(page.getByTestId("offline-note")).toContainText("saved on this phone");
-  await page.getByTestId("language-switch").selectOption("pcm");
-  await expect(page.getByTestId("language-switch")).toHaveValue("pcm");
+  await page.getByTestId("language-switch").locator('[data-language="pcm"]').click();
+  await expect(page.getByTestId("language-switch").locator('[data-language="pcm"]')).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("plan-status")).toContainText("Wetin");
   await page.getByTestId("session-done").click();
   await expect(page.getByTestId("offline-note")).toContainText("this phone save");

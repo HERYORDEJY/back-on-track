@@ -22,7 +22,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Privacy panel and Delete my data | demo-verified | Learner/advisor parity and edited outreach verified in browser. Approved AiCacheUse migration applied; Tunde deletion cleared app data; D5 browser test confirms Amaka's local snapshot and cached learner page clear on Delete my data |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | in progress | Isolated local Playwright passes three serial repeats; the restored Production cache passes three public runs. Clean-profile mobile Lighthouse scored 99 performance / 100 accessibility on landing, Amaka plan and advisor. Android offline/speech spot checks passed; further TalkBack interaction was skipped at the maintainer's request |
 | Pitch assets (video, slides, README) | not started | |
-| Visual design (the line) | in progress | Phase 0 baseline screenshots and Phase 1 palette, type and primitive controls are complete; [implementation plan](plans/d6-ui-overhaul.md). The supplied docs stay in their staging folder until D6 is complete |
+| Visual design (the line) | in progress | Phases 0–2 are complete: baseline, palette/primitives, shared blocks and tested display helpers; [implementation plan](plans/d6-ui-overhaul.md). The supplied docs stay in their staging folder until D6 is complete |
 
 ## Current progress
 
@@ -142,6 +142,10 @@ Exit: the demo path runs 3 times in a row with nothing off-script, the plan open
 ### D6: whole-project UI overhaul, then feature freeze
 
 The [design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) and [phase plan](plans/d6-ui-overhaul.md) cover the landing, shared controls, learner journey, infeasible and offline states, and advisor view. Work in six commits: baseline; tokens/primitives; shared blocks and tested view helpers; learner screens; advisor; proof and final doc placement. Phase 3 stops for learner screenshot review before Phase 4. Finish the design guard, full checks, local demo test, mobile Lighthouse 80/90 and ten after screenshots before feature freeze. Human Pidgin copy review remains a separate deferred D5 task.
+
+#### Pidgin strings to check
+
+The following D6 Phase 2 strings are draft copy for the deferred human pass: Clock; Don finish reach Week {done} of {total}. Course dey Week {week}.; Tonight; Done; Missed; {date}, no study time; {assessment} go due, na {weight}% of your grade; 1 more study session; {count} more study sessions; E no go fit before {date}: 1 topic; E no go fit before {date}: {count} topics; Final exam; Course as dem write am; Time wey you get; This plan; Keep everything; Shorten to 70%; Shorten to 50%; Skip am; High priority; Medium priority; Low priority; We dey build your plan. Add Phase 3 strings here as screens are completed.
 
 ### D7: pitch and proof, no new features
 

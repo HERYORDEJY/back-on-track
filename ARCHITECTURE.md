@@ -35,7 +35,7 @@ The maintainer approved the pure seed-definition allowance on 2026-10-05 so demo
 
 ```text
 app/
-  layout.tsx                       header: ClockControl, SimulatedBadge, learner language
+  layout.tsx icon.svg              demo bar, mark, learner language; the tab mark
   page.tsx                         landing: PersonaSwitcher, Start demo, advisor link
   loading.tsx error.tsx not-found.tsx  shared route wait, retry and missing-page states
   learner/[studentId]/page.tsx     intake, plan, check-in, infeasible screen
@@ -49,10 +49,10 @@ app/
     advisor/outreach/route.ts      POST { studentId }: draft and save a message
     advisor/outreach/[id]/route.ts PATCH { contacted: true, message }: save final edited message
 components/
-  ui/  learner/  advisor/  shared/  (SimulatedBadge, ClockControl, PersonaSwitcher, LanguageSwitch, ReadAloud, RouteMessage)
+  ui/  learner/  advisor/  shared/  (demo bar, mark, language, line/stops, mini line, time bars, night, notice, meter, signal, travel, read-aloud)
 lib/
   services/  plans.ts students.ts advisor.ts demo.ts
-  engine/    config.ts types.ts time.ts backlog.ts capacity.ts rules.ts basis.ts triage.ts validate.ts fallback.ts schedule.ts plan.ts
+  engine/    config.ts types.ts time.ts display.ts backlog.ts capacity.ts rules.ts basis.ts triage.ts validate.ts fallback.ts schedule.ts plan.ts
   risk/      config.ts score.ts reasons.ts metric.ts
   ai/        client.ts schemas.ts prompts.ts cache.ts
   db.ts  clock.ts  i18n.ts  offline.ts  types.ts (shared UI/service contracts)
@@ -62,7 +62,7 @@ prisma/      schema.prisma seed.ts course.ts personas.ts cohort.ts
 scripts/     docs-check.mjs demo-warm.ts e2e-database.ts
 proxy.ts     supplies the learner id to the shared header for saved-language rendering
 tests/       fixtures/ engine/ risk/ i18n.test.ts ai-privacy.test.ts e2e/demo.spec.ts
-docs/        PRODUCT_SENSE.md PLANS.md FRONTEND.md RESEARCH.md specs/ references/
+docs/        PRODUCT_SENSE.md PLANS.md FRONTEND.md RESEARCH.md specs/ references/ D6-UI-Overhaul-Task-Documentation/ (staged design and reference)
 AGENTS.md  ARCHITECTURE.md  CAPSTONE_PROJECT_BRIEF.md  CODEX_LOG.md  README.md  .env.example
 ```
 
@@ -71,6 +71,7 @@ AGENTS.md  ARCHITECTURE.md  CAPSTONE_PROJECT_BRIEF.md  CODEX_LOG.md  README.md  
 - Pages read data through `lib/services` in Server Components. API routes exist only for mutations and the clock.
 - Route handlers validate input with zod, call one service function, and return JSON. Errors return `{ "error": { "code": string, "message": string } }` with a 4xx or 5xx status, never a stack trace.
 - Components render; they never compute plans, scores or dates.
+- Read-only display calculations such as completed-through week, bar widths and session stops live in pure `lib/engine/display.ts`; services add their results to view models without changing plan arithmetic or risk scoring.
 - Pages and routes that read the clock or the database are dynamic (`export const dynamic = "force-dynamic"`). Never cache them.
 - After a mutation or a clock change, client components call `router.refresh()`.
 - UI copy comes only from `messages/*.json`; no hard-coded strings in components.

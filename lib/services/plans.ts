@@ -4,6 +4,7 @@ import { getDb } from "@/lib/db";
 import { getNow, calendarDate } from "@/lib/clock";
 import { buildPlan } from "@/lib/engine/plan";
 import { effectiveStatus, needsReplan } from "@/lib/engine/time";
+import { buildStops } from "@/lib/engine/display";
 import type { PlanInput, PlanResult, TriageFn } from "@/lib/engine/types";
 import { triage } from "@/lib/ai/client";
 import { Localized } from "@/lib/ai/schemas";
@@ -108,6 +109,17 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
   if (needsReplan({ status: plan.status, focusDueDate: plan.focusDueDate ? calendarDate(plan.focusDueDate) : undefined, sessions: plan.sessions }, now)) {
     return createPlan(studentId);
   }
+  const [history, course] = await Promise.all([
+    db.plan.findMany({ where: { studentId }, orderBy: { version: "asc" }, select: {
+      version: true, simNow: true, isCurrent: true, status: true, unscheduled: true,
+      sessions: { select: { id: true, date: true, minutes: true, pieces: true, status: true, checkedAt: true } },
+    } }),
+    db.course.findUnique({ where: { id: "smpl201" }, select: {
+      examDate: true, topics: { select: { id: true, title: true } },
+      assessments: { select: { id: true, title: true, kind: true, dueDate: true, weight: true } },
+    } }),
+  ]);
+  if (!course) throw new Error("Sample course missing");
   const titleById = new Map(plan.items.map(({ topic }) => [topic.id, topic.title]));
   const sessions: SessionView[] = plan.sessions.map((session) => ({
     id: session.id, date: session.date, dateLabel: dateLabel(session.date), minutes: session.minutes,
@@ -126,6 +138,7 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
     changeSummary: plan.changeSummary ? Localized.parse(plan.changeSummary) : null,
     requiredMin: plan.requiredMin, capacityMin: plan.capacityMin,
     scheduledMin: sessions.reduce((sum, session) => sum + session.minutes, 0),
+    plannedMin: items.reduce((sum, item) => sum + item.minutes, 0),
     focusDueDate: plan.focusDueDate ? calendarDate(plan.focusDueDate) : null,
     focusDateLabel: plan.focusDueDate ? dateLabel(calendarDate(plan.focusDueDate)) : null,
     warnings: z.array(Localized).parse(plan.warnings),
@@ -135,6 +148,14 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
     counts: { kept: items.filter((item) => item.action === "keep").length, shortened: items.filter((item) => item.action === "compress_light" || item.action === "compress_heavy").length, skipped: items.filter((item) => item.action === "skip").length },
     weeklyHoursDue: student.hoursVary && daysBetween(calendarDate(plan.simNow), today) >= 7,
     reminders,
+    topicTitles: Object.fromEntries(course.topics.map((topic) => [topic.id, topic.title])),
+    stops: buildStops({ now, availability: availability.data, examDate: calendarDate(course.examDate),
+      assessments: course.assessments.map((assessment) => ({ id: assessment.id, title: assessment.title, kind: assessment.kind, dueDate: calendarDate(assessment.dueDate), weight: assessment.weight })),
+      plans: history.map((previous) => ({ version: previous.version, simNow: previous.simNow, isCurrent: previous.isCurrent, status: previous.status,
+        unscheduledCount: unscheduledSchema.parse(previous.unscheduled).length,
+        sessions: previous.sessions.map((session) => ({ ...session, pieces: piecesSchema.parse(session.pieces) })),
+      })),
+    }),
   } };
 }
 

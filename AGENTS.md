@@ -19,6 +19,7 @@ Requirement priority: golden rules, then the cut list, then the current demo scr
 | `lib/ai/`, prompts, the cache, `DEMO_MODE`, `demo:warm` | [docs/specs/ai.md](docs/specs/ai.md) |
 | `prisma/`, seed data, the simulated clock, demo reset, Delete my data | [docs/specs/data.md](docs/specs/data.md) |
 | Any screen, copy, offline, languages, read-aloud, accessibility | [docs/FRONTEND.md](docs/FRONTEND.md) |
+| Colour, type, spacing, or how any screen or component looks | [staged D6 design instruction](docs/D6-UI-Overhaul-Task-Documentation/DESIGN.md) |
 | A judgment call no spec answers (copy, edge cases, what to cut) | [docs/PRODUCT_SENSE.md](docs/PRODUCT_SENSE.md) |
 | A library that behaves differently than you expect | [docs/references/](docs/references/README.md) |
 

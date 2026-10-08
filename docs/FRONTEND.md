@@ -9,26 +9,22 @@ Screens, copy, languages, offline behaviour and accessibility. Product voice is 
 - Works offline after the first load.
 - Learner UI works in English and Nigerian Pidgin; published course and topic titles stay English. Read-aloud covers the plan session/summary and infeasible summary/next step; other screens have screen-reader labels.
 
-## Visual direction from D4 onward
+## Visual direction
 
-The D1–D3 screens work, but their pale background, repeated rounded cards and uniform hierarchy need a deliberate visual pass before final completion. The maintainer deferred all UI overhaul work on 2026-10-07 while writing a new instruction for a dedicated D6 whole-project milestone. Keep the existing presentation stable during D5; D6 will cover landing, shared controls, learner, advisor and offline screens together before feature freeze.
+The [staged D6 design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) defines the look and layout through implementation. Its line, stops, palette and component rules supersede earlier visual notes here. The supplied file moves to its final location after the whole D6 task is complete, as the maintainer requested.
 
-- Let the study task shape each screen. Give tonight's session a strong focal point and make deadlines, actions and course evidence visibly different. The advisor view should read as a concise call list, with priority and next action easy to scan.
-- Use a restrained, stronger palette: deep ink `#102e3d`, clear paper `#f7faf7`, active teal `#126e61`, warm deadline amber `#9b5b19`, and quiet rule `#b6c9c7`. Check text and control contrast before applying these tokens broadly. Use colour for meaning, with words and structure carrying the same meaning.
-- Keep the system font and light pages. Make personality through larger type for the next action, tighter body measures, purposeful spacing, a study-page motif and varied section structure. Avoid uniform card stacks, decorative gradients and motion that does not explain an action.
-- Review real English and Pidgin copy at 375 px and 1280 px. Check keyboard focus, reduced motion, screen readers, Slow 4G and Lighthouse during the D5 pass.
-
-Language switching now uses a full-screen page-turn transition. The visible stages correspond to saving the choice and applying it to the page; it clears after the refreshed language renders or exposes a retry if saving or refresh fails. The motion stops for reduced-motion users.
+Language switching uses a two-part plate in the header. It persists the same learner or landing choice, including queued offline changes, and exposes a retry when saving fails.
 
 ## Shared components (`components/shared`)
 
 | Component | Where | Behaviour |
 | --- | --- | --- |
-| SimulatedBadge | every page | "Simulated data" label, always visible |
-| ClockControl | header, every page | Shows the simulated date and week, with +1 day, +3 days, Jump to week (forward only) and Reset (calls demo reset) |
+| SimulatedBadge | demo bar, every page | "Simulated data" label, always visible |
+| ClockControl | demo bar, every page | Shows the simulated date and week, with +1 day, +3 days, Jump to week (forward only) and Reset (calls demo reset). Below 1024 px its controls open under the Clock toggle |
 | PersonaSwitcher | landing | The 3 personas with a one-line situation each |
 | LanguageSwitch | landing and every learner screen | Landing uses a `lang` cookie, default English. Learner screens use the student's saved language (`PATCH /api/students/[id]`); offline changes use the bilingual snapshot and queue for sync, last write wins |
 | ReadAloud | plan and infeasible screens | Reads tonight's session plus plan summary, or infeasible summary plus next step, with `speechSynthesis`; for Pidgin use an English (Nigeria) voice if available, else any English voice; screen-reader labels remain available where speech isn't supported |
+| Mark, SessionLine, MiniLine, TimeBars, NightBlock, Notice, Chip, Meter, Signal, Travel | pages as designed | Shared visual blocks. Pure display helpers supply progress, line stops and bar widths; the services add their read-only data to view models |
 
 After any mutation or clock change, call `router.refresh()`.
 
@@ -144,4 +140,4 @@ Chrome's Slow 4G profile stays usable. Lighthouse on mobile: performance 80+, ac
 - Verify landing-cookie versus student-language behavior, offline language switching/sync, privacy-panel parity, hidden numeric score and goal/context excluded from advisor views, both read-aloud views, deletion clearing snapshots/queues/cached pages, same-day reversal and earlier-session locking. The learner's own goal remains visible. Delayed-sync and same-day re-plan cases need the pending decisions first.
 - `tests/e2e/demo.spec.ts` (local production build, `DEMO_MODE=true`): Start demo; Amaka's plan has `data-status="cut"` and shows in Pidgin; switch to English; reopen offline, switch to Pidgin and mark tonight's session done; +3 simulated days while offline; reconnect, see late sync and the change summary; Tunde shows the infeasible message and ranks first for advisors; delete Amaka's data and confirm her device copy is gone; Reset. Assert structure, never AI wording.
 
-Test ids: `start-demo`, `build-plan`, `plan-status` (with `data-status`), `language-switch`, `session-done`, `offline-note`, `clock-plus-3`, `change-summary`, `infeasible-message`, `advisor-row`.
+Test ids: `start-demo`, `build-plan`, `plan-status` (with `data-status`), `language-switch`, `session-done`, `offline-note`, `clock-plus-3`, `clock-toggle`, `change-summary`, `infeasible-message`, `advisor-row`.

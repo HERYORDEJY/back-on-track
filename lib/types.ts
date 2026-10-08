@@ -1,4 +1,5 @@
 import type { Language, Localized } from "@/lib/i18n";
+import type { Stop } from "@/lib/engine/display";
 
 export type ClockJump = { jumpDays: number; toWeek?: never } | { toWeek: number; jumpDays?: never };
 export type ClockView = { now: string; week: number; date: Localized; atLimit: boolean; futureWeeks: number[] };
@@ -17,12 +18,13 @@ export type PlanView = {
   };
   plan: null | {
     id: string; version: number; status: "fit" | "cut" | "infeasible"; source: "ai" | "cache" | "fallback";
-    summary: Localized; changeSummary: Localized | null; requiredMin: number; capacityMin: number; scheduledMin: number;
+    summary: Localized; changeSummary: Localized | null; requiredMin: number; capacityMin: number; scheduledMin: number; plannedMin: number;
     focusDueDate: string | null; focusDateLabel: Localized | null; warnings: Localized[];
     unscheduled: { topicId: string; minutes: number; title: string }[];
     items: { topicId: string; title: string; action: "keep" | "compress_light" | "compress_heavy" | "skip"; minutes: number; rationale: Localized; basis: Localized; sourceUrl: string | null }[];
     sessions: SessionView[]; featuredSession: SessionView | null; weekSessions: SessionView[];
     counts: { kept: number; shortened: number; skipped: number }; weeklyHoursDue: boolean;
     reminders: { id: string; atLabel: Localized; text: Localized }[];
+    stops: Stop[]; topicTitles: Record<string, string>;
   };
 };

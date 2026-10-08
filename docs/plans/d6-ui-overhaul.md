@@ -58,3 +58,16 @@ replaced in later phases, as the design instruction specifies.
 isolated local browser demo tests passed. Phone and wide screenshots were
 inspected against the Phase 0 images; the final after screenshots will be
 captured again once the full overhaul is complete.
+
+## Phase 2 evidence
+
+The shared demo bar, mark and two-part language switch now render from the root
+layout. The clock controls are behind a labelled toggle below 1024 px. Shared
+notice, chip, night, line, mini line, time bars, meter, signal and travel blocks
+are available to the learner and advisor screens. The icon matches the design
+instruction. Pure, unit-tested display helpers compute consecutive completed
+weeks, clamped mini-line positions, common-scale bars and dated session stops.
+Read-only plan and advisor view-model fields expose those values; the engine's
+planning and risk decisions remain unchanged. New Pidgin labels await the
+deferred human copy pass. `npm run check` passed 246 tests, the production build
+succeeded and both isolated local Playwright demo tests passed.

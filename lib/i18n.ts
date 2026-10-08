@@ -34,3 +34,12 @@ export function formatDate(date: Date, language: Language): string {
     timeZone: "Africa/Lagos",
   }).format(date).replace(/,/g, "");
 }
+
+export function formatDuration(minutes: number, language: Language): string {
+  // The supported languages share these unit abbreviations.
+  void language;
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `${hours} h ${rest} min` : `${hours} h`;
+}

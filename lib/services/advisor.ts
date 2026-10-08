@@ -5,12 +5,13 @@ import { getNow, calendarDate } from "@/lib/clock";
 import { outreach } from "@/lib/ai/client";
 import { t, type Language, type MessageKey } from "@/lib/i18n";
 import { scoreRisk, sortRisk } from "@/lib/risk/score";
+import { doneThroughWeek } from "@/lib/engine/display";
 import { adherenceMetric } from "@/lib/risk/metric";
 import { Prisma } from "@/lib/generated/prisma/client";
 
 export type AdvisorBand = "high" | "medium" | "low";
 export type PublicRisk = { band: AdvisorBand; reasons: { code: string; params: Record<string, string | number> }[]; lastActivity: string | null; escalated: boolean };
-export type AdvisorRow = { id: string; name: string; language: Language; risk: PublicRisk; planStatus: "fit" | "cut" | "infeasible" | null };
+export type AdvisorRow = { id: string; name: string; language: Language; risk: PublicRisk; planStatus: "fit" | "cut" | "infeasible" | null; doneThroughWeek: number; hasCurrentPlan: boolean; escalated: boolean; lastActive: string | null };
 export type AdvisorEvent = { at: string; type: "done" | "sessionMissed" | "submitted" | "topicDone" | "seen"; title?: string };
 export type AdvisorDetail = AdvisorRow & { events: AdvisorEvent[]; missedSessions: string[]; outreach: { id: string; message: string; nextStep: string; contacted: boolean } | null };
 
@@ -93,15 +94,18 @@ function scoreStudent(student: StudentFact, facts: Facts) {
   return { student, result: scoreRisk(riskInput(student, facts), facts.now) };
 }
 
-function rowOf(student: StudentFact, result: ReturnType<typeof scoreRisk>): AdvisorRow {
-  return { id: student.id, name: student.name, language: student.language, risk: projectRisk(result), planStatus: student.plans[0]?.status ?? null };
+function rowOf(student: StudentFact, result: ReturnType<typeof scoreRisk>, facts: Facts): AdvisorRow {
+  const risk = projectRisk(result);
+  return { id: student.id, name: student.name, language: student.language, risk, planStatus: student.plans[0]?.status ?? null,
+    doneThroughWeek: doneThroughWeek(facts.topics, student.progress, facts.now), hasCurrentPlan: Boolean(student.plans[0]),
+    escalated: risk.escalated, lastActive: risk.lastActivity };
 }
 
 export async function listStudents({ band = null }: { band?: AdvisorBand | null } = {}) {
   const facts = await loadFacts();
   const ranked = facts.students.map((student) => scoreStudent(student, facts));
   ranked.sort((a, b) => sortRisk(a.result, b.result));
-  const rows = ranked.filter(({ result }) => !band || result.band === band).map(({ student, result }) => rowOf(student, result));
+  const rows = ranked.filter(({ result }) => !band || result.band === band).map(({ student, result }) => rowOf(student, result, facts));
   const plans = facts.students.flatMap((student) => student.plans);
   return { rows, metric: adherenceMetric(plans, facts.now) };
 }
@@ -130,7 +134,7 @@ export async function getStudentDetail(studentId: string): Promise<AdvisorDetail
   const today = calendarDate(facts.now);
   const missedSessions = plan?.sessions.filter((session) => (session.date < today && (session.status !== "done" || !session.checkedAt || session.checkedAt > facts.now)) || (session.date === today && session.status === "missed" && !!session.checkedAt && session.checkedAt <= facts.now)).map((session) => `${session.date}T12:00:00+01:00`).sort().reverse() ?? [];
   const saved = await getDb().outreach.findFirst({ where: { studentId }, orderBy: { createdAt: "desc" }, select: { id: true, message: true, nextStep: true, contacted: true } });
-  return { ...rowOf(student, risk), events, missedSessions, outreach: saved };
+  return { ...rowOf(student, risk, facts), events, missedSessions, outreach: saved };
 }
 
 export async function draftOutreach(studentId: string) {

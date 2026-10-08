@@ -1,9 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
-import { t, resolveLanguage, type Language } from "@/lib/i18n";
+import { useEffect, useState, useTransition } from "react";
+import { t, type Language } from "@/lib/i18n";
 import { enqueueMutation, queuedLanguage as readQueuedLanguage } from "@/lib/offline";
+
+function saveLandingLanguage(value: Language) {
+  document.cookie = `lang=${value}; Path=/; Max-Age=31536000; SameSite=Lax`;
+}
 
 export function LanguageSwitch({ language, studentId = null }: { language: Language; studentId?: string | null }) {
   const router = useRouter();
@@ -13,21 +17,12 @@ export function LanguageSwitch({ language, studentId = null }: { language: Langu
   const [failedLanguage, setFailedLanguage] = useState<Language | null>(null);
   const [queuedLanguage, setQueuedLanguage] = useState<Language | null>(null);
   const localLanguage = queuedLanguage ?? language;
-  const selectRef = useRef<HTMLSelectElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const wasShowing = useRef(false);
   const showing = targetLanguage !== null && (saving || refreshing || localLanguage !== targetLanguage);
 
   useEffect(() => {
     if (!studentId) return;
     queueMicrotask(() => setQueuedLanguage(readQueuedLanguage(studentId)));
   }, [studentId, language]);
-
-  useEffect(() => {
-    if (showing) overlayRef.current?.focus();
-    else if (wasShowing.current) selectRef.current?.focus();
-    wasShowing.current = showing;
-  }, [showing]);
 
   useEffect(() => {
     if (!targetLanguage || saving || language === targetLanguage) return;
@@ -67,7 +62,7 @@ export function LanguageSwitch({ language, studentId = null }: { language: Langu
           throw new Error("Language update failed");
         }
       } else {
-        document.cookie = `lang=${value}; Path=/; Max-Age=31536000; SameSite=Lax`;
+        saveLandingLanguage(value);
       }
       setQueuedLanguage(null);
       refresh(() => router.refresh());
@@ -80,34 +75,11 @@ export function LanguageSwitch({ language, studentId = null }: { language: Langu
   }
   return (
     <div className="language-switch">
-    <label>
-      <span className="sr-only">{t("language.label", localLanguage)}</span>
-      <select
-        ref={selectRef}
-        data-testid="language-switch"
-        value={localLanguage}
-        disabled={showing}
-        onChange={(event) => void change(resolveLanguage(event.target.value))}
-      >
-        <option value="en">{t("language.en", localLanguage)}</option>
-        <option value="pcm">{t("language.pcm", localLanguage)}</option>
-      </select>
-    </label>
+    <div className="lang" data-testid="language-switch" role="group" aria-label={t("language.label", localLanguage)}>
+      {(["en", "pcm"] as const).map((value) => <button key={value} type="button" className="lang__opt" data-language={value} aria-pressed={localLanguage === value} disabled={showing} onClick={() => void change(value)}>{t(`language.${value}`, localLanguage)}</button>)}
+    </div>
     {failedLanguage && <span role="alert">{t("language.failed", localLanguage)} <button type="button" onClick={() => void change(failedLanguage)}>{t("clock.retry", localLanguage)}</button></span>}
-    {showing && targetLanguage && <div ref={overlayRef} className="language-transition" role="dialog" aria-modal="true" aria-labelledby="language-transition-title" tabIndex={-1} onKeyDown={(event) => { if (event.key === "Tab") event.preventDefault(); }}>
-      <div className="language-transition__inner">
-        <p className="language-transition__brand">{t("app.name", localLanguage)}</p>
-        <div className="language-transition__folio" aria-hidden="true"><span /><span /></div>
-        <h2 id="language-transition-title">{t("language.transition.title", localLanguage, { language: t(`language.${targetLanguage}`, localLanguage) })}</h2>
-        <p className="language-transition__note">{t("language.transition.note", localLanguage)}</p>
-        <p className="sr-only" role="status" aria-live="polite">{t(saving ? "language.transition.save" : "language.transition.apply", localLanguage)}</p>
-        <div className="language-transition__steps" aria-hidden="true">
-          <span className={saving ? "is-current" : "is-done"}>{t("language.transition.save", localLanguage)}</span>
-          <span className={!saving ? "is-current" : ""}>{t("language.transition.apply", localLanguage)}</span>
-        </div>
-        <div className="language-transition__track" aria-hidden="true"><span /></div>
-      </div>
-    </div>}
+    {showing && <span className="sr-only" role="status">{t("language.saving", localLanguage)}</span>}
     </div>
   );
 }

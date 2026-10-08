@@ -27,7 +27,7 @@ export function DemoReset({ language, disabled = false, onBusyChange, onReset }:
     finally { setPending(false); onBusyChange?.(false); }
   }
   return <div>
-    <Button variant="plain" disabled={disabled || pending || refreshing} onClick={reset}>{t(pending || refreshing ? "demo.resetting" : failed ? "demo.retry" : "demo.reset", language)}</Button>
+    <Button variant="plain" className="demo__btn" disabled={disabled || pending || refreshing} onClick={reset}>{t(pending || refreshing ? "demo.resetting" : failed ? "demo.retry" : "demo.reset", language)}</Button>
     <p role="status">{failed && t("demo.failed", language)}</p>
     {deviceWarning && <p role="alert">{t("offline.resetDeviceFailed", language)}</p>}
   </div>;
