@@ -12,7 +12,7 @@ function warnings(input: PlanInput, state: PlanState, sessions: PlannedSession[]
   const finish = new Map(sessions.flatMap(({ date, pieces }) => pieces.filter(({ isLast }) => isLast).map(({ topicId }) => [topicId, date] as const)));
   return input.assessments.filter((assessment) => assessment.kind !== "exam" && assessment.dueDate >= state.today).flatMap((assessment) => {
     const n = assessment.topicIds.filter((id) => Boolean(finish.get(id) && finish.get(id)! > assessment.dueDate)).length;
-    return n ? [localized("plan.deadlineWarning", { n, assessment: assessment.title, date: formatDate(new Date(`${assessment.dueDate}T00:00:00+01:00`), "en") })] : [];
+    return n ? [localized(n === 1 ? "plan.deadlineWarning.one" : "plan.deadlineWarning.many", { n, assessment: assessment.title, date: formatDate(new Date(`${assessment.dueDate}T00:00:00+01:00`), "en") })] : [];
   });
 }
 

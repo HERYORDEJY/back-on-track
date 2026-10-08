@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   if (!body.success) return Response.json({ error: { code: "OUTREACH_INVALID", message: t("advisor.outreach.invalid", "en") } }, { status: 400, headers });
   try { return Response.json(await draftOutreach(body.data.studentId), { headers }); }
   catch (error) {
-    if (error instanceof AdvisorServiceError) return Response.json({ error: { code: error.code, message: t("advisor.outreach.notFound", "en") } }, { status: 404, headers });
+    if (error instanceof AdvisorServiceError) return Response.json({ error: { code: error.code, message: t(error.code === "OUTREACH_WEEKLY_LIMIT" ? "advisor.outreach.weeklyLimit" : "advisor.outreach.notFound", "en") } }, { status: error.code === "OUTREACH_WEEKLY_LIMIT" ? 429 : 404, headers });
     return Response.json({ error: { code: "OUTREACH_UNAVAILABLE", message: t("advisor.outreach.unavailable", "en") } }, { status: 503, headers });
   }
 }

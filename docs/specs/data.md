@@ -9,6 +9,7 @@ The simulated clock is the only "now". Everything time-stamped is read as of now
 - A session check-in counts when `checkedAt` is at or before now (effective status: `specs/engine.md`).
 - `lastSeenAt` and `escalatedAt` count only when at or before now.
 - Seeded cohort events may be dated after the demo start. They "happen" when the clock passes them, so the advisor view stays believable at any simulated date.
+- Outreach `createdAt` is the simulated draft creation time. The current `contacted` flag and edited message do not record when contact happened or whether the learner replied. Draft count is limited to two rows per learner per Monday–Sunday Africa/Lagos simulated week. Contact timing, reply outcome and call/meeting notes need a separately approved schema change; until then the UI labels the draft date honestly.
 
 ## Simulated clock (`lib/clock.ts`)
 

@@ -65,7 +65,7 @@ describe("risk pressure and missed work", () => {
       { id: "next", title: "Next", dueDate: "2026-10-20", topicIds: [] },
     ];
     input.topics = [{ id: "old", week: 6, estMinutes: 60 }, { id: "future", week: 8, estMinutes: 1000 }];
-    expect(scoreRisk(input, now).reasons.find(({ code }) => code === "BACKLOG_PRESSURE")?.params).toEqual({ ratio: 0.5, assessment: "Next" });
+    expect(scoreRisk(input, now).reasons.find(({ code }) => code === "BACKLOG_PRESSURE")?.params).toEqual({ workMinutes: 60, availableMinutes: 120, assessment: "Next" });
   });
 
   it("handles zero capacity with and without work, and omits pressure after the last deadline", () => {

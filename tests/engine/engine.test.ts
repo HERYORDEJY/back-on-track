@@ -274,6 +274,12 @@ describe("plan assembly", () => {
     const result = await buildPlan(value, async () => null);
     expect(result.status).toBe("fit"); expect(result.unscheduled).toEqual([]); expect(result.warnings[0].en).toContain("2 topics");
   });
+  it("uses singular wording when one assessed topic finishes after its deadline", async () => {
+    const value = input({ availability: hours(60), course: { startDate: "2026-09-07", examDate: "2026-10-22" }, assessments: [{ ...coursework, topicIds: ["b", "c"] }] });
+    const result = await buildPlan(value, async () => null);
+    expect(result.warnings[0].en).toContain("1 topic");
+    expect(result.warnings[0].en).not.toContain("1 topics");
+  });
   it("reports moved, shortened and dropped differences from the previous plan", async () => {
     const value = input({ availability: hours(60) });
     value.previous = { decisions: decisionsFor(planState(value)), sessions: [{ date: "2026-10-18", topicIds: ["a", "b", "c"] }] };

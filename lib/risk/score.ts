@@ -67,7 +67,7 @@ export function scoreRisk(input: RiskInput, now: Date): RiskResult {
         const ratio = backlogMinutes / available;
         const points = ratio > RISK.backlog.ratio[1] ? RISK.backlog.points[1]
           : ratio >= RISK.backlog.ratio[0] ? RISK.backlog.points[0] : 0;
-        if (points) reasons.push(reason("BACKLOG_PRESSURE", points, { ratio: Math.round(ratio * 100) / 100, assessment: upcoming.title }));
+        if (points) reasons.push(reason("BACKLOG_PRESSURE", points, { workMinutes: backlogMinutes, availableMinutes: available, assessment: upcoming.title }));
       }
     }
   }

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { BusyOverlay } from "@/components/shared/BusyOverlay";
 import { t, type Language } from "@/lib/i18n";
 
 export function BuildPlanButton({ studentId, language }: { studentId: string; language: Language }) {
@@ -21,6 +22,7 @@ export function BuildPlanButton({ studentId, language }: { studentId: string; la
     finally { setPending(false); }
   }
   return <div className="plan-action">
+    <BusyOverlay active={pending || refreshing} language={language} message={t("learner.building", language)} />
     <Button id="build-plan" data-testid="build-plan" disabled={pending || refreshing} onClick={build}>{t(pending || refreshing ? "learner.building" : failed ? "learner.retry" : "learner.build", language)}</Button>
     {failed && <p role="alert">{t("plan.error.unavailable", language)}</p>}
   </div>;

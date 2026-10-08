@@ -1,5 +1,6 @@
-import { formatDate, t, type Language, type MessageKey } from "@/lib/i18n";
+import { formatDate, formatRiskReason, t, type Language } from "@/lib/i18n";
 import { Signal } from "@/components/shared/Signal";
+import { EmphasizedText } from "@/components/shared/EmphasizedText";
 
 type VisibleRisk = {
   band: "high" | "medium" | "low";
@@ -14,10 +15,9 @@ export function AdvisorVisibility({ risk, language, studentId }: { risk: Visible
     <p className="detail">{t("learner.advisor.description", language)}</p>
     {!risk ? <p role="alert">{t("learner.advisor.unavailable", language)} <a href={`/learner/${encodeURIComponent(studentId)}`}>{t("clock.retry", language)}</a></p> : <>
       <div className="seen"><p className="seen__level"><Signal band={risk.band} language={language} label={t(`advisor.band.${risk.band}`, language)} /></p>
-        <ul className="dashes">{risk.reasons.map(({ code, params }, index) => <li key={`${code}-${index}`}>{t(`risk.reason.${code}` as MessageKey, language, params)}</li>)}
-          <li>{risk.lastActivity ? t("learner.advisor.lastActivity", language, { date: formatDate(new Date(risk.lastActivity), language) }) : t("advisor.neverActive", language)}</li>
-          <li>{t(risk.escalated ? "learner.advisor.flagged" : "learner.advisor.notFlagged", language)}</li>
-        </ul>
+        <div className="seen__facts"><ul className="dashes">{risk.reasons.map(({ code, params }, index) => <li key={`${code}-${index}`}><EmphasizedText text={formatRiskReason(code, params, language)} terms={[String(params.assessment ?? "")]} /></li>)}</ul></div>
+        <p className="seen__activity">{risk.lastActivity ? t("learner.advisor.lastActivity", language, { date: formatDate(new Date(risk.lastActivity), language) }) : t("advisor.neverActive", language)}</p>
+        <p className="seen__activity">{t(risk.escalated ? "learner.advisor.flagged" : "learner.advisor.notFlagged", language)}</p>
       </div>
     </>}
   </section>;

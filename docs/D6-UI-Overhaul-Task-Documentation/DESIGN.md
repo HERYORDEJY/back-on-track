@@ -98,7 +98,7 @@ Build each block once in `components/shared` and use it everywhere. Port the ref
 | Demo bar | `.demo` | First thing on every page. Holds "Simulated data", the simulated date and week, and the clock controls. Below 1024 px the controls sit behind a "Clock" toggle with `aria-expanded`; from 1024 px they are inline. `SimulatedBadge` and `ClockControl` now live inside it |
 | Mark | `.mark` | A short line ending in a lamp stop, then "Back on Track". Links to `/` |
 | Language switch | `.lang` | A two-part plate; the chosen language is filled `night` |
-| Button | `.btn` | Three variants: `now` (lamp: the one next action, at most one per view plus one in an open drawer), `plain` (paper plate), `text` (underlined). Heights 48 and 44 px. Disabled: `mist` fill, `rail` border, `slate` label. Rewrite `components/ui/button.tsx` to these variants and nothing else |
+| Button | `.btn` | `now` (lamp: the next primary action), `plain` (paper plate), `text` (underlined navigation), and `quiet` (unadorned secondary action without link styling). Heights 48 and 44 px. Disabled: `mist` fill, `rail` border, `slate` label. Reuse `components/ui/button.tsx` |
 | Field | `.input`, `.check`, `.days` | 2 px `night` border, 48 px tall, 16 px text. Label above in 800, hint below in `slate`. Error: `error` border plus a bold `error` message linked with `aria-describedby` |
 | Notice | `.notice` | An outlined plate for anything the plan tells the student: a deadline warning, "plan updated", "update your hours". Bold first sentence, then the detail. `notice--error` is for failures only and carries a "Try again" button |
 | Flag, tag, chip | `.stop__flag`, `.board__first`, `.chip` | The "Tonight" flag and the "Call first" tag are lamp with `night` text. The chip (outlined pill with a ring) is for device state: "Saved on this phone" |
@@ -108,7 +108,7 @@ Build each block once in `components/shared` and use it everywhere. Port the ref
 | Time bars | `.time` | Up to three bars on one scale, the largest value at full width: the course as written (hatched `slate`), the time you have (`night`), this plan (lamp with a `night` outline). The value sits in text beside each bar |
 | Meter | `.meter` | What happened to a topic: full, 70%, 50% or empty |
 | Signal | `.signal` | Call priority: three dots, filled 3, 2 or 1 for high, medium or low, always followed by the word |
-| Travel | `.travel` | The only loading indicator: a stop moving along a line, with text beside it |
+| Travel and BusyOverlay | `.travel`, `.busy-overlay` | The shared animated stop and a specific action label appear in a light, whole-screen modal overlay for major requests. The page stays visible under an 18% night tint but cannot receive pointer or keyboard actions until the request settles. Copy gives inline success/error feedback without an overlay |
 
 The tab icon, `app/icon.svg`:
 
@@ -221,9 +221,9 @@ English only.
 | Priority | The signal and the word |
 | Why | The top two reasons |
 
-There is no score column and no status colour. The selected row is `mist` with a 6 px `night` bar on its left edge.
+There is no score column and no status colour. Priority uses the shared signal and a weight/line shape; plan status has its own outlined marker. The selected row is `mist` with a 6 px `night` bar on its left edge.
 
-4. The drawer: 400 px wide with a 2 px `night` left border and no scrim. From 1200 px it sits beside the table; below that it replaces the list and has a "Back to the list" link. It holds the name; the signal and "{Level} priority for a call"; "Message to send" (the draft in an editable textarea, the next step as detail, `now` "Copy message", `plain` "Mark contacted"); "Why they're on the list" (every reason); "Activity" (a dated list).
+4. The drawer: up to 590 px wide with a 2 px `night` left border and a pale, noninteractive scrim. It holds the name and visible `quiet` "Close details" button; the signal and "{Level} priority for a call"; editable outreach, Copy, Mark contacted and the weekly draft count; reasons; missed sessions; and dated activity including the latest saved outreach note. Escape and scrim clicks do not close it. The close button hides it immediately while the URL updates. After Mark contacted, offer "Draft another message" until the two-per-learner weekly limit is reached. The draft creation date is labelled as such because contact time is not stored yet.
 
 Write "they" for students; the app holds no gender. An empty filter shows "No students at this priority." Below 768 px each row stacks its cells; nothing more is needed at that width. Keep `data-testid="advisor-row"` on each row.
 
@@ -244,7 +244,7 @@ Write "they" for students; the app holds no gender. An empty filter shows "No st
 
 ## Guardrails
 
-- This is a re-skin. Don't change `lib/engine` rules, `lib/risk`, `lib/ai`, `prisma/` or any API route's contract.
+- Keep plan arithmetic, risk thresholds, AI prompt behaviour and the Prisma schema unchanged. The maintainer's feedback authorizes singular/plural warning selection, plain-time risk reason parameters and a 429 outreach draft limit using the existing Outreach rows.
 - The only logic allowed is in "Data the screens need": pure, tested helpers and read-only view-model fields.
 - Every string comes from the message files, in both languages.
 - Keep every existing `data-testid`. Add `clock-toggle` to the demo bar's toggle.
@@ -320,7 +320,7 @@ Exit: the helpers are tested and the demo bar and mark are in the root layout.
 - The offline snapshot holds the new fields.
 - Message keys in both files; the Pidgin review list in `PLANS.md`.
 
-Exit: the four screens match their frames in English and Pidgin, and the e2e demo test passes. **Stop here. Share screenshots of the four screens at both sizes and wait for review before Phase 4.**
+Exit: the four screens match their frames in English and Pidgin, and the e2e demo test passes. The maintainer reviewed the learner screens through detailed feedback and authorized continuing into the advisor phase, superseding the earlier stop instruction.
 
 ### Phase 4: advisor
 

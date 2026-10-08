@@ -85,6 +85,10 @@ html[lang="pcm"] .route-copy-pcm { display: inline; }
 .route-state__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 .route-state__actions button, .route-state__actions a { display: inline-flex; min-height: 44px; align-items: center; padding: 8px 15px; border: 2px solid var(--night); border-radius: 8px; background: var(--lamp); color: var(--night); font-weight: 700; cursor: pointer; }
 .route-state__actions a { background: transparent; color: var(--night); }
+.busy-overlay { width: min(420px, calc(100% - 32px)); max-width: none; margin: auto; padding: 20px; border: 2px solid var(--night); border-radius: 8px; background: var(--paper); color: var(--night); }
+.busy-overlay::backdrop { background: color-mix(in srgb, var(--night) 18%, transparent); }
+.busy-overlay__content p { margin: 12px 0 0; color: var(--slate); font-size: 14px; }
+.busy-overlay .travel { flex-basis: 84px; }
 @keyframes route-progress { to { transform: translateX(164%); } }
 @media (prefers-reduced-motion: reduce) { .route-state__rule span { animation: none; } }
 .introduction { padding-block: 68px 60px; max-width: 800px; }
@@ -198,8 +202,12 @@ input[type="checkbox"] { accent-color: var(--night); }
 .night__say { font-size: 23px; line-height: 1.22; font-weight: 800; letter-spacing: -0.015em; }
 .night__say + .night__what { margin-top: 12px; }
 .night__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; }
+.night__course { margin: 2px 0 10px !important; color: var(--night-soft); font-size: 14px; line-height: 1.4; }
+.night__course strong { display: inline-block; margin-left: 4px; padding-bottom: 1px; border-bottom: 2px solid var(--night-soft); color: var(--paper); font-weight: 800; }
+.night__duration { margin-bottom: 12px !important; color: var(--night-soft); font-weight: 700; }
 .night button { border-color: var(--paper); background: transparent; color: var(--paper); }
 .night button[data-variant="now"] { border-color: var(--lamp); background: var(--lamp); color: var(--night); }
+.night button[data-variant="quiet"] { border-color: transparent; background: var(--night-soft); color: var(--night); text-decoration: none; }
 .signal-wrap { display: inline-flex; align-items: center; font-weight: 700; }
 .travel-wrap { display: flex; align-items: center; gap: 12px; }
 .travel { flex: 0 0 120px; }
@@ -328,10 +336,15 @@ input[type="checkbox"] { accent-color: var(--night); }
 .session-check-in { margin: 0; }
 .session-check-in > p { margin-top: 8px; }
 .time__say { margin: 0 0 16px; }
+.time__detail { margin: -6px 0 16px; color: var(--slate); font-size: 14px; line-height: 1.45; }
+.assessment-name { font-weight: 800; text-decoration: underline; text-decoration-color: var(--rail); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .plan__week .line { padding: 0; }
 .plan__week .heading { margin-bottom: 12px; }
 .group { border-top: 2px solid var(--night); }
 .group:last-of-type { border-bottom: 2px solid var(--night); }
+.group--skipped { border-top-style: dashed; border-color: var(--slate); background: var(--mist); padding-inline: 10px; }
+.group--shortened { border-color: var(--rail); }
+.group--kept { border-color: var(--night); }
 .group__head { display: flex; align-items: center; gap: 10px; min-height: 52px; font-size: 17px; font-weight: 800; list-style: none; cursor: pointer; }
 .group__head::-webkit-details-marker { display: none; }
 .group__count { margin-left: auto; color: var(--slate); font-size: 14px; font-weight: 400; white-space: nowrap; }
@@ -348,9 +361,11 @@ input[type="checkbox"] { accent-color: var(--night); }
 .plan__advisor .advisor-visibility > .detail { margin: 0 0 10px; }
 .seen { border: 2px solid var(--night); border-radius: 8px; padding: 14px; }
 .seen__level { margin: 0; font-weight: 800; }
-.dashes { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
-.dashes li { position: relative; padding-left: 16px; }
-.dashes li::before { content: ""; position: absolute; left: 0; top: 10px; width: 8px; height: 3px; border-radius: 2px; background: var(--night); }
+.dashes { display: grid; gap: 8px; margin: 12px 0 0; padding-left: 22px; list-style: disc; }
+.dashes li { padding-left: 2px; line-height: 1.45; }
+.dashes li::marker { color: var(--night); }
+.seen__facts { border-top: 1px solid var(--rail); margin-top: 12px; padding-top: 10px; }
+.seen__activity { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--rail); color: var(--slate); font-size: 14px; }
 .plan__delete { margin-top: 14px; }
 .plan__delete .delete-data { max-width: none; margin: 0; padding: 0; border: 0; }
 .plan__delete .delete-data h2, .plan__delete .delete-data > p { display: none; }

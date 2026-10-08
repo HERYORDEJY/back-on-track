@@ -4,6 +4,7 @@ import { IntakeForm } from "@/components/learner/IntakeForm";
 import { SessionCheckIn } from "@/components/learner/SessionCheckIn";
 import { AdvisorVisibility } from "@/components/learner/AdvisorVisibility";
 import { DeleteMyData } from "@/components/learner/DeleteMyData";
+import { EmphasizedText } from "@/components/shared/EmphasizedText";
 import { Chip, Notice } from "@/components/shared/Notice";
 import { Meter } from "@/components/shared/Meter";
 import { NightBlock } from "@/components/shared/NightBlock";
@@ -20,7 +21,7 @@ function TopicGroup({ title, items, language, open, action }: {
   title: string; items: CurrentPlan["items"]; language: Language; open: boolean; action: "keep" | "compress_light" | "skip";
 }) {
   if (!items.length) return null;
-  return <details className="group" open={open}>
+  return <details className={`group group--${action === "compress_light" ? "shortened" : action === "skip" ? "skipped" : "kept"}`} open={open}>
     <summary className="group__head"><Meter action={action} language={language} />{title}<span className="group__count">{t(items.length === 1 ? "plan.topicCount.one" : "plan.topicCount.many", language, { count: items.length })}</span></summary>
     {items.map((item) => <div className="topic" key={item.topicId}>
       <div className="topic__head"><strong className="topic__name">{item.title}</strong><span className="topic__mins">{t("plan.topicMinutes", language, { minutes: item.minutes, estimate: item.estimateMin })}</span></div>
@@ -61,7 +62,10 @@ function NightMessage({ view, queued, onQueued }: { view: PlanView; queued: Offl
   const todaySession = featured?.date === view.today ? featured : null;
   const next = plan.sessions.find((session) => session.date > view.today && session.status === "pending");
   const firstTopic = featured?.pieces[0]?.title ?? "";
-  const spokenText = plan.status === "infeasible" ? plan.summary.en : `${plan.summary.en} ${featured ? `${featured.dateLabel.en}. ${formatDuration(featured.minutes, "en")}. ${featured.pieces.map((piece) => piece.title).join(", ")}` : ""}`;
+  const course = <p className="night__course"><span>{t("plan.night.course", language)}:</span> <strong>{t("plan.courseName", language)}</strong></p>;
+  const duration = featured && <p className="night__duration">{t("plan.night.duration", language, { duration: formatDuration(featured.minutes, language) })}</p>;
+  const timeSummary = t(`plan.time.${plan.status}`, "en", { required: formatDuration(plan.requiredMin, "en"), available: formatDuration(plan.capacityMin, "en"), planned: formatDuration(plan.plannedMin, "en") });
+  const spokenText = plan.status === "infeasible" ? plan.summary.en : `${timeSummary} ${plan.summary.en} ${featured ? `${featured.dateLabel.en}. ${formatDuration(featured.minutes, "en")}. ${featured.pieces.map((piece) => piece.title).join(", ")}` : ""}`;
   const listen = <ReadAloud language={language} text={spokenText} label={t(language === "pcm" ? "learner.listenEnglish" : "learner.listen", language)} />;
   const queuedStatus = queued.find((item) => item.kind === "checkin" && item.sessionId === featured?.id);
   const action = todaySession && <SessionCheckIn session={todaySession} language={language} studentId={student.id} queuedStatus={queuedStatus?.kind === "checkin" ? queuedStatus.status : null} onQueued={onQueued} />;
@@ -70,12 +74,12 @@ function NightMessage({ view, queued, onQueued }: { view: PlanView; queued: Offl
     const breakAt = summary.indexOf(".");
     const lead = breakAt >= 0 ? summary.slice(0, breakAt + 1) : summary;
     const rest = breakAt >= 0 ? summary.slice(breakAt + 1).trim() : "";
-    return <NightBlock actions={listen}><div data-testid="infeasible-message"><h2 className="night__say">{lead}</h2>{rest && <p className="night__what">{rest}</p>}</div></NightBlock>;
+    return <NightBlock actions={listen}><div data-testid="infeasible-message">{course}<h2 className="night__say">{lead}</h2>{rest && <p className="night__what">{rest}</p>}</div></NightBlock>;
   }
-  if (!todaySession) return <NightBlock label={t("plan.night.today", language)} listen={listen}><p className="night__say">{t("plan.night.noStudy", language)}</p>{featured && <p className="night__what">{t("plan.night.nextTopic", language, { date: featured.dateLabel[language], minutes: formatDuration(featured.minutes, language), topic: firstTopic })}</p>}</NightBlock>;
-  if (todaySession.status === "done") return <NightBlock label={t("line.tonight", language)} listen={listen} actions={action}><p className="night__big">{t("line.done", language)}</p>{next && <p className="night__what">{t("plan.night.next", language, { date: next.dateLabel[language], minutes: formatDuration(next.minutes, language) })}</p>}</NightBlock>;
-  if (todaySession.status === "missed") return <NightBlock label={t("line.tonight", language)} listen={listen} actions={action}><p className="night__say">{t("plan.night.missed", language)}</p></NightBlock>;
-  return <NightBlock label={t("line.tonight", language)} listen={listen} actions={action}><p className="night__big">{todaySession.minutes}<span className="night__unit">min</span></p><p className="night__what">{t("plan.night.starting", language)} <b>{firstTopic}</b></p></NightBlock>;
+  if (!todaySession) return <NightBlock label={t("plan.night.today", language)} listen={listen}>{course}<p className="night__say">{t("plan.night.noStudy", language)}</p>{featured && <p className="night__what">{t("plan.night.nextTopic", language, { date: featured.dateLabel[language], minutes: formatDuration(featured.minutes, language), topic: firstTopic })}</p>}</NightBlock>;
+  if (todaySession.status === "done") return <NightBlock label={t("line.tonight", language)} listen={listen} actions={action}>{course}<p className="night__big">{t("line.done", language)}</p>{duration}{next && <p className="night__what">{t("plan.night.next", language, { date: next.dateLabel[language], minutes: formatDuration(next.minutes, language) })}</p>}</NightBlock>;
+  if (todaySession.status === "missed") return <NightBlock label={t("line.tonight", language)} listen={listen} actions={action}>{course}{duration}<p className="night__say">{t("plan.night.missed", language)}</p></NightBlock>;
+  return <NightBlock label={t("line.tonight", language)} listen={listen} actions={action}>{course}<p className="night__big">{todaySession.minutes}<span className="night__unit">min</span></p><p className="night__what">{t("plan.night.starting", language)} <b>{firstTopic}</b></p></NightBlock>;
 }
 
 export function PlanScreen({ view, risk, queued, onQueued, offline }: { view: PlanView; risk: OfflineRisk | null; queued: OfflineMutation[]; onQueued: (id: string, status: "done" | "missed") => void; offline: boolean }) {
@@ -97,7 +101,8 @@ export function PlanScreen({ view, risk, queued, onQueued, offline }: { view: Pl
       {student.goal && <div className="goal"><p className="detail">{t("plan.goal", language)}</p><p className="goal__text">{student.goal}</p></div>}
       <NightMessage view={view} queued={queued} onQueued={onQueued} />
       <section className="block plan__time" aria-labelledby="plan-time-title"><h2 className="heading" id="plan-time-title">{t("plan.time.title", language)}</h2>
-        {!infeasible && <p className="time__say">{plan.summary[language]}</p>}
+        <p className="time__say">{t(`plan.time.${plan.status}`, language, { required: formatDuration(plan.requiredMin, language), available: formatDuration(plan.capacityMin, language), planned: formatDuration(plan.plannedMin, language) })}</p>
+        {!infeasible && <p className="time__detail">{plan.summary[language]}</p>}
         <TimeBars requiredMin={plan.requiredMin} capacityMin={plan.capacityMin} plannedMin={infeasible ? undefined : plan.plannedMin} language={language} />
       </section>
     </div>
@@ -108,7 +113,8 @@ export function PlanScreen({ view, risk, queued, onQueued, offline }: { view: Pl
       {plan.warnings.map((warning, index) => {
         const copy = warning[language];
         const breakAt = copy.indexOf(".");
-        return <div className="block" key={index}><Notice><b>{breakAt >= 0 ? copy.slice(0, breakAt + 1) : copy}</b>{breakAt >= 0 ? ` ${copy.slice(breakAt + 1).trim()}` : ""}</Notice></div>;
+        const titles = plan.stops.filter((stop) => stop.kind === "due").map((stop) => stop.title);
+        return <div className="block" key={index}><Notice><b><EmphasizedText text={breakAt >= 0 ? copy.slice(0, breakAt + 1) : copy} terms={titles} /></b>{breakAt >= 0 ? ` ${copy.slice(breakAt + 1).trim()}` : ""}</Notice></div>;
       })}
       <CourseDecisions plan={plan} language={language} />
       {infeasible && <section className="block" aria-labelledby="study-break-title"><h2 className="heading" id="study-break-title">{t("plan.break.title", language)}</h2><p>{t("plan.break.description", language)}</p></section>}

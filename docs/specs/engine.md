@@ -158,7 +158,7 @@ One basis per decision; the first matching rule wins:
 - Return sessions plus unplaced minutes per topic. All callers use this same placement result; fit/cut requires an empty unplaced list. Infeasible placement uses its next-assessment horizon, always bounded by the exam cutoff.
 - Place topics in decision order, skipping `skip`. A topic may span days. Stop filling a day once its remaining budget is under 20 minutes; a topic's last piece may be shorter than 20.
 - One session per day that has work, with one reminder at 20:00 Africa/Lagos: `reminder.text`, "Tonight: {minutes} min, starting with {topic}".
-- Deadlines are warnings, never failures. When a kept or shortened topic covered by an upcoming coursework finishes after its due date: `plan.deadlineWarning`, "{n} topics for {assessment} land after its due date ({date}). Ask your advisor about an extension."
+- Deadlines are warnings, never failures. When a kept or shortened topic covered by upcoming coursework finishes after its due date, `plan.deadlineWarning.one` or `.many` says how many topics needed for the assessment are scheduled late, names that assessment and due date, and suggests asking the advisor whether an extension is possible. The singular template says "1 topic"; the plural template says "{n} topics". Assessment names remain published titles in English.
 - Prerequisites precede dependent topics even if doing so pushes a dependant beyond its own coursework deadline; report the missed deadline. A truncated topic in the infeasible view is listed with its unplaced minutes and never marked fully complete (`isLast=false` until all its rounded minutes are placed).
 
 ## Session status and re-plan (`time.ts`)

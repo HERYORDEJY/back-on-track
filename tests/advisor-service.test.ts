@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getDb } from "@/lib/db";
 import { getNow } from "@/lib/clock";
 import { outreach } from "@/lib/ai/client";
-import { draftOutreach, getStudentDetail, getStudentRiskView, listStudents } from "@/lib/services/advisor";
+import { draftOutreach, getStudentDetail, getStudentRiskView, listStudents, outreachWeekWindow } from "@/lib/services/advisor";
 
 vi.mock("@/lib/db", () => ({ getDb: vi.fn() }));
 vi.mock("@/lib/clock", () => ({ getNow: vi.fn(), calendarDate: (date: Date) => date.toISOString().slice(0, 10) }));
@@ -22,6 +22,7 @@ function fixture() {
     course: { findUnique: vi.fn().mockResolvedValue({ startDate: new Date("2026-09-06T23:00:00Z") }) },
     outreach: {
       findFirst: vi.fn().mockResolvedValue(null),
+      count: vi.fn().mockResolvedValue(0),
       create: vi.fn(({ data }) => Promise.resolve({ id: data.id, message: data.message, nextStep: data.nextStep, contacted: false })),
     },
   };
@@ -33,6 +34,9 @@ function fixture() {
 beforeEach(() => { vi.resetAllMocks(); });
 
 describe("advisor privacy projection", () => {
+  it("counts drafts in the simulated Lagos week", () => {
+    expect(outreachWeekWindow(now)).toEqual({ gte: new Date("2026-10-18T23:00:00Z"), lt: new Date("2026-10-25T23:00:00Z") });
+  });
   it("selects no goal or context and exposes the same public risk on both sides", async () => {
     const db = fixture();
     const list = await listStudents();
@@ -66,5 +70,13 @@ describe("advisor privacy projection", () => {
     const draft = await draftOutreach("amaka");
     expect(draft.message).toContain("your plan show say");
     expect(draft.message).not.toContain("Their plan");
+  });
+
+  it("stops a third weekly draft before calling AI", async () => {
+    const db = fixture();
+    db.outreach.count.mockResolvedValue(2);
+    await expect(draftOutreach("amaka")).rejects.toMatchObject({ code: "OUTREACH_WEEKLY_LIMIT" });
+    expect(outreach).not.toHaveBeenCalled();
+    expect(db.outreach.create).not.toHaveBeenCalled();
   });
 });

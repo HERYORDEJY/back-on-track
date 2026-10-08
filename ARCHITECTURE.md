@@ -49,7 +49,7 @@ app/
     advisor/outreach/route.ts      POST { studentId }: draft and save a message
     advisor/outreach/[id]/route.ts PATCH { contacted: true, message }: save final edited message
 components/
-  ui/  learner/ (PlanScreen, IntakeForm, check-in, offline shell) advisor/ shared/ (demo bar, mark, language, line/stops, mini line, time bars, night, notice, meter, signal, travel, read-aloud)
+  ui/  learner/ (PlanScreen, IntakeForm, check-in, offline shell) advisor/ shared/ (demo bar, mark, language, line/stops, mini line, time bars, night, notice, meter, signal, travel, busy overlay, emphasized text, read-aloud)
 lib/
   services/  plans.ts students.ts advisor.ts landing.ts demo.ts
   engine/    config.ts types.ts time.ts display.ts backlog.ts capacity.ts rules.ts basis.ts triage.ts validate.ts fallback.ts schedule.ts plan.ts
@@ -129,7 +129,7 @@ Removing sessions must preserve retained Progress records: clear their session p
 4. Offline mutations: `lib/offline.ts` queues check-ins and language edits and replays them when online. Check-ins receive simulated time at sync, with a visible late-sync note when applicable; language edits use last write wins. Deletion clears that student's snapshot, queued mutations and service-worker cached learner pages on that device; demo Reset clears all current-device learner copies.
 5. Advisor list: `listStudents` loads students, events and current-plan sessions, computes risk, then sorts and filters. Numeric scores stay internal. Advisor responses expose call-priority band, reasons, last activity and escalation, never goal or context; the learner panel exposes the same fields for that student.
    Its explicit read-only SQL projection aggregates only the academic and plan fields needed for 303 learners in one database round trip; goals and context are absent from the query. It leaves scoring in pure `lib/risk` on every read.
-6. Outreach (`POST /api/advisor/outreach`): `draftOutreach` builds the input from risk reasons, calls `outreach` from `lib/ai` (cache, `DEMO_MODE` and fallback as in `docs/specs/ai.md`), replaces `{firstName}`, and saves the Outreach row.
+6. Outreach (`POST /api/advisor/outreach`): `draftOutreach` checks the two-draft limit for this learner's simulated Lagos week before calling AI. A third request returns `OUTREACH_WEEKLY_LIMIT` with HTTP 429. It builds the input from risk reasons, calls `outreach` from `lib/ai` (cache, `DEMO_MODE` and fallback as in `docs/specs/ai.md`), replaces `{firstName}`, and saves the Outreach row. An existing uncontacted draft can be reopened without creating another row or AI call.
 7. Mark contacted: save the final edited outreach message with the contacted flag. Unsaved edits stay in the text box; Copy copies that edited text.
 8. Demo reset (`POST /api/demo/reset`): `resetDemo`, defined in `docs/specs/data.md`.
 9. Delete my data (`DELETE /api/students/[id]`): remove app plans, reminders, outreach and this student's cache ownership; remove a cache response only if no learner still owns it. Preserve course records. The learner control then clears this student's local snapshot/queue keys and cached learner pages on the current device.

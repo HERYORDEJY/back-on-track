@@ -25,6 +25,8 @@ Language switching uses a two-part plate in the header. It persists the same lea
 | LanguageSwitch | landing and every learner screen | Landing uses a `lang` cookie, default English. Learner screens use the student's saved language (`PATCH /api/students/[id]`); offline changes use the bilingual snapshot and queue for sync, last write wins |
 | ReadAloud | plan and infeasible screens | Reads tonight's session plus plan summary, or infeasible summary plus next step, with `speechSynthesis`; for Pidgin use an English (Nigeria) voice if available, else any English voice; screen-reader labels remain available where speech isn't supported |
 | Mark, SessionLine, MiniLine, TimeBars, NightBlock, Notice, Chip, Meter, Signal, Travel | pages as designed | Shared visual blocks. Pure display helpers supply progress, line stops and bar widths; the services add their read-only data to view models |
+| BusyOverlay | major learner and advisor operations | A light whole-screen modal wait state with the shared Travel animation and a specific action label; prevents a second action while a request or navigation is pending. Copy remains immediate and reports success or failure inline |
+| EmphasizedText | assessment references | Marks published assessment titles, such as **Assignment 2**, distinctly within ordinary explanatory copy |
 
 After any mutation or clock change, call `router.refresh()`.
 
@@ -51,6 +53,8 @@ No current plan: show the intake, prefilled from the student record.
 
 The plan screen's visual order and wide layout are in [Plan in the D6 design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md#plan-f-plan-f-plan-w-f-replan). The shared night block contains tonight's action and ReadAloud. The line shows sessions, rest days and deadlines, with past and future states. Time bars appear above the line; topic reasons are grouped by skipped, shortened and kept in full. The advisor panel shows the same band, reasons, last activity and escalation as the advisor view. Numeric scores stay internal; outreach drafts remain private. Delete my data stays behind a confirmation (behaviour in `specs/data.md`).
 
+D6 learner feedback pass (2026-10-08): Tonight names Principles of Management, shows its allotted minutes and keeps the relevant check-in beside the session. The time section explains required, available and planned hours in words, followed by the plan's own summary. Skipped and kept groups have separate visual treatments. Deadline warnings use singular/plural grammar and emphasize assessment titles without renaming them. The advisor-visible list aligns its reasons and activity. The revised time explanation is included in read-aloud. New English and Pidgin copy needs the planned human Pidgin review.
+
 Also on the plan screen:
 
 - After a re-plan, a change-summary banner.
@@ -69,6 +73,8 @@ Infeasible screen: honest summary, work that fits through the next assessment du
 - Drawer (`?student=<id>`): activity timeline, missed sessions, plan status, escalation, outreach draft in the student's language with the next step in English, Copy and Mark contacted.
 - Advisor screens are English only.
 - Goal and context never appear in advisor responses or screens. Outreach edits stay in the text box; Copy copies the edited text and Mark contacted saves the final message.
+
+D6 advisor feedback pass (2026-10-08): Priority and plan status have separate shapes and stronger labels; section headings and the latest outreach note are easier to scan. Opening a learner shows the whole-screen loading state. Only the visible Close details button dismisses the drawer; Escape and backdrop clicks leave it open, and the drawer hides before its URL refresh finishes. Draft and Mark contacted show the loading state; Copy remains available with inline success/error feedback. After Mark contacted, Draft another message is available immediately until two drafts have been created for that learner in the current simulated Lagos week. Recent activity shows the saved message and its draft date, while explicitly saying that actual contact time is not yet stored. Recording a learner response, call/meeting notes and using them as context for later AI drafts requires the pending schema and AI work in `PLANS.md`.
 
 D4 implementation (2026-10-07): the landing links to the English-only advisor call list. The page gives the action a strong heading, a compact simulated metric, band filters and ranked rows; the detail drawer keeps reasons, dated activity, missed sessions and the editable outreach note together. Local browser checks at 1280 px and 375 px found no page overflow; the drawer opens with focus and readable content at 375 px. A live simulated Tunde plan placed him first, and editing then marking his fallback outreach note contacted persisted the edited text after reload. At Week 10, the metric read 23 of 31, and all 180 on-track cohort rows were Low. Reset returned to Week 7. The learner panel showed Tunde the same band, reasons, last activity and escalation, and Delete my data returned to a landing confirmation. Human Pidgin copy review remains D5; the whole-project UI overhaul awaits the D6 instruction.
 

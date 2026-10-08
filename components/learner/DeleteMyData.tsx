@@ -4,6 +4,7 @@ import { useState } from "react";
 import { t, type Language } from "@/lib/i18n";
 import { clearStudentLocalData } from "@/lib/offline";
 import { Button } from "@/components/ui/button";
+import { BusyOverlay } from "@/components/shared/BusyOverlay";
 
 export function DeleteMyData({ studentId, language }: { studentId: string; language: Language }) {
   const [confirming, setConfirming] = useState(false);
@@ -33,6 +34,7 @@ export function DeleteMyData({ studentId, language }: { studentId: string; langu
   }
 
   return <section className="delete-data" aria-labelledby="delete-data-title">
+    <BusyOverlay active={busy} language={language} message={t("learner.delete.deleting", language)} />
     <h2 id="delete-data-title">{t("learner.delete.title", language)}</h2>
     {deleted ? <p role="status">{t("learner.delete.done", language)}</p> : <>
       <p>{t("learner.delete.description", language)}</p>

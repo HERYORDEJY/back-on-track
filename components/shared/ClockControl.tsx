@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { DemoReset } from "@/components/shared/DemoReset";
 import { SimulatedBadge } from "@/components/shared/SimulatedBadge";
 import { Button } from "@/components/ui/button";
+import { BusyOverlay } from "@/components/shared/BusyOverlay";
 import { t, type Language } from "@/lib/i18n";
 import type { ClockJump, ClockView } from "@/lib/types";
 import { useLearnerLanguage } from "./useLearnerLanguage";
@@ -35,6 +36,7 @@ export function ClockControl({ clock, language, studentId = null }: { clock: Clo
   }
   return (
     <section className="demo" aria-label={t("clock.label", shown)}>
+      <BusyOverlay active={!resetting && (pending || refreshing)} language={shown} message={t(pending ? "clock.loading" : "clock.checking", shown)} />
       <div className="demo__row">
         <SimulatedBadge language={shown} studentId={studentId} />
         {clock && <span className="demo__when">{clock.date[shown]} · {t("clock.week", shown, { week: clock.week })}</span>}

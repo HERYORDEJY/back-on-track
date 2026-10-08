@@ -11,6 +11,8 @@ D2 implementation (2026-10-06): `openai` 7.28.0 was approved and pinned for Resp
 | triage | the engine, injected by `lib/services/plans.ts` | `TriageContext` (`specs/engine.md`), plus violations on a retry | Sparse changed-topic actions and Localized rationales, plus a Localized summary; code owns topic order |
 | outreach | `lib/services/advisor.ts` | Risk reasons (codes and params), plan status, the student's language | A message in the student's language starting with `{firstName}`, and one next step in English for the advisor |
 
+The current outreach input does not include earlier messages, contact dates, learner replies or advisor call notes. The advisor UI shows the latest saved note and allows another draft after a contact is marked, within two drafts per learner per simulated Lagos week. A later data and AI task must store actual contact time and structured advisor feedback, then explicitly choose privacy-safe context for later drafts and version the prompt/cache key. Do not describe the draft creation date as the contact date.
+
 ## Client (`client.ts`)
 
 - Exports `triage` (the engine's `TriageFn`) and `outreach`. Each reads the cache, calls OpenAI only when allowed, enforces lengths, writes the cache, and returns `null` when there is no valid output.

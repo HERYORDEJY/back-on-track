@@ -12,6 +12,7 @@ const buttonVariants = cva(
         now: "btn--now border-night bg-lamp text-night hover:bg-lamp",
         plain: "border-night bg-paper text-night hover:bg-mist",
         text: "min-h-11 border-transparent bg-transparent px-0 text-night underline underline-offset-4 hover:decoration-[3px]",
+        quiet: "min-h-11 border-transparent bg-mist px-4 text-night no-underline hover:bg-night-soft",
       },
     },
     defaultVariants: { variant: "now" },

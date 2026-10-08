@@ -51,13 +51,18 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await expect(page.getByTestId("infeasible-message")).toBeVisible();
   await page.goto("/advisor");
   await expect(page.getByTestId("advisor-row").first()).toContainText("Tunde");
-  await expect(page.locator("main > ul > li")).toHaveCount(40);
+  await expect(page.getByTestId("advisor-list").locator(":scope > li")).toHaveCount(40);
   await page.getByRole("link", { name: "Next page" }).click();
   await expect(page).toHaveURL(/\/advisor\?page=2$/);
   await expect(page.getByText("Page 2 of 8")).toBeVisible();
   await page.getByTestId("advisor-row").getByRole("link").click();
   await expect(page).toHaveURL(/\/advisor\?page=2&student=/);
-  await page.getByRole("link", { name: "Close details" }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.locator('[class*="scrim"]').click({ position: { x: 10, y: 10 } });
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("button", { name: "Close details" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page).toHaveURL(/\/advisor\?page=2$/);
   await page.getByRole("link", { name: "Previous page" }).click();
   await expect(page.getByTestId("advisor-row").first()).toContainText("Tunde");
@@ -83,4 +88,25 @@ test("Start demo keeps a device cleanup warning visible", async ({ page }) => {
   await expect(page.locator(".start-demo [role='alert']")).toContainText("saved copy");
   await expect(page.getByTestId("start-demo")).toBeEnabled();
   await expect(page).toHaveURL("/");
+});
+
+test("advisor can draft again after contact, then sees the weekly limit and saved note", async ({ page, request }) => {
+  expect((await request.post("/api/demo/reset")).ok()).toBeTruthy();
+  await page.goto("/advisor?student=tunde");
+  const drawer = page.getByRole("dialog", { name: "Call notes for Tunde Adeyemi" });
+  await expect(drawer).toBeVisible();
+  await drawer.getByRole("button", { name: "Draft message" }).click();
+  await expect(drawer.getByLabel("Message to learner")).not.toBeEmpty();
+  await drawer.getByRole("button", { name: "Mark contacted" }).click();
+  await expect(drawer.getByRole("button", { name: "Draft another message" })).toBeEnabled();
+  await drawer.getByRole("button", { name: "Draft another message" }).click();
+  await expect(drawer).toContainText("2 of 2 message drafts used this week");
+  await drawer.getByRole("button", { name: "Mark contacted" }).click();
+  await expect(drawer.getByRole("button", { name: "Draft another message" })).toBeDisabled();
+  await page.reload();
+  await expect(drawer).toContainText("Latest outreach note");
+  await expect(drawer).toContainText("contact date is not stored yet");
+  await expect(drawer.locator("blockquote")).not.toBeEmpty();
+  await expect(drawer.getByRole("button", { name: "Draft another message" })).toBeDisabled();
+  expect((await request.post("/api/demo/reset")).ok()).toBeTruthy();
 });

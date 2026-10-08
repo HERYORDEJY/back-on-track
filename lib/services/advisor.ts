@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getDb } from "@/lib/db";
 import { getNow, calendarDate } from "@/lib/clock";
 import { outreach } from "@/lib/ai/client";
-import { t, type Language, type MessageKey } from "@/lib/i18n";
+import { formatRiskReason, t, type Language } from "@/lib/i18n";
 import { scoreRisk, sortRisk } from "@/lib/risk/score";
 import { doneThroughWeek } from "@/lib/engine/display";
 import { adherenceMetric } from "@/lib/risk/metric";
@@ -13,10 +13,19 @@ export type AdvisorBand = "high" | "medium" | "low";
 export type PublicRisk = { band: AdvisorBand; reasons: { code: string; params: Record<string, string | number> }[]; lastActivity: string | null; escalated: boolean };
 export type AdvisorRow = { id: string; name: string; language: Language; risk: PublicRisk; planStatus: "fit" | "cut" | "infeasible" | null; doneThroughWeek: number; hasCurrentPlan: boolean; escalated: boolean; lastActive: string | null };
 export type AdvisorEvent = { at: string; type: "done" | "sessionMissed" | "submitted" | "topicDone" | "seen"; title?: string };
-export type AdvisorDetail = AdvisorRow & { events: AdvisorEvent[]; missedSessions: string[]; outreach: { id: string; message: string; nextStep: string; contacted: boolean } | null };
+export type AdvisorDetail = AdvisorRow & { events: AdvisorEvent[]; missedSessions: string[]; draftsUsedThisWeek: number; outreach: { id: string; message: string; nextStep: string; contacted: boolean; createdAt: string } | null };
 
 export class AdvisorServiceError extends Error {
-  constructor(public readonly code: "STUDENT_NOT_FOUND" | "OUTREACH_NOT_FOUND") { super(code); }
+  constructor(public readonly code: "STUDENT_NOT_FOUND" | "OUTREACH_NOT_FOUND" | "OUTREACH_WEEKLY_LIMIT") { super(code); }
+}
+
+export function outreachWeekWindow(now: Date) {
+  const localDay = new Date(`${calendarDate(now)}T00:00:00Z`);
+  localDay.setUTCDate(localDay.getUTCDate() - ((localDay.getUTCDay() + 6) % 7));
+  const monday = localDay.toISOString().slice(0, 10);
+  localDay.setUTCDate(localDay.getUTCDate() + 7);
+  const nextMonday = localDay.toISOString().slice(0, 10);
+  return { gte: new Date(`${monday}T00:00:00+01:00`), lt: new Date(`${nextMonday}T00:00:00+01:00`) };
 }
 
 const availabilitySchema = z.strictObject({
@@ -133,16 +142,20 @@ export async function getStudentDetail(studentId: string): Promise<AdvisorDetail
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 12);
   const today = calendarDate(facts.now);
   const missedSessions = plan?.sessions.filter((session) => (session.date < today && (session.status !== "done" || !session.checkedAt || session.checkedAt > facts.now)) || (session.date === today && session.status === "missed" && !!session.checkedAt && session.checkedAt <= facts.now)).map((session) => `${session.date}T12:00:00+01:00`).sort().reverse() ?? [];
-  const saved = await getDb().outreach.findFirst({ where: { studentId }, orderBy: { createdAt: "desc" }, select: { id: true, message: true, nextStep: true, contacted: true } });
-  return { ...rowOf(student, risk, facts), events, missedSessions, outreach: saved };
+  const [saved, draftsUsedThisWeek] = await Promise.all([
+    getDb().outreach.findFirst({ where: { studentId }, orderBy: { createdAt: "desc" }, select: { id: true, message: true, nextStep: true, contacted: true, createdAt: true } }),
+    getDb().outreach.count({ where: { studentId, createdAt: outreachWeekWindow(facts.now) } }),
+  ]);
+  return { ...rowOf(student, risk, facts), events, missedSessions, draftsUsedThisWeek, outreach: saved ? { ...saved, createdAt: saved.createdAt.toISOString() } : null };
 }
 
 export async function draftOutreach(studentId: string) {
   const facts = await loadFacts(studentId);
   const student = facts.students[0];
   if (!student) throw new AdvisorServiceError("STUDENT_NOT_FOUND");
-  const existing = await getDb().outreach.findFirst({ where: { studentId, contacted: false }, orderBy: { createdAt: "desc" }, select: { id: true, message: true, nextStep: true, contacted: true } });
+  const existing = await getDb().outreach.findFirst({ where: { studentId, contacted: false }, orderBy: { createdAt: "desc" }, select: { id: true, message: true, nextStep: true, contacted: true, createdAt: true } });
   if (existing) return { ...existing, source: "saved" as const };
+  if (await getDb().outreach.count({ where: { studentId, createdAt: outreachWeekWindow(facts.now) } }) >= 2) throw new AdvisorServiceError("OUTREACH_WEEKLY_LIMIT");
   const result = scoreRisk(riskInput(student, facts), facts.now);
   const context = {
     reasons: result.reasons.map(({ code, params }) => ({ code, params })),
@@ -153,18 +166,18 @@ export async function draftOutreach(studentId: string) {
   const firstName = student.name.split(/\s+/)[0] ?? student.name;
   const top = result.reasons[0];
   const reason = top?.code === "ESCALATED" ? t("outreach.fallback.reason.escalated", student.language)
-    : top ? t(`risk.reason.${top.code}` as MessageKey, student.language, top.params)
+    : top ? formatRiskReason(top.code, top.params, student.language)
       : t("outreach.fallback.reason.none", student.language);
   const fallback = t("outreach.fallback.message", student.language, { firstName, reason });
   let message = generated?.output.message?.replaceAll("{firstName}", firstName).trim() || fallback;
   if (!message.toLocaleLowerCase().startsWith(firstName.toLocaleLowerCase())) message = `${firstName}, ${message}`;
   const nextStep = generated?.output.nextStep || t("outreach.fallback.nextStep", "en");
-  const saved = await getDb().outreach.create({ data: { id: randomUUID(), studentId, message, nextStep, createdAt: facts.now }, select: { id: true, message: true, nextStep: true, contacted: true } });
+  const saved = await getDb().outreach.create({ data: { id: randomUUID(), studentId, message, nextStep, createdAt: facts.now }, select: { id: true, message: true, nextStep: true, contacted: true, createdAt: true } });
   return { ...saved, source: generated?.source ?? "fallback" as const };
 }
 
 export async function markContacted(outreachId: string, message: string) {
   const existing = await getDb().outreach.findUnique({ where: { id: outreachId }, select: { id: true } });
   if (!existing) throw new AdvisorServiceError("OUTREACH_NOT_FOUND");
-  return getDb().outreach.update({ where: { id: outreachId }, data: { message: message.trim(), contacted: true }, select: { id: true, message: true, nextStep: true, contacted: true } });
+  return getDb().outreach.update({ where: { id: outreachId }, data: { message: message.trim(), contacted: true }, select: { id: true, message: true, nextStep: true, contacted: true, createdAt: true } });
 }

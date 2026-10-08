@@ -43,3 +43,12 @@ export function formatDuration(minutes: number, language: Language): string {
   const rest = minutes % 60;
   return rest ? `${hours} h ${rest} min` : `${hours} h`;
 }
+
+export function formatRiskReason(code: string, params: Record<string, string | number>, language: Language): string {
+  if (code === "BACKLOG_PRESSURE") return t("risk.reason.BACKLOG_PRESSURE", language, {
+    work: formatDuration(Number(params.workMinutes), language),
+    available: formatDuration(Number(params.availableMinutes), language),
+    assessment: params.assessment,
+  });
+  return t(`risk.reason.${code}` as MessageKey, language, params);
+}

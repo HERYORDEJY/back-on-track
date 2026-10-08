@@ -17,46 +17,58 @@
 .row a { display: grid; grid-template-columns: 6px minmax(160px, 1.1fr) minmax(200px, 1.5fr) minmax(150px, .8fr); gap: 20px; min-height: 118px; padding: 18px 10px 18px 0; align-items: center; text-decoration: none; }
 .row a:hover, .row a:focus-visible { background: var(--mist); }
 .priorityRule { align-self: stretch; background: var(--night); }
-.high .priorityRule { background: var(--night); }
-.medium .priorityRule { background: var(--night); }
+.medium .priorityRule { background: transparent; border-left: 5px dashed var(--night); }
+.low .priorityRule { width: 2px; margin-left: 2px; background: var(--slate); }
 .name { display: block; font-size: 19px; font-weight: 800; line-height: 1.2; letter-spacing: -.02em; }
 .band { display: block; margin-top: 7px; font-size: 14px; font-weight: 700; }
-.high .band { color: var(--night); }
-.medium .band { color: var(--night); }
-.low .band { color: var(--night); }
 .reasonList { list-style: none; padding: 0; margin: 0; color: var(--slate); font-size: 14px; }
 .reasonList li + li { margin-top: 6px; }
 .meta { font-size: 14px; color: var(--slate); }
 .meta span { display: block; }
 .meta span + span { margin-top: 7px; }
+.planStatus { width: fit-content; min-height: 26px; padding: 2px 8px; border: 1px solid var(--rail); border-radius: 4px; color: var(--night); font-weight: 700; }
+.planStatus::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 7px; border: 2px solid var(--night); border-radius: 50%; vertical-align: 0; }
+.planStatus[data-status="fit"]::before { background: var(--night); }
+.planStatus[data-status="cut"]::before { border-left-width: 5px; }
+.planStatus[data-status="infeasible"] { border-color: var(--night); border-style: dashed; font-weight: 800; }
+.planStatus[data-status="infeasible"]::before { border-radius: 2px; }
+.planStatus[data-status="none"] { color: var(--slate); }
 .flag { color: var(--night); font-weight: 800; }
 .empty { padding: 40px 0; font-size: 16px; }
 .pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 24px 0; color: var(--slate); font-size: 14px; }
 .pagination a { display: inline-flex; min-height: 44px; align-items: center; color: var(--night); font-weight: 700; }
 .pagination a:focus-visible { outline: 3px solid var(--night); outline-offset: 3px; }
-.scrim { position: fixed; inset: 0; z-index: 40; background: var(--mist); opacity: .45; }
-.drawer { position: fixed; z-index: 41; inset: 0 0 0 auto; width: min(100%, 590px); overflow-y: auto; background: var(--paper); padding: 28px clamp(24px, 4vw, 44px) 70px; }
+.scrim { position: fixed; inset: 0; z-index: 40; background: var(--mist); opacity: .55; }
+.drawer { position: fixed; z-index: 41; inset: 0 0 0 auto; width: min(100%, 590px); overflow-y: auto; background: var(--paper); border-left: 2px solid var(--night); padding: 28px clamp(24px, 4vw, 44px) 70px; }
 .drawerTop { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
 .drawerTop h2 { margin: 0; font-size: clamp(28px, 4vw, 39px); line-height: 1.1; letter-spacing: -.035em; }
-.close { display: inline-flex; flex: 0 0 auto; min-height: 44px; align-items: center; color: var(--night); font-weight: 700; }
+.close { flex: 0 0 auto; white-space: nowrap; }
 .detailPriority { margin: 24px 0; border-left: 5px solid var(--night); padding: 12px 0 12px 18px; }
 .detailPriority[data-band="high"] { border-color: var(--night); }
-.detailPriority[data-band="medium"] { border-color: var(--night); }
+.detailPriority[data-band="medium"] { border-left-style: dashed; }
+.detailPriority[data-band="low"] { border-left-width: 2px; border-color: var(--slate); }
 .detailPriority strong { display: block; }
 .detailPriority p { margin: 5px 0 0; }
 .detailSection { padding: 24px 0; border-top: 1px solid var(--rail); }
-.detailSection h3 { margin: 0 0 12px; font-size: 19px; }
+.detailSection h3 { margin: 0 0 12px; font-size: 21px; font-weight: 800; line-height: 1.2; }
+.detailSection ul:not(.timeline) { margin: 0; padding-left: 22px; }
+.detailSection ul:not(.timeline) li { padding-left: 3px; margin-top: 7px; line-height: 1.45; }
+.detailSection ul:not(.timeline) li::marker { color: var(--night); }
 .detailSection p { margin: 7px 0; }
 .timeline { list-style: none; padding: 0; margin: 0; }
 .timeline li { display: grid; grid-template-columns: 95px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--rail); font-size: 14px; }
 .timeline time { font-weight: 700; }
-.button { min-height: 48px; padding: 9px 16px; border: 2px solid var(--night); border-radius: 8px; background: var(--lamp); color: var(--night); font-weight: 700; cursor: pointer; }
-.button:disabled { opacity: .6; cursor: wait; }
-.buttonSecondary { background: var(--paper); color: var(--night); }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .field { display: block; margin: 18px 0 7px; font-size: 14px; font-weight: 700; }
 .message { display: block; width: 100%; min-height: 160px; padding: 12px; resize: vertical; border: 2px solid var(--night); border-radius: 8px; background: var(--paper); color: var(--night); font: inherit; }
-.status { min-height: 25px; color: var(--night); font-size: 14px; }
+.message:read-only { background: var(--mist); }
+.draftCount { margin: 12px 0; color: var(--slate); font-size: 14px; font-weight: 700; }
+.limit { border-left: 3px solid var(--slate); padding-left: 10px; color: var(--slate); font-size: 14px; }
+.status { min-height: 25px; margin-top: 12px; color: var(--night); font-size: 14px; font-weight: 700; }
+.outreachHistory { margin-top: 18px; padding: 14px; border: 1px solid var(--rail); border-radius: 8px; }
+.outreachHistory h4 { margin: 0 0 8px; font-size: 17px; font-weight: 800; }
+.outreachHistory p { color: var(--slate); font-size: 14px; }
+.outreachHistory blockquote { margin: 12px 0 0; padding-left: 12px; border-left: 3px solid var(--night); white-space: pre-wrap; }
 .error { color: var(--error); }
 @media (max-width: 760px) {
   .page { width: calc(100% - 40px); padding-top: 30px; }
@@ -67,7 +79,7 @@
   .priorityRule { grid-row: 1 / span 3; }
   .reasonList { margin-top: 10px; }
   .meta { margin-top: 11px; }
-  .meta span { display: inline; }
-  .meta span + span::before { content: " · "; }
+  .meta span { display: block; }
+  .meta span + span { margin-top: 8px; }
   .drawer { padding: 24px 20px 60px; }
 }

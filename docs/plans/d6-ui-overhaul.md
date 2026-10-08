@@ -30,6 +30,8 @@ part of this task. Use the isolated `back_on_track_e2e` database and
 `DEMO_MODE=true` for browser verification. Keep the D5 human Pidgin copy pass
 deferred; new D6 Pidgin strings are draft copy for that review.
 
+The maintainer's learner-screen feedback authorizes the separate [D6 feedback pass](d6-feedback-pass.md) across learner and advisor UI. It supersedes the Phase 3 pause and the presentation-only restrictions above for warning grammar, risk-reason wording and the two-draft API limit. Plan arithmetic, risk thresholds, AI prompts and schema remain unchanged. The feedback pass does not complete all of Phase 4 or Phase 5; those review and capture checks remain in the sequence.
+
 ## Phase 0 evidence
 
 The ten screenshots are in the staged design directory's `design/before/` folder.
@@ -90,6 +92,5 @@ Eight English viewport screenshots are in the staged design folder's
 Pidgin screenshots are in
 [`design/review-pcm/`](../D6-UI-Overhaul-Task-Documentation/design/review-pcm/).
 `npm run check` passed 246 tests, the production build succeeded and both
-isolated local browser demo tests passed. Phase 4 waits for the maintainer's
-learner screenshot review, as required by the D6 instruction. Draft Pidgin
+isolated local browser demo tests passed. The maintainer supplied detailed learner screenshot feedback and authorized the advisor feedback pass. Draft Pidgin
 strings are listed in [PLANS.md](../PLANS.md) for the deferred D5 human copy pass.

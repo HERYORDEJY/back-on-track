@@ -36,6 +36,14 @@ describe("advisor outreach routes", () => {
     expect(mocks.draft).toHaveBeenCalledWith("tunde");
   });
 
+  it("returns a clear retryable-week message when the weekly draft limit is reached", async () => {
+    const { AdvisorServiceError } = await import("@/lib/services/advisor");
+    mocks.draft.mockRejectedValue(new AdvisorServiceError("OUTREACH_WEEKLY_LIMIT"));
+    const response = await POST(request("/api/advisor/outreach", "POST", { studentId: "tunde" }));
+    expect(response.status).toBe(429);
+    expect((await response.json()).error.code).toBe("OUTREACH_WEEKLY_LIMIT");
+  });
+
   it("rejects empty or extra contact fields before saving", async () => {
     const params = { params: Promise.resolve({ id: "out-1" }) };
     expect((await PATCH(request("/api/advisor/outreach/out-1", "PATCH", { contacted: true, message: " " }), params)).status).toBe(400);

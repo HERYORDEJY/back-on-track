@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/shared/Notice";
-import { Travel } from "@/components/shared/Travel";
+import { BusyOverlay } from "@/components/shared/BusyOverlay";
 import { formatDuration, t } from "@/lib/i18n";
 import type { Availability, PlanView } from "@/lib/types";
 
@@ -20,6 +20,7 @@ export function IntakeForm({ student, editing = false }: { student: PlanView["st
   const [goal, setGoal] = useState(student.goal ?? "");
   const [context, setContext] = useState(student.context ?? "");
   const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState<"save" | "build">("build");
   const [refreshing, startTransition] = useTransition();
   const [slow, setSlow] = useState(false);
   const [error, setError] = useState<"hours" | "save" | "build" | null>(null);
@@ -50,6 +51,7 @@ export function IntakeForm({ student, editing = false }: { student: PlanView["st
       return;
     }
     setBusy(true);
+    setStage(saved ? "build" : "save");
     setSlow(false);
     setError(null);
     try {
@@ -61,6 +63,7 @@ export function IntakeForm({ student, editing = false }: { student: PlanView["st
         if (!update.ok) throw new Error("save");
         setSaved(true);
       }
+      setStage("build");
       const response = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ studentId: student.id }) });
       if (!response.ok) throw new Error("build");
       startTransition(() => router.refresh());
@@ -97,7 +100,7 @@ export function IntakeForm({ student, editing = false }: { student: PlanView["st
         <input className="input" id="intake-context" type="text" maxLength={120} value={context} onChange={(event) => { setContext(event.target.value); setSaved(false); }} />
       </div>
       <div className="plan-action intake__go"><Button id={editing ? undefined : "build-plan"} data-testid={editing ? undefined : "build-plan"} type="submit" disabled={waiting} className="btn--wide">{t(waiting ? "learner.building" : editing ? "learner.intake.updatePlan" : "learner.build", language)}</Button></div>
-      {waiting && <div className="intake__waiting"><Travel language={language} />{slow && <p>{t("learner.intake.stillWorking", language)}</p>}</div>}
+      <BusyOverlay active={waiting} language={language} message={t(stage === "save" ? "learner.intake.saving" : "learner.building", language)} detail={slow ? t("learner.intake.stillWorking", language) : undefined} />
       {(error === "save" || error === "build") && <div className="intake__error"><Notice error><b>{t("learner.intake.failedTitle", language)}</b> {t("learner.intake.failedDetail", language)}<div className="notice__act"><Button type="submit" variant="plain">{t("clock.retry", language)}</Button></div></Notice></div>}
     </form>
   </section>;

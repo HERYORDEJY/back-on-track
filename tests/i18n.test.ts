@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import en from "@/messages/en.json";
 import pcm from "@/messages/pcm.json";
-import { formatDate, formatDuration, resolveLanguage, t } from "@/lib/i18n";
+import { formatDate, formatDuration, formatRiskReason, resolveLanguage, t } from "@/lib/i18n";
 
 describe("language messages", () => {
   it("provides the same non-empty keys and template parameters in both languages", () => {
@@ -34,5 +34,11 @@ describe("language messages", () => {
       expect(formatDuration(2160, language)).toBe("36 h");
       expect(formatDuration(1780, language)).toBe("29 h 40 min");
     }
+  });
+  it("explains backlog pressure with hours rather than a ratio", () => {
+    const text = formatRiskReason("BACKLOG_PRESSURE", { workMinutes: 130, availableMinutes: 60, assessment: "Assignment 2" }, "en");
+    expect(text).toContain("2 h 10 min");
+    expect(text).toContain("1 h");
+    expect(text).not.toContain("x the time");
   });
 });

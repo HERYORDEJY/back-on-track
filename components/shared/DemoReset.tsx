@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { BusyOverlay } from "@/components/shared/BusyOverlay";
 import { t, type Language } from "@/lib/i18n";
 import { clearAllDemoLocalData } from "@/lib/offline";
 
@@ -27,6 +28,7 @@ export function DemoReset({ language, disabled = false, onBusyChange, onReset }:
     finally { setPending(false); onBusyChange?.(false); }
   }
   return <div>
+    <BusyOverlay active={pending || refreshing} language={language} message={t("demo.resetting", language)} />
     <Button variant="plain" className="demo__btn" disabled={disabled || pending || refreshing} onClick={reset}>{t(pending || refreshing ? "demo.resetting" : failed ? "demo.retry" : "demo.reset", language)}</Button>
     <p role="status">{failed && t("demo.failed", language)}</p>
     {deviceWarning && <p role="alert">{t("offline.resetDeviceFailed", language)}</p>}

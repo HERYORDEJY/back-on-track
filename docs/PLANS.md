@@ -22,7 +22,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Privacy panel and Delete my data | demo-verified | Learner/advisor parity and edited outreach verified in browser. Approved AiCacheUse migration applied; Tunde deletion cleared app data; D5 browser test confirms Amaka's local snapshot and cached learner page clear on Delete my data |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | in progress | Isolated local Playwright passes three serial repeats; the restored Production cache passes three public runs. Clean-profile mobile Lighthouse scored 99 performance / 100 accessibility on landing, Amaka plan and advisor. Android offline/speech spot checks passed; further TalkBack interaction was skipped at the maintainer's request |
 | Pitch assets (video, slides, README) | not started | |
-| Visual design (the line) | in progress | Phases 0–3 are built: baseline, palette/primitives, shared blocks and learner screens. Eight English and eight Pidgin learner screenshots are ready for the required review before the advisor phase; [implementation plan](plans/d6-ui-overhaul.md). Supplied docs stay staged until D6 is complete |
+| Visual design (the line) | in progress | Phases 0–3 are built. The maintainer's learner review authorized a [feedback pass](plans/d6-feedback-pass.md): clearer plan/advisor copy and status hierarchy, shared blocking overlay, advisor drawer close behavior and a two-draft weekly guard. Phase 4 full visual review and Phase 5 proof/capture remain; supplied docs stay staged until D6 is complete |
 
 ## Current progress
 
@@ -141,11 +141,13 @@ Exit: the demo path runs 3 times in a row with nothing off-script, the plan open
 
 ### D6: whole-project UI overhaul, then feature freeze
 
-The [design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) and [phase plan](plans/d6-ui-overhaul.md) cover the landing, shared controls, learner journey, infeasible and offline states, and advisor view. Work in six commits: baseline; tokens/primitives; shared blocks and tested view helpers; learner screens; advisor; proof and final doc placement. Phase 3 stops for learner screenshot review before Phase 4. Finish the design guard, full checks, local demo test, mobile Lighthouse 80/90 and ten after screenshots before feature freeze. Human Pidgin copy review remains a separate deferred D5 task.
+The [design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) and [phase plan](plans/d6-ui-overhaul.md) cover the landing, shared controls, learner journey, infeasible and offline states, and advisor view. The maintainer reviewed Phase 3, clarified the learner and advisor UX, and authorized the separate [feedback pass](plans/d6-feedback-pass.md). Phase 4 full visual review and Phase 5 design guard, local demo test, mobile Lighthouse 80/90 and ten after screenshots remain before feature freeze. Human Pidgin copy review remains a separate deferred D5 task.
 
 #### Pidgin strings to check
 
 The following D6 Phase 2 strings are draft copy for the deferred human pass: Clock; Don finish reach Week {done} of {total}. Course dey Week {week}.; Tonight; Done; Missed; {date}, no study time; {assessment} go due, na {weight}% of your grade; 1 more study session; {count} more study sessions; E no go fit before {date}: 1 topic; E no go fit before {date}: {count} topics; Final exam; Course as dem write am need; You get; This plan need; Keep everything; Shorten to 70%; Shorten to 50%; Skip am; High priority; Medium priority; Low priority; We dey build your plan.
+
+The feedback pass replaces some short time labels above and adds `plan.time.fit/cut/infeasible`, `plan.deadlineWarning.one/many`, `plan.night.course/duration`, and the new major-action loading/status labels. Review the current `messages/pcm.json` values for these keys; the earlier phrases in this record show what changed, not final copy.
 
 Phase 3 new and revised Pidgin strings (each still needs the deferred human check):
 
@@ -297,6 +299,7 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 | 2026-10-06 | Re-plan a missed session starting tomorrow, while today's check-in stays editable | Prevents a same-day plan replacement from locking the student's chance to reverse the check-in |
 | 2026-10-08 | Keep the supplied D6 instruction and reference in their staging directory until the overhaul is complete | Maintainer wants the old implementation available for comparison throughout the work; ten baseline screenshots preserve its appearance |
 | 2026-10-08 | Draw the visual system from the product's line and stops within the bandwidth rules; put time above the week, group topics by outcome, fold reminders into the night block and line, and share one demo bar for the clock and simulated label | The reviewed D6 instruction defines the whole-product UI direction; existing behavior and data rules remain in force |
+| 2026-10-08 | Apply the maintainer's learner/advisor feedback over conflicting D6 presentation rules; use a light blocking Travel overlay, plain time copy, singular warnings, visible-only drawer close and at most two outreach drafts per learner per simulated week | The reviewed screens exposed ambiguity and accidental-action risks; the existing Outreach rows can support a weekly cap without a schema change. Actual contact time and feedback-driven drafts remain pending data/AI work |
 | 2026-10-03 | Added the student's goal, a basis for every reason, offline use, English and Pidgin, read-aloud and the privacy panel | Every requirement in the capstone brief maps to a feature |
 | 2026-10-03 | End-to-end tests run locally only | Invention sprint: protect the demo, skip production hardening |
 | 2026-10-04 | Split the single AGENTS.md into a short map plus `docs/` | Codex loads only what a task needs; each fact has one home |
@@ -322,6 +325,10 @@ Facts not yet confirmed. Until they are, use neutral placeholder wording and nev
 | 2026-10-05 | Allow services to import only pure course/persona seed definitions; runner, loader and cohort imports remain forbidden | Maintainer approved the narrow allowance needed for atomic reset; import boundaries now test it |
 | 2026-10-05 | Code owns prerequisite-first ordering, followed by inherited assessment deadline, exam weight and stable course order | Maintainer chose deterministic ordering for all feasibility checks, AI proposals and fallback; no AI order field |
 | 2026-10-06 | Add pinned `openai` 7.28.0 for the D2 Responses API structured-output adapter | Maintainer approved the dependency; installed Zod 4 is supported. No schema, threshold or persona changed |
+
+## Pending data and AI decision
+
+Actual outreach contact time, learner response/call/meeting notes and their use in later AI drafts are deferred per the maintainer's request. See the [feedback pass](plans/d6-feedback-pass.md#pending-data-and-ai-work) for the proposed schema, UI, privacy and prompt steps. The current recent activity shows the saved message and its **draft date**, not a claimed contact date. `prisma/schema.prisma` requires separate approval under `AGENTS.md`.
 
 ## Later
 

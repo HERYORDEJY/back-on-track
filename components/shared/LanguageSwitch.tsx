@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { t, type Language } from "@/lib/i18n";
+import { BusyOverlay } from "@/components/shared/BusyOverlay";
 import { enqueueMutation, queuedLanguage as readQueuedLanguage } from "@/lib/offline";
 
 function saveLandingLanguage(value: Language) {
@@ -75,6 +76,7 @@ export function LanguageSwitch({ language, studentId = null }: { language: Langu
   }
   return (
     <div className="language-switch">
+    <BusyOverlay active={showing} language={localLanguage} message={t("language.saving", localLanguage)} />
     <div className="lang" data-testid="language-switch" role="group" aria-label={t("language.label", localLanguage)}>
       {(["en", "pcm"] as const).map((value) => <button key={value} type="button" className="lang__opt" data-language={value} aria-pressed={localLanguage === value} disabled={showing} onClick={() => void change(value)}>{t(`language.short.${value}`, localLanguage)}</button>)}
     </div>

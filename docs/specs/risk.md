@@ -30,13 +30,14 @@ Each signal that scores returns `{ code, points, params }`. Text comes from the 
 | `ESCALATED` | 0, shown first | Their plan says catching up before the exam isn't possible |
 | `INACTIVE` | as above | No activity for {days} days |
 | `NO_ACTIVITY` | 45 inactivity points, replacing `INACTIVE` | No activity recorded yet |
-| `BACKLOG_PRESSURE` | as above | Missed work is {ratio}x the time left before {assessment} |
+| `BACKLOG_PRESSURE` | as above | {work} of unfinished study work remains, with {available} of study time before {assessment} |
 | `NO_STUDY_TIME` | 30 backlog-pressure points, replacing `BACKLOG_PRESSURE` | No study time left before {assessment} |
 | `MISSED_ASSESSMENT` | as above | Assessments missed: {count} |
 | `MISSED_SESSIONS` | as above | Missed the last {count} planned sessions |
 | `FALLING_STUDY_TIME` | as above | Study time fell from {before} min to {after} min over two weeks |
 
 A student is escalated when `escalatedAt` is at or before now. A later fit or cut plan clears escalation so priority and copy reflect the new plan.
+The backlog calculation and thresholds are unchanged. The reason params retain raw `workMinutes` and `availableMinutes`; `formatRiskReason` supplies the displayed `{work}` and `{available}` as readable hours and minutes instead of exposing a ratio. Assessment names are visually emphasized in the interface.
 
 ## Sorting
 
