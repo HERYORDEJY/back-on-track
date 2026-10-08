@@ -110,3 +110,50 @@ test("advisor can draft again after contact, then sees the weekly limit and save
   await expect(drawer.getByRole("button", { name: "Draft another message" })).toBeDisabled();
   expect((await request.post("/api/demo/reset")).ok()).toBeTruthy();
 });
+
+test("advisor keeps the list position and opens details again from a lower row", async ({ page }) => {
+  await page.goto("/advisor");
+  const row = page.getByTestId("advisor-list").locator(":scope > li").last().getByRole("link");
+  await row.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => scrollY);
+  expect(before).toBeGreaterThan(1000);
+  await row.click();
+  await expect(page.getByRole("dialog", { name: /Call notes for/ })).toBeVisible();
+  const afterOpen = await page.evaluate(() => scrollY);
+  await page.getByRole("button", { name: "Close details" }).click();
+  await expect(page.getByRole("dialog", { name: /Call notes for/ })).toHaveCount(0);
+  expect(Math.abs((await page.evaluate(() => scrollY)) - before)).toBeLessThan(5);
+  await row.click();
+  await expect(page.getByRole("dialog", { name: /Call notes for/ })).toBeVisible();
+  expect(Math.abs((await page.evaluate(() => scrollY)) - before)).toBeLessThan(5);
+  expect(Math.abs(afterOpen - before)).toBeLessThan(5);
+});
+
+test("advisor shows loading feedback for next and previous pages", async ({ page }) => {
+  await page.goto("/advisor");
+  await page.evaluate(() => {
+    const observer = new MutationObserver(() => {
+      if (document.querySelector("dialog.busy-overlay")) document.documentElement.dataset.advisorBusySeen = "yes";
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+  await page.getByRole("link", { name: "Next page" }).click();
+  await expect(page).toHaveURL(/\/advisor\?page=2$/);
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.advisorBusySeen)).toBe("yes");
+  await page.evaluate(() => { delete document.documentElement.dataset.advisorBusySeen; });
+  await page.getByRole("link", { name: "Previous page" }).click();
+  await expect(page).toHaveURL(/\/advisor$/);
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.advisorBusySeen)).toBe("yes");
+});
+
+test("advisor keeps the loading state until a slow learner drawer is ready", async ({ page }) => {
+  await page.goto("/advisor");
+  await page.route("**/advisor?*", async (route) => {
+    if (route.request().url().includes("student=") && route.request().url().includes("_rsc=")) await new Promise((resolve) => setTimeout(resolve, 800));
+    await route.continue();
+  });
+  await page.getByTestId("advisor-row").getByRole("link").click();
+  await expect(page.locator("dialog.busy-overlay")).toBeVisible();
+  await expect(page.getByRole("dialog", { name: /Call notes for/ })).toBeVisible();
+  await expect(page.locator("dialog.busy-overlay")).toHaveCount(0);
+});

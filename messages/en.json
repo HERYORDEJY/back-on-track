@@ -292,6 +292,7 @@
   "advisor.escalated": "Advisor flagged",
   "advisor.open": "See {name}'s details",
   "advisor.opening": "Opening learner details…",
+  "advisor.listLoading": "Loading learners…",
   "advisor.close": "Close details",
   "advisor.detail.title": "Call notes for {name}",
   "advisor.detail.activity": "Recent activity",

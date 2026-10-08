@@ -15,6 +15,8 @@ Started 2026-10-08 after the maintainer's review of the learner screens. Their f
 
 The shared overlay and emphasis components, Button variant, learner/advisor layout and copy, risk presentation parameters, warning template selection, weekly outreach guard and 429 response are implemented. Plan arithmetic, risk thresholds and AI prompts remain unchanged. Unit tests cover warning grammar, risk reason values, week boundary and weekly limit. The isolated local demo test covers drawer dismissal and the rest of the learner/advisor path. `npm run check`, production build and the isolated e2e demo test are required before commit.
 
+Navigation follow-up (2026-10-08): lower-row selection preserves scroll, drawer visibility follows the learner selected in the client URL, and Close details updates that URL immediately. The navigation overlay now covers learner opens and list pagination/filter changes until the requested server data renders. Local browser regressions cover immediate close/reopen and a delayed detail request.
+
 ## Pending data and AI work
 
 1. Approve an additive Prisma migration for actual `contactedAt`, a structured outreach outcome (reply/no reply/call/meeting), advisor discussion notes and their authorship/time. Decide how edits and corrections are retained.

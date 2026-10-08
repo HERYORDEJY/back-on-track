@@ -65,10 +65,10 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
         {bands.map((item) => <Link key={item} href={href(item === "all" ? null : item)} aria-current={(band ?? "all") === item ? "page" : undefined}>{t(`advisor.filter.${item}` as MessageKey, "en")}</Link>)}
       </nav>
     </div>
-    <AdvisorNavigation selectedId={selectedId}>
+    <AdvisorNavigation renderedHref={href(band, page, selectedId ?? undefined)} detailId={detail?.id ?? null}>
     {list.rows.length ? <ul className={styles.list} data-testid="advisor-list">
       {rows.map((row, index) => <li className={`${styles.row} ${styles[row.risk.band]}`} key={row.id} data-band={row.risk.band} data-testid={index === 0 ? "advisor-row" : undefined}>
-        <Link href={href(band, page, row.id)} aria-label={t("advisor.open", "en", { name: row.name })}>
+        <Link href={href(band, page, row.id)} scroll={false} prefetch={false} aria-label={t("advisor.open", "en", { name: row.name })}>
           <span className={styles.priorityRule} aria-hidden="true" />
           <span><span className={styles.name}>{row.name}</span><span className={styles.band}><Signal band={row.risk.band} language="en" label={t(`advisor.band.${row.risk.band}` as MessageKey, "en")} /></span></span>
           <ul className={styles.reasonList}>{row.risk.reasons.slice(0, 2).map((reason, i) => <li key={`${reason.code}-${i}`}>{reasonView(reason)}</li>)}</ul>
@@ -81,10 +81,8 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
       <span aria-live="polite">{t("advisor.pages.status", "en", { page, pages })}</span>
       {page < pages ? <Link href={href(band, page + 1)}>{t("advisor.pages.next", "en")}</Link> : <span />}
     </nav>}
-    </AdvisorNavigation>
-
     {detail && <>
-      <DrawerFocus closeHref={closeHref} name={detail.name} label={t("advisor.detail.title", "en", { name: detail.name })}>
+      <DrawerFocus studentId={detail.id} closeHref={closeHref} name={detail.name} label={t("advisor.detail.title", "en", { name: detail.name })}>
         <div className={styles.detailPriority} data-band={detail.risk.band}>
           <strong>{t(`advisor.band.${detail.risk.band}` as MessageKey, "en")}</strong>
           <p>{t("advisor.lastActive", "en", { date: date(detail.risk.lastActivity) })}</p>
@@ -98,5 +96,6 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
         <section className={styles.detailSection}><OutreachEditor key={detail.id} studentId={detail.id} initialDraft={detail.outreach} initialDraftsUsed={detail.draftsUsedThisWeek} /></section>
       </DrawerFocus>
     </>}
+    </AdvisorNavigation>
   </main>;
 }

@@ -292,6 +292,7 @@
   "advisor.escalated": "Advisor don get flag",
   "advisor.open": "See {name} details",
   "advisor.opening": "We dey open learner details…",
+  "advisor.listLoading": "We dey load learners…",
   "advisor.close": "Close details",
   "advisor.detail.title": "Call notes for {name}",
   "advisor.detail.activity": "Recent activity",

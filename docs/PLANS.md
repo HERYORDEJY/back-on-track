@@ -22,7 +22,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Privacy panel and Delete my data | demo-verified | Learner/advisor parity and edited outreach verified in browser. Approved AiCacheUse migration applied; Tunde deletion cleared app data; D5 browser test confirms Amaka's local snapshot and cached learner page clear on Delete my data |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | in progress | Isolated local Playwright passes three serial repeats; the restored Production cache passes three public runs. Clean-profile mobile Lighthouse scored 99 performance / 100 accessibility on landing, Amaka plan and advisor. Android offline/speech spot checks passed; further TalkBack interaction was skipped at the maintainer's request |
 | Pitch assets (video, slides, README) | not started | |
-| Visual design (the line) | in progress | Phases 0–3 are built. The maintainer's learner review authorized a [feedback pass](plans/d6-feedback-pass.md): clearer plan/advisor copy and status hierarchy, shared blocking overlay, advisor drawer close behavior and a two-draft weekly guard. Phase 4 full visual review and Phase 5 proof/capture remain; supplied docs stay staged until D6 is complete |
+| Visual design (the line) | in progress | Phases 0–3 are built. The maintainer's [feedback pass](plans/d6-feedback-pass.md) includes clearer copy/status hierarchy, the shared overlay, two-draft guard and a tested advisor navigation fix for scroll, pagination loading and drawer reopening. Phase 4 full visual review and Phase 5 proof/capture remain; supplied docs stay staged until D6 is complete |
 
 ## Current progress
 
