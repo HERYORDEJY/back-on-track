@@ -37,6 +37,7 @@ The maintainer approved the pure seed-definition allowance on 2026-10-05 so demo
 app/
   layout.tsx                       header: ClockControl, SimulatedBadge, learner language
   page.tsx                         landing: PersonaSwitcher, Start demo, advisor link
+  loading.tsx error.tsx not-found.tsx  shared route wait, retry and missing-page states
   learner/[studentId]/page.tsx     intake, plan, check-in, infeasible screen
   advisor/page.tsx                 ranked list (?band=), student drawer (?student=)
   api/
@@ -48,7 +49,7 @@ app/
     advisor/outreach/route.ts      POST { studentId }: draft and save a message
     advisor/outreach/[id]/route.ts PATCH { contacted: true, message }: save final edited message
 components/
-  ui/  learner/  advisor/  shared/  (SimulatedBadge, ClockControl, PersonaSwitcher, LanguageSwitch, ReadAloud)
+  ui/  learner/  advisor/  shared/  (SimulatedBadge, ClockControl, PersonaSwitcher, LanguageSwitch, ReadAloud, RouteMessage)
 lib/
   services/  plans.ts students.ts advisor.ts demo.ts
   engine/    config.ts types.ts time.ts backlog.ts capacity.ts rules.ts basis.ts triage.ts validate.ts fallback.ts schedule.ts plan.ts

@@ -128,6 +128,8 @@ D5 implementation (2026-10-07): a versioned plan snapshot and service-worker lea
 
 Every async action shows loading and error states, and every error offers a retry.
 
+D5 route pass (2026-10-08): the shared shell now has a lightweight loading state, an unexpected-error boundary with retry and a home link, and a not-found page for invalid learner/route URLs. Their copy follows the layout's English or Pidgin language without an extra data request; the error page never renders exception details. Reduced-motion users see a still progress rule. At 375 px, the invalid learner page rendered in both languages without overflow. An unavailable local loopback database triggered the advisor error boundary with its retry and home controls. Existing in-page mutations and advisor empty lists retain their own states. Human Pidgin review remains open.
+
 ## Performance budget
 
 Chrome's Slow 4G profile stays usable. Lighthouse on mobile: performance 80+, accessibility 90+.
