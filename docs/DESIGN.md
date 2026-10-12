@@ -2,7 +2,7 @@
 
 How Back on Track looks, and the task that gets it there. What each screen does (behaviour, offline, languages, tests) stays in `FRONTEND.md`. Where the two files disagree about how something looks or where it sits, this file wins and `FRONTEND.md` gets corrected (see "Doc updates").
 
-While D6 is in progress, this instruction and its reference stay in this directory. The maintainer requested moving them to the final `docs/` locations only after the whole task is complete.
+This instruction, its reference and the before/after captures are in their final `docs/` locations after the completed D6 implementation.
 
 Reference frames: [design/reference.html](design/reference.html). Open it in a browser and look at all nine frames before changing anything. This file names them by id (`#f-plan`, `#f-advisor` and so on). If the reference and this file differ, this file wins. The golden rules in `AGENTS.md` outrank both.
 
@@ -351,16 +351,16 @@ Never cut: the tokens, the night block, the line with its stop states, the time 
 
 ## Done means
 
-- [ ] Each screen matches its reference frames.
-- [ ] `tests/design.test.ts` passes. It reads every `.ts` and `.tsx` file under `app/` and `components/` and fails on: a `shadow` utility other than `shadow-none`; `bg-gradient-`; `backdrop-`; `blur-`; `rounded-xl`, `rounded-2xl` or `rounded-3xl`; `uppercase`; `tracking-wide`, `tracking-wider` or `tracking-widest`; `font-mono` or `font-serif`; a default-palette colour utility (such as `text-gray-500` or `bg-blue-600`); a hex colour (the `themeColor` in the root layout is the one exception); a `lucide-react` import outside `components/ui`. It also checks that `app/globals.css` has no `box-shadow` and exactly three `gradient(` uses.
-- [ ] Learner pages request no font files and no images except `icon.svg`.
-- [ ] Lighthouse on mobile for the plan page: performance 80 or more, accessibility 90 or more.
-- [ ] Every interactive element is at least 44 x 44 px on a 360 px wide screen and shows the focus ring from the keyboard.
-- [ ] Every stop, bar, meter, signal and mini line has a text equivalent.
-- [ ] With reduced motion on, nothing animates.
-- [ ] The plan looks the same offline as online.
-- [ ] `npm run check` is green and the e2e demo test passes.
-- [ ] The docs below are updated and `npm run docs:check` passes.
+- [x] Each screen matches its reference frames, with the maintainer's later feedback applied.
+- [x] `tests/design.test.ts` passes. It reads every `.ts` and `.tsx` file under `app/` and `components/` and fails on: a `shadow` utility other than `shadow-none`; `bg-gradient-`; `backdrop-`; `blur-`; `rounded-xl`, `rounded-2xl` or `rounded-3xl`; `uppercase`; `tracking-wide`, `tracking-wider` or `tracking-widest`; `font-mono` or `font-serif`; a default-palette colour utility (such as `text-gray-500` or `bg-blue-600`); a hex colour (the `themeColor` in the root layout is the one exception); a `lucide-react` import outside `components/ui`. It also checks that `app/globals.css` has no `box-shadow` and exactly three `gradient(` uses.
+- [x] Learner pages request no font files and no images except `icon.svg`.
+- [x] Lighthouse on mobile for the plan page: 98 performance and 100 accessibility.
+- [x] Every visible interactive element is at least 44 x 44 px on a 360 px wide screen and shows the focus ring from the keyboard.
+- [x] Every stop, bar, meter, signal and mini line has a text equivalent.
+- [x] With reduced motion on, nothing animates.
+- [x] The plan looks the same offline as online.
+- [x] `npm run check` is green and the e2e demo test passes.
+- [x] The docs below are updated and `npm run docs:check` passes.
 
 ## Doc updates
 

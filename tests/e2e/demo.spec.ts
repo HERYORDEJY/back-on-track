@@ -90,6 +90,20 @@ test("Start demo keeps a device cleanup warning visible", async ({ page }) => {
   await expect(page).toHaveURL("/");
 });
 
+test("mobile clock controls open and close from the Clock button", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  const toggle = page.getByTestId("clock-toggle");
+  const plusThree = page.getByTestId("clock-plus-3");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(plusThree).toBeHidden();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(plusThree).toBeVisible();
+  await toggle.click();
+  await expect(plusThree).toBeHidden();
+});
+
 test("advisor can draft again after contact, then sees the weekly limit and saved note", async ({ page, request }) => {
   expect((await request.post("/api/demo/reset")).ok()).toBeTruthy();
   await page.goto("/advisor?student=tunde");

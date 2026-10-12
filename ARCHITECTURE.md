@@ -59,10 +59,10 @@ lib/
 messages/    en.json pcm.json
 public/      sw.js
 prisma/      schema.prisma seed.ts course.ts personas.ts cohort.ts
-scripts/     docs-check.mjs demo-warm.ts e2e-database.ts d6-capture.mjs
+scripts/     docs-check.mjs demo-warm.ts e2e-database.ts d6-capture.mjs d6-audit.mjs
 proxy.ts     supplies the learner id to the shared header for saved-language rendering
 tests/       fixtures/ engine/ risk/ i18n.test.ts ai-privacy.test.ts e2e/demo.spec.ts
-docs/        PRODUCT_SENSE.md PLANS.md FRONTEND.md RESEARCH.md specs/ references/ D6-UI-Overhaul-Task-Documentation/ (staged design and reference)
+docs/        PRODUCT_SENSE.md PLANS.md FRONTEND.md RESEARCH.md DESIGN.md design/ specs/ references/
 AGENTS.md  ARCHITECTURE.md  CAPSTONE_PROJECT_BRIEF.md  CODEX_LOG.md  README.md  .env.example
 ```
 

@@ -3,7 +3,7 @@
 Viewport screenshots from the isolated seeded demo on 2026-10-08, at device
 scale 1. English and draft Pidgin are shown at 375 × 812 and 1280 × 800. The
 original implementation remains in [before](../before/) and Git history. The
-design instruction and these images stay staged until all of D6 is complete.
+final [design instruction](../../DESIGN.md) and all screenshots are under `docs/`.
 
 | Screen | English phone | English wide | Pidgin phone | Pidgin wide |
 | --- | --- | --- | --- | --- |

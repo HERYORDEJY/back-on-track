@@ -1,15 +1,13 @@
 # D6 whole-project UI overhaul
 
-Started 2026-10-08. The working design instruction and nine visual frames stay in
-[`docs/D6-UI-Overhaul-Task-Documentation/`](../D6-UI-Overhaul-Task-Documentation/)
-through implementation. Move them to their final locations only after all D6
-work and checks are complete, as the maintainer requested. Keep the original
-application implementation available through Git history and the ten baseline
-screenshots in the same working documentation directory.
+Started 2026-10-08 and completed 2026-10-12. The [design instruction](../DESIGN.md),
+[reference](../design/reference.html), ten baseline captures and ten final
+captures are in their final `docs/` locations. The original application
+implementation remains available through Git history.
 
 ## Sequence
 
-Follow the phases and exit checks in the [staged design instruction](../D6-UI-Overhaul-Task-Documentation/DESIGN.md), one commit per phase:
+Follow the phases and exit checks in the [design instruction](../DESIGN.md), one commit per phase:
 
 1. Capture the ten original views at 375 x 812 and 1280 x 800 with device scale 1.
    Record the visual-pattern inventory and verify `npm run check`.
@@ -30,11 +28,11 @@ part of this task. Use the isolated `back_on_track_e2e` database and
 `DEMO_MODE=true` for browser verification. Keep the D5 human Pidgin copy pass
 deferred; new D6 Pidgin strings are draft copy for that review.
 
-The maintainer's learner-screen feedback authorizes the separate [D6 feedback pass](d6-feedback-pass.md) across learner and advisor UI. It supersedes the Phase 3 pause and the presentation-only restrictions above for warning grammar, risk-reason wording and the two-draft API limit. Plan arithmetic, risk thresholds, AI prompts and schema remain unchanged. The feedback pass does not complete all of Phase 4 or Phase 5; those review and capture checks remain in the sequence.
+The maintainer's learner-screen feedback authorized the separate [D6 feedback pass](d6-feedback-pass.md) across learner and advisor UI. It superseded the Phase 3 pause and the presentation-only restrictions above for warning grammar, risk-reason wording and the two-draft API limit. Plan arithmetic, risk thresholds, AI prompts and schema remain unchanged. The Phase 4 and 5 checks were completed separately.
 
 ## Phase 0 evidence
 
-The ten screenshots are in the staged design directory's `design/before/` folder.
+The ten screenshots are in the [before](../design/before/) folder.
 `node scripts/d6-capture.mjs before` resets the isolated demo and captures the
 landing, intake, Amaka plan, Tunde can't-catch-up view and advisor with Tunde
 open at both sizes. Each image has the requested viewport dimensions.
@@ -87,10 +85,9 @@ separate reminders panel is folded into the night block and line. The offline
 snapshot is version 2 and includes the stops, titles and time-bar values; the
 browser demo verifies the offline line and bars match the online counts.
 
-Eight English viewport screenshots are in the staged design folder's
-[`design/review/`](../D6-UI-Overhaul-Task-Documentation/design/review/); eight
-Pidgin screenshots are in
-[`design/review-pcm/`](../D6-UI-Overhaul-Task-Documentation/design/review-pcm/).
+Eight English viewport screenshots are in
+[`design/review/`](../design/review/); eight Pidgin screenshots are in
+[`design/review-pcm/`](../design/review-pcm/).
 `npm run check` passed 246 tests, the production build succeeded and both
 isolated local browser demo tests passed. The maintainer supplied detailed learner screenshot feedback and authorized the advisor feedback pass. Draft Pidgin
 strings are listed in [PLANS.md](../PLANS.md) for the deferred D5 human copy pass.
@@ -110,4 +107,22 @@ The local production build and all six isolated browser demo tests passed. Phone
 and wide advisor list checks at 375 × 812 and 1280 × 812 showed no horizontal
 overflow. The current Tunde drawer capture was inspected at both sizes against
 the reference, allowing the approved feedback changes. `npm run check` passed
-251 tests. Final ten-view captures and the design proof remain Phase 5.
+251 tests. Final ten-view captures and the design proof were completed in Phase 5.
+
+## Phase 5 evidence
+
+The design guard rejects prohibited utility classes, arbitrary source hex
+colours and Lucide imports; it also checks the three CSS patterns. The mobile
+Clock toggle is covered by the local browser suite. Ten final screenshots are
+in [after](../design/after/), matching the ten baseline names and viewport sizes.
+The 360 px device audit covered landing, intake, plan, can't-catch-up, advisor
+list and details: every visible interactive element measured at least 44 × 44 px
+and showed a keyboard focus ring. None overflowed horizontally or animated under reduced motion, and no font or
+image assets were requested. The intake checkbox's hit area was enlarged after
+the initial audit found it at 24 × 24 px.
+
+Mobile Lighthouse on the local production Amaka plan scored 98 performance and
+100 accessibility. The browser demo passed seven cases, including offline plan
+parity and the narrow Clock toggle; `npm run check` passed 253 unit tests and
+the production build passed. Human Pidgin copy review remains the separately
+deferred D5 task.

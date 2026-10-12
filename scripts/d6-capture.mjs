@@ -8,7 +8,7 @@ if (!["before", "review", "review-pcm", "after"].includes(phase)) {
 }
 
 const baseURL = "http://127.0.0.1:3100";
-const output = resolve("docs/D6-UI-Overhaul-Task-Documentation/design", phase);
+const output = resolve("docs/design", phase);
 const learnerReview = phase === "review" || phase === "review-pcm";
 const reviewPcm = phase === "review-pcm";
 await mkdir(output, { recursive: true });
@@ -23,9 +23,10 @@ try {
     const page = await context.newPage();
     const name = `${viewport.width}x${viewport.height}`;
     const capture = async (view) => {
-      await page.evaluate(() => { document.documentElement.scrollTop = 0; document.body.scrollTop = 0; scrollTo(0, 0); });
+      await page.evaluate(() => { history.scrollRestoration = "manual"; document.documentElement.scrollTop = 0; document.body.scrollTop = 0; scrollTo(0, 0); });
       await page.waitForTimeout(300);
       await page.evaluate(() => { document.documentElement.scrollTop = 0; document.body.scrollTop = 0; scrollTo(0, 0); });
+      await page.waitForFunction(() => window.scrollY === 0);
       await page.screenshot({ path: resolve(output, `${view}-${name}.png`), animations: "disabled" });
       console.log(`${view}-${name}.png`);
     };

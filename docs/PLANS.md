@@ -22,7 +22,7 @@ The source of truth for the build: what's done, what's next, and what gets cut w
 | Privacy panel and Delete my data | demo-verified | Learner/advisor parity and edited outreach verified in browser. Approved AiCacheUse migration applied; Tunde deletion cleared app data; D5 browser test confirms Amaka's local snapshot and cached learner page clear on Delete my data |
 | Demo hardening (cache warm, Lighthouse, TalkBack) | in progress | Isolated local Playwright passes three serial repeats; the restored Production cache passes three public runs. Clean-profile mobile Lighthouse scored 99 performance / 100 accessibility on landing, Amaka plan and advisor. Android offline/speech spot checks passed; further TalkBack interaction was skipped at the maintainer's request |
 | Pitch assets (video, slides, README) | not started | |
-| Visual design (the line) | in progress | Phases 0–4 are built. The maintainer's [feedback pass](plans/d6-feedback-pass.md) includes clearer copy/status hierarchy, the shared overlay, two-draft guard and tested advisor navigation. The advisor list now shows counted filters, progress mini lines, a separate priority signal and status markers; outreach sits near the top of details. Phase 5 proof and final capture remain; supplied docs stay staged until D6 is complete |
+| Visual design (the line) | demo-verified | All D6 phases and the maintainer's [feedback pass](plans/d6-feedback-pass.md) are complete locally. The [design proof](plans/d6-ui-overhaul.md#phase-5-evidence) includes ten final captures, 360 px touch/reduced-motion/asset checks, mobile Lighthouse 98 performance / 100 accessibility, 253 unit tests and seven browser cases. Human Pidgin review remains a separate D5 task |
 
 ## Current progress
 
@@ -58,7 +58,7 @@ After each work session, record completed tasks, the current task, next steps, b
 
 D1 foundation completed on 2026-10-05 under the approved sequencing adjustment. Public URL: [back-on-track-one.vercel.app](https://back-on-track-one.vercel.app). All 137 tests, required checks, production build and remote CI pass. Production landing, clock and reset return 200; public +3 day/Reset and English/Pidgin reload persistence verified at 375/1280 px with no horizontal overflow. Two identical complete reseeds and persona resets preserve their specified cache/cohort boundaries. Clock restored to 19 October 18:00 Lagos.
 
-Current task: D6 whole-project UI overhaul. The new [design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) has been read with all nine browser-rendered frames. Ten original screen screenshots are captured at 375 x 812 and 1280 x 800 against the isolated seeded demo database. Work follows the six-phase [D6 plan](plans/d6-ui-overhaul.md), with learner-screen review before the advisor phase. The D5 human Pidgin copy pass is deferred while D6 proceeds. The supplied instruction and reference remain in their current directory until the overhaul is fully complete, per the maintainer. No feature has been cut or abandoned.
+D6 is complete locally. The [design instruction](DESIGN.md), [reference](design/reference.html) and before/after captures are in their final locations. The six-phase [D6 plan](plans/d6-ui-overhaul.md) includes the maintainer's feedback, the seven-case browser demo and the 98/100 mobile Lighthouse result. Next task: D7 pitch assets and rehearsal. The D5 human Pidgin copy review remains deferred. No feature has been cut or abandoned.
 
 D2 implementation commit `7d0c61e` is pushed. [GitHub CI](https://github.com/HERYORDEJY/back-on-track/actions/runs/37422104658) passed and Vercel reported deployment success. The public landing, Amaka and Tunde routes return 200; the public mutation path has not been exercised, so the local browser evidence remains the D2 interaction check.
 
@@ -141,7 +141,7 @@ Exit: the demo path runs 3 times in a row with nothing off-script, the plan open
 
 ### D6: whole-project UI overhaul, then feature freeze
 
-The [design instruction](D6-UI-Overhaul-Task-Documentation/DESIGN.md) and [phase plan](plans/d6-ui-overhaul.md) cover the landing, shared controls, learner journey, infeasible and offline states, and advisor view. The maintainer reviewed Phase 3, clarified the learner and advisor UX, and authorized the separate [feedback pass](plans/d6-feedback-pass.md). Phase 4 full visual review and Phase 5 design guard, local demo test, mobile Lighthouse 80/90 and ten after screenshots remain before feature freeze. Human Pidgin copy review remains a separate deferred D5 task.
+The [design instruction](DESIGN.md) and [phase plan](plans/d6-ui-overhaul.md) cover the landing, shared controls, learner journey, infeasible and offline states, and advisor view. The maintainer reviewed Phase 3, clarified the learner and advisor UX, and authorized the separate [feedback pass](plans/d6-feedback-pass.md). Phase 4 advisor review and Phase 5 design guard, local demo test, mobile Lighthouse 98/100 and ten after screenshots have passed locally. Human Pidgin copy review remains a separate deferred D5 task.
 
 #### Pidgin strings to check
 
