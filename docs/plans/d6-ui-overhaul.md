@@ -94,3 +94,20 @@ Pidgin screenshots are in
 `npm run check` passed 246 tests, the production build succeeded and both
 isolated local browser demo tests passed. The maintainer supplied detailed learner screenshot feedback and authorized the advisor feedback pass. Draft Pidgin
 strings are listed in [PLANS.md](../PLANS.md) for the deferred D5 human copy pass.
+
+## Phase 4 evidence
+
+The advisor list now uses the reference's four scan columns: student, course
+progress, call priority and reasons. Filter plates show all four live counts.
+Each row draws its mini line from read-only progress and the current course week,
+with a separate outlined plan-status marker; escalated students have the labelled
+"Call first" flag. The drawer brings drafting before reasons and activity while
+keeping the saved outreach note under Recent activity. The maintainer's later
+feedback still governs the visible Close details control, two-draft limit,
+light loading overlay and plain-time reason copy.
+
+The local production build and all six isolated browser demo tests passed. Phone
+and wide advisor list checks at 375 × 812 and 1280 × 812 showed no horizontal
+overflow. The current Tunde drawer capture was inspected at both sizes against
+the reference, allowing the approved feedback changes. `npm run check` passed
+251 tests. Final ten-view captures and the design proof remain Phase 5.

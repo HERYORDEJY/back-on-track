@@ -6,6 +6,7 @@ import { outreach } from "@/lib/ai/client";
 import { formatRiskReason, t, type Language } from "@/lib/i18n";
 import { scoreRisk, sortRisk } from "@/lib/risk/score";
 import { doneThroughWeek } from "@/lib/engine/display";
+import { currentWeek } from "@/lib/engine/time";
 import { adherenceMetric } from "@/lib/risk/metric";
 import { Prisma } from "@/lib/generated/prisma/client";
 
@@ -116,7 +117,15 @@ export async function listStudents({ band = null }: { band?: AdvisorBand | null 
   ranked.sort((a, b) => sortRisk(a.result, b.result));
   const rows = ranked.filter(({ result }) => !band || result.band === band).map(({ student, result }) => rowOf(student, result, facts));
   const plans = facts.students.flatMap((student) => student.plans);
-  return { rows, metric: adherenceMetric(plans, facts.now) };
+  return {
+    rows,
+    metric: adherenceMetric(plans, facts.now),
+    week: currentWeek(calendarDate(facts.now), calendarDate(facts.course.startDate)),
+    totalWeeks: Math.max(0, ...facts.topics.map((topic) => topic.week)),
+    counts: { all: ranked.length, high: ranked.filter(({ result }) => result.band === "high").length,
+      medium: ranked.filter(({ result }) => result.band === "medium").length,
+      low: ranked.filter(({ result }) => result.band === "low").length },
+  };
 }
 
 export async function getStudentRiskView(studentId: string): Promise<PublicRisk | null> {

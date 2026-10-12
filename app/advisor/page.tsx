@@ -4,6 +4,7 @@ import { AdvisorNavigation } from "@/components/advisor/AdvisorNavigation";
 import { OutreachEditor } from "@/components/advisor/OutreachEditor";
 import { EmphasizedText } from "@/components/shared/EmphasizedText";
 import { Signal } from "@/components/shared/Signal";
+import { MiniLine } from "@/components/shared/MiniLine";
 import { formatDate, formatRiskReason, t, type MessageKey } from "@/lib/i18n";
 import { getStudentDetail, listStudents } from "@/lib/services/advisor";
 import styles from "@/components/advisor/AdvisorView.module.css";
@@ -52,27 +53,26 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
 
   return <main id="main" className={styles.page}>
     <section className={styles.intro} aria-labelledby="advisor-title">
-      <div><h1 id="advisor-title">{t("advisor.title", "en")}</h1><p>{t("advisor.intro", "en")}</p></div>
-      <div className={styles.metric}>
-        <h2>{t("advisor.metric.title", "en")}</h2>
-        <strong>{list.metric ? t("advisor.metric.result", "en", list.metric) : t("advisor.metric.empty", "en")}</strong>
-        <p>{t("advisor.metric.note", "en")}</p>
-      </div>
+      <h1 id="advisor-title">{t("advisor.title", "en")}</h1>
+      <p className={styles.lede}>{list.metric ? t("advisor.metric.result", "en", list.metric) : t("advisor.metric.empty", "en")}</p>
+      <p className={styles.introNote}>{t("advisor.intro", "en")} {t("advisor.metric.note", "en")}</p>
     </section>
     <div className={styles.toolbar}>
       <div><h2>{t(`advisor.filter.${band ?? "all"}` as MessageKey, "en")}</h2><p>{t("advisor.count", "en", { count: list.rows.length })}</p></div>
       <nav className={styles.filters} aria-label={t("advisor.filter.label", "en")}>
-        {bands.map((item) => <Link key={item} href={href(item === "all" ? null : item)} aria-current={(band ?? "all") === item ? "page" : undefined}>{t(`advisor.filter.${item}` as MessageKey, "en")}</Link>)}
+        {bands.map((item) => <Link key={item} href={href(item === "all" ? null : item)} aria-current={(band ?? "all") === item ? "page" : undefined}>{t(`advisor.filter.${item}` as MessageKey, "en")} <span className={styles.filterCount}>{list.counts[item]}</span></Link>)}
       </nav>
     </div>
     <AdvisorNavigation renderedHref={href(band, page, selectedId ?? undefined)} detailId={detail?.id ?? null}>
+    <div className={styles.listHead} aria-hidden="true"><span>{t("advisor.column.student", "en")}</span><span>{t("advisor.column.progress", "en")}</span><span>{t("advisor.column.priority", "en")}</span><span>{t("advisor.column.why", "en")}</span></div>
     {list.rows.length ? <ul className={styles.list} data-testid="advisor-list">
-      {rows.map((row, index) => <li className={`${styles.row} ${styles[row.risk.band]}`} key={row.id} data-band={row.risk.band} data-testid={index === 0 ? "advisor-row" : undefined}>
+      {rows.map((row, index) => <li className={`${styles.row} ${styles[row.risk.band]}`} key={row.id} data-band={row.risk.band} data-selected={row.id === detail?.id} data-testid={index === 0 ? "advisor-row" : undefined}>
         <Link href={href(band, page, row.id)} scroll={false} prefetch={false} aria-label={t("advisor.open", "en", { name: row.name })}>
           <span className={styles.priorityRule} aria-hidden="true" />
-          <span><span className={styles.name}>{row.name}</span><span className={styles.band}><Signal band={row.risk.band} language="en" label={t(`advisor.band.${row.risk.band}` as MessageKey, "en")} /></span></span>
-          <ul className={styles.reasonList}>{row.risk.reasons.slice(0, 2).map((reason, i) => <li key={`${reason.code}-${i}`}>{reasonView(reason)}</li>)}</ul>
-          <span className={styles.meta}><span>{t("advisor.lastActive", "en", { date: date(row.risk.lastActivity) })}</span><span className={styles.planStatus} data-status={row.planStatus ?? "none"}>{planText(row.planStatus)}</span>{row.risk.escalated && <span className={styles.flag}>{t("advisor.escalated", "en")}</span>}</span>
+          <span className={styles.studentCell}><span className={styles.name}>{row.name}</span><span className={styles.seen}>{t("advisor.lastActive", "en", { date: date(row.risk.lastActivity) })}</span>{row.risk.escalated && <span className={styles.flag}>{t("advisor.callFirst", "en")}</span>}</span>
+          <div className={styles.progressCell}><MiniLine doneWeek={row.doneThroughWeek} week={list.week} totalWeeks={list.totalWeeks} language="en" /><span className={styles.week}>{t("advisor.weekProgress", "en", { week: row.doneThroughWeek, total: list.totalWeeks })}</span><span className={styles.planStatus} data-status={row.planStatus ?? "none"}>{planText(row.planStatus)}</span></div>
+          <span className={styles.band}><Signal band={row.risk.band} language="en" label={t(`advisor.band.${row.risk.band}` as MessageKey, "en")} /></span>
+          <span className={styles.reasonList}>{row.risk.reasons.slice(0, 2).map((reason, i) => <span key={`${reason.code}-${i}`}>{reasonView(reason)}</span>)}</span>
         </Link>
       </li>)}
     </ul> : <p className={styles.empty}>{t("advisor.empty", "en")}</p>}
@@ -88,12 +88,12 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
           <p>{t("advisor.lastActive", "en", { date: date(detail.risk.lastActivity) })}</p>
           <p>{planText(detail.planStatus)}{detail.risk.escalated ? ` · ${t("advisor.escalated", "en")}` : ""}</p>
         </div>
+        <section className={styles.detailSection}><OutreachEditor key={detail.id} studentId={detail.id} initialDraft={detail.outreach} initialDraftsUsed={detail.draftsUsedThisWeek} /></section>
         <section className={styles.detailSection} aria-labelledby="risk-reasons"><h3 id="risk-reasons">{t("advisor.detail.reasons", "en")}</h3><ul>{detail.risk.reasons.map((reason, i) => <li key={`${reason.code}-${i}`}>{reasonView(reason)}</li>)}</ul></section>
         <section className={styles.detailSection} aria-labelledby="missed-title"><h3 id="missed-title">{t("advisor.detail.missed", "en")}</h3>{detail.missedSessions.length ? <ul>{detail.missedSessions.map((missed) => <li key={missed}>{date(missed)}</li>)}</ul> : <p>{t("advisor.detail.noneMissed", "en")}</p>}</section>
         <section className={styles.detailSection} aria-labelledby="activity-title"><h3 id="activity-title">{t("advisor.detail.activity", "en")}</h3>{detail.events.length ? <ol className={styles.timeline}>{detail.events.map((event, i) => <li key={`${event.at}-${event.type}-${i}`}><time dateTime={event.at}>{date(event.at)}</time><span>{t(`advisor.detail.${event.type}` as MessageKey, "en", event.title ? { title: event.title } : {})}</span></li>)}</ol> : <p>{t("advisor.detail.noEvents", "en")}</p>}
           {detail.outreach && <div className={styles.outreachHistory}><h4>{t("advisor.outreach.latest", "en")}</h4><p>{t("advisor.outreach.draftedAt", "en", { date: date(detail.outreach.createdAt) })}</p><p>{t(detail.outreach.contacted ? "advisor.outreach.contactTimeUnknown" : "advisor.outreach.noContact", "en")}</p><blockquote>{detail.outreach.message}</blockquote></div>}
         </section>
-        <section className={styles.detailSection}><OutreachEditor key={detail.id} studentId={detail.id} initialDraft={detail.outreach} initialDraftsUsed={detail.draftsUsedThisWeek} /></section>
       </DrawerFocus>
     </>}
     </AdvisorNavigation>
