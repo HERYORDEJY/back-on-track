@@ -27,6 +27,6 @@ When she misses a session, the plan adjusts. If the numbers say she can't catch 
 
 MIVA has enrolled more than 20,000 students since 2023 and aims for 100,000 by 2027. No advisor team can personally follow that many people, so Back on Track gives advisors a list of who needs a call this week and why, with a message already drafted in the student's language.
 
-It works offline on basic phones, in English and Nigerian Pidgin, and reads plans aloud for students who find reading hard. Student names never go to the AI.
+Once loaded, it keeps working offline on basic phones, in English and Nigerian Pidgin. It can also read the plan aloud in English, for students with poor eyesight or anyone listening on the go. Student names never go to the AI.
 
 Track: Engagement & Staying in the Learning Journey.
