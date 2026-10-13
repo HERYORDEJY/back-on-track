@@ -155,6 +155,7 @@
   "demo.failed": "We no fit start demo afresh. Try again.",
   "demo.invalid": "Send demo reset request wey empty.",
   "language.saving": "We dey save your language…",
+  "language.switching": "We dey change the language…",
   "language.failed": "We no fit finish to change the language. Try again.",
   "language.transition.title": "We dey turn page go {language}",
   "language.transition.note": "Your place still dey while the words dey change.",

@@ -155,6 +155,7 @@
   "demo.failed": "The demo could not be reset. Try again.",
   "demo.invalid": "Send an empty demo reset request.",
   "language.saving": "Saving language…",
+  "language.switching": "Switching language…",
   "language.failed": "We could not finish switching language. Try again.",
   "language.transition.title": "Turning the page to {language}",
   "language.transition.note": "Your place is kept while the words change.",
