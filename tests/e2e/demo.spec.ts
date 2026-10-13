@@ -104,6 +104,37 @@ test("mobile clock controls open and close from the Clock button", async ({ page
   await expect(plusThree).toBeHidden();
 });
 
+test("language switch keeps the busy slider above its description", async ({ page, context }) => {
+  await context.addCookies([{ name: "lang", value: "en", url: "http://127.0.0.1:3100" }]);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await page.route("**/?_rsc=*", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await route.continue();
+  });
+  await page.getByTestId("language-switch").locator('[data-language="pcm"]').click();
+  const overlay = page.locator("dialog.busy-overlay");
+  await expect(overlay).toBeVisible();
+  await expect(overlay.locator(".busy-overlay__content > .travel")).toHaveCount(1);
+  await expect(overlay.locator(".busy-overlay__content > .busy-overlay__message")).toHaveCount(1);
+  for (const viewport of [{ width: 375, height: 812 }, { width: 1280, height: 800 }]) {
+    await page.setViewportSize(viewport);
+    const positions = await overlay.evaluate((dialog) => {
+      const slider = dialog.querySelector(".travel")!.getBoundingClientRect();
+      const description = dialog.querySelector(".busy-overlay__message")!.getBoundingClientRect();
+      const bounds = dialog.getBoundingClientRect();
+      return { sliderBottom: slider.bottom, sliderTop: slider.top, descriptionTop: description.top, sliderLeft: slider.left, sliderRight: slider.right, descriptionLeft: description.left, descriptionRight: description.right, dialogLeft: bounds.left, dialogRight: bounds.right };
+    });
+    expect(positions.sliderBottom).toBeGreaterThan(positions.sliderTop);
+    expect(positions.sliderRight).toBeGreaterThan(positions.sliderLeft);
+    expect(positions.sliderBottom).toBeLessThan(positions.descriptionTop);
+    expect(positions.sliderLeft).toBeGreaterThanOrEqual(positions.dialogLeft);
+    expect(positions.sliderRight).toBeLessThanOrEqual(positions.dialogRight);
+    expect(positions.descriptionLeft).toBeGreaterThanOrEqual(positions.dialogLeft);
+    expect(positions.descriptionRight).toBeLessThanOrEqual(positions.dialogRight);
+  }
+});
+
 test("advisor can draft again after contact, then sees the weekly limit and saved note", async ({ page, request }) => {
   expect((await request.post("/api/demo/reset")).ok()).toBeTruthy();
   await page.goto("/advisor?student=tunde");
