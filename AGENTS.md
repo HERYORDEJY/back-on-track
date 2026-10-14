@@ -33,7 +33,7 @@ Requirement priority: golden rules, then the cut list, then the current demo scr
 6. Domain logic is pure and tested. `lib/engine` and `lib/risk` do no I/O, take `now` as an argument, and every rule has a unit test.
 7. Scope is locked. Ideas outside scope go in the Later list in `docs/PLANS.md`, not into the code.
 8. Built for real conditions: works offline after first load, pages stay light, every screen is usable on a basic Android phone.
-9. No one is locked out. Irregular hours still get a plan and "can't make it" still gets a next step. Learner UI works in English and Nigerian Pidgin; published course and topic titles stay in English. Read-aloud covers tonight's session and the plan summary, plus the infeasible summary and next step. Other screens have screen-reader labels.
+9. No one is locked out. Irregular hours still get a plan and "can't make it" still gets a next step. Learner UI works in English and Nigerian Pidgin; published course and topic titles stay in English. The maintainer's 2026-10-13 English-only pause temporarily overrides Pidgin display, mutation and AI caching until copy review; see [pause plan](docs/plans/d7-english-only-pause.md). Read-aloud covers tonight's session and the plan summary, plus the infeasible summary and next step. Other screens have screen-reader labels.
 10. Private and traceable. AI calls receive no names, emails or phone numbers. Students see the same call-priority band, reasons, last activity and escalation as advisors; numeric scores stay internal and outreach drafts are private working notes. Advisors never see goal or context. Every reason in a plan shows the course fact it rests on.
 
 ## Never build

@@ -7,13 +7,13 @@ Screens, copy, languages, offline behaviour and accessibility. Product voice is 
 - Mobile first. Check every screen at 375 px and 1280 px wide.
 - Light: no images or web fonts on learner screens, system font stack, client components only where interaction needs them.
 - Works offline after the first load.
-- Learner UI works in English and Nigerian Pidgin; published course and topic titles stay English. Read-aloud covers the plan session/summary and infeasible summary/next step; other screens have screen-reader labels.
+- The current learner UI shows English while Pidgin is paused for copy review; the English/Pidgin target and translation files remain. Published course and topic titles stay English. Read-aloud covers the plan session/summary and infeasible summary/next step; other screens have screen-reader labels.
 
 ## Visual direction
 
 The [design instruction](DESIGN.md) defines the look and layout. Its line, stops, palette and component rules supersede earlier visual notes here. The reference and before/after captures are in [design/](design/).
 
-Language switching uses a two-part plate in the header. It persists the same learner or landing choice, including queued offline changes, and exposes a retry when saving fails.
+The two-part language plate is hidden during the English-only pause. Saved Pidgin preferences and old offline snapshots open in English; language edits cannot be submitted or replayed. Old queued edits remain parked in local storage while check-ins continue to sync. The switch and its retry behavior remain in code for restoration.
 
 ## Shared components (`components/shared`)
 
@@ -22,7 +22,7 @@ Language switching uses a two-part plate in the header. It persists the same lea
 | SimulatedBadge | demo bar, every page | "Simulated data" label, always visible |
 | ClockControl | demo bar, every page | Shows the simulated date and week, with +1 day, +3 days, Jump to week (forward only) and Reset (calls demo reset). Below 1024 px its controls open under the Clock toggle |
 | PersonaSwitcher | landing | The 3 personas with a one-line situation each |
-| LanguageSwitch | landing and every learner screen | Landing uses a `lang` cookie, default English. Learner screens use the student's saved language (`PATCH /api/students/[id]`); offline changes use the bilingual snapshot and queue for sync, last write wins |
+| LanguageSwitch | temporarily hidden on landing and learner screens | English is active even when the landing cookie or saved learner preference says Pidgin. The preserved component can later restore cookie, saved preference and offline queue switching |
 | ReadAloud | plan and infeasible screens | Reads tonight's session plus plan summary, or infeasible summary plus next step, with `speechSynthesis`; for Pidgin use an English (Nigeria) voice if available, else any English voice; screen-reader labels remain available where speech isn't supported |
 | Mark, SessionLine, MiniLine, TimeBars, NightBlock, Notice, Chip, Meter, Signal, Travel | pages as designed | Shared visual blocks. Pure display helpers supply progress, line stops and bar widths; the services add their read-only data to view models |
 | BusyOverlay | major learner and advisor operations | A light whole-screen modal wait state with the shared Travel track as a separate child above its action description. The component owns the critical vertical layout and track dimensions so language refreshes cannot place the slider over the copy while stylesheets change; it prevents a second action while a request or navigation is pending. Copy remains immediate and reports success or failure inline |

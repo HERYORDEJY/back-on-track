@@ -2,14 +2,16 @@
 
 Two AI calls: triage for plans and outreach for advisors. Both go through a cache and both have a deterministic fallback, so the app never needs the network to show a plan or a message. Server only.
 
+D7 English-only pause (2026-10-13): prompt version `d7-en-v1` asks for English-only triage and outreach. Triage cache entries contain `{ en }` text and are expanded to the existing `{ en, pcm }` engine/storage shape with the English text in both fields. Old bilingual cache entries remain stored but are isolated by the prompt version and strict English schema; `DEMO_MODE` falls back on a miss until the new path is warmed. Outreach uses English in the prompt and cache input even for a learner whose retained database preference is `pcm`. Restore bilingual prompts/schema with another version after human review and rewarm the demo path. No production warm was authorized by this pause.
+
 D2 implementation (2026-10-06): `openai` 7.28.0 was approved and pinned for Responses API structured parsing with the existing Zod 4.6.5. Strict schemas, bilingual prompts, canonical cache keys, length enforcement, privacy redaction, shared service budget and cache-only `DEMO_MODE` are built and unit tested. The first live Amaka proposal cut exactly to the displayed capacity but failed `OVER_CAPACITY`: 60 rounded minutes remained unplaced because daily fragments under the 20-minute block minimum cannot be reused. Prompt version `d2-v2` explained this distinction; a later valid live cut and cache-only replay passed. D5 added the missing `demo:warm` runner. Luna repeatedly returned under-cut plans on the full demo path, so version `d5-v6` gives cut triage an exact reduction target and per-action savings; the chosen actions still require complete code validation. With `gpt-6-sol` and `reasoning.effort=none`, the local live warm and cache-only replay passed under the maintainer's $5 cap. The first public Production replay returned Amaka `fallback`, so the public live-AI path warmed both Amaka plans directly. A new [Production deployment](https://vercel.com/heryordejys-projects/back-on-track/D6uDPeWtjkZ9Go6vQ54Mtfm5DZuL) restored `DEMO_MODE=true`; the full public replay then returned `cache` for both Amaka plans and Tunde outreach, and reset the simulated personas/clock.
 
 ## Calls
 
 | Call | Used by | Input | Output |
 | --- | --- | --- | --- |
-| triage | the engine, injected by `lib/services/plans.ts` | `TriageContext` (`specs/engine.md`), plus violations on a retry | Sparse changed-topic actions and Localized rationales, plus a Localized summary; code owns topic order |
-| outreach | `lib/services/advisor.ts` | Risk reasons (codes and params), plan status, the student's language | A message in the student's language starting with `{firstName}`, and one next step in English for the advisor |
+| triage | the engine, injected by `lib/services/plans.ts` | `TriageContext` (`specs/engine.md`), plus violations on a retry | Sparse changed-topic actions and English rationales/summary, expanded to Localized for the engine; code owns topic order |
+| outreach | `lib/services/advisor.ts` | Risk reasons (codes and params), plan status, active English language | An English message starting with `{firstName}`, and one next step in English for the advisor |
 
 The current outreach input does not include earlier messages, contact dates, learner replies or advisor call notes. The advisor UI shows the latest saved note and allows another draft after a contact is marked, within two drafts per learner per simulated Lagos week. A later data and AI task must store actual contact time and structured advisor feedback, then explicitly choose privacy-safe context for later drafts and version the prompt/cache key. Do not describe the draft creation date as the contact date.
 
@@ -25,11 +27,12 @@ The current outreach input does not include earlier messages, contact dates, lea
 ```ts
 export const Action = z.enum(["keep", "compress_light", "compress_heavy", "skip"]);
 export const ChangedAction = z.enum(["compress_light", "compress_heavy", "skip"]);
-export const Localized = z.object({ en: z.string(), pcm: z.string() });
+export const Localized = z.strictObject({ en: z.string(), pcm: z.string() });
+const EnglishText = z.strictObject({ en: z.string() });
 
 export const TriageOutput = z.strictObject({
-  items: z.array(z.object({ topicId: z.string(), action: ChangedAction, rationale: Localized })),
-  summary: Localized,
+  items: z.array(z.strictObject({ topicId: z.string(), action: ChangedAction, rationale: EnglishText })),
+  summary: EnglishText,
 });
 
 export const OutreachOutput = z.object({ message: z.string(), nextStep: z.string() });
@@ -43,8 +46,8 @@ export const OutreachOutput = z.object({ message: z.string(), nextStep: z.string
 ## Prompts (`prompts.ts`)
 
 - One function per call, plus `PROMPT_VERSION`. Bump it whenever a prompt changes.
-- Triage: list only shortening/skipping, leaving other topics to code's keep defaults; protected topics may only be kept or lightly shortened. Prefer skipping low exam weight. Explain that displayed capacity and deficit are arithmetic figures, while the 20-minute block rule may leave daily fragments unusable. For a cut, code supplies its feasible fallback's remaining-minute total as a target and exact per-action savings; AI still chooses which topics to change, and code validates the resulting schedule. Prerequisites always precede dependants and inherit their earliest deadline. Write changed-topic rationales and summary in English and everyday Nigerian Pidgin, using only input facts and distinguishing simulated course metadata. On retry, quote violations, rejected actions and additional unplaced minutes, then request a complete corrected sparse response.
-- Outreach: a short, warm message from the advisor to the student in the student's language, based on the reasons, starting with `{firstName}`; plus one concrete next step for the advisor, in English.
+- Triage: list only shortening/skipping, leaving other topics to code's keep defaults; protected topics may only be kept or lightly shortened. Prefer skipping low exam weight. Explain that displayed capacity and deficit are arithmetic figures, while the 20-minute block rule may leave daily fragments unusable. For a cut, code supplies its feasible fallback's remaining-minute total as a target and exact per-action savings; AI still chooses which topics to change, and code validates the resulting schedule. Prerequisites always precede dependants and inherit their earliest deadline. Write changed-topic rationales and summary in English during the pause, using only input facts and distinguishing simulated course metadata. On retry, quote violations, rejected actions and additional unplaced minutes, then request a complete corrected sparse response.
+- Outreach: a short, warm English message from the advisor to the student, based on the reasons, starting with `{firstName}`; plus one concrete next step for the advisor, in English.
 - Generated text follows the voice in `PRODUCT_SENSE.md`. It never mentions AI and never promises what an advisor can't deliver.
 
 ## Privacy
@@ -59,14 +62,14 @@ export const OutreachOutput = z.object({ message: z.string(), nextStep: z.string
 - Read before every call; write after every valid response, after length enforcement.
 - With `DEMO_MODE=true`: read only. On a miss, return `null` and never touch the network; the caller falls back.
 - Source on the plan: `cache` when served from the cache, `ai` when freshly called, `fallback` otherwise.
-- Because the AI writes both languages in one call, one cached response covers English and Pidgin.
+- The active cache version contains English only. Existing bilingual cache rows remain stored under old prompt-version keys; the engine's localized storage shape remains for later restoration.
 - D4 records an AiCacheUse row when a learner reads or writes a response. Delete my data removes that learner's ownership and only removes a response with no remaining owners. The maintainer approved deleting the three legacy unowned rows once during migration; D5 must warm the demo path again.
 - Complete reseeding keeps AiCacheUse links for the same stable student ids. The live two-reseed check retains both a cache fixture and its learner ownership, so later Delete my data can still find it.
 
 ## Fallbacks
 
 - Triage: the engine's fallback (`specs/engine.md`), source `fallback`.
-- Outreach: `outreach.fallback.message` in the student's language, "{firstName}, I noticed {reason}. Can we talk this week about a plan that fits your time?", where `{reason}` is the top risk reason in that language; and `outreach.fallback.nextStep`, "Call this week and offer a catch-up plan."
+- Outreach: `outreach.fallback.message` in active English, "{firstName}, I noticed {reason}. Can we talk this week about a plan that fits your time?", where `{reason}` is the top risk reason in English; and `outreach.fallback.nextStep`, "Call this week and offer a catch-up plan."
 - For an escalated plan, adapt the advisor's third-person `ESCALATED` reason into a direct-address phrase before inserting it into that same fallback template.
 
 ## `demo:warm` (`scripts/demo-warm.ts`)

@@ -5,8 +5,8 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await page.getByTestId("start-demo").click();
   await page.getByTestId("build-plan").click();
   await expect(page.getByTestId("plan-status")).toHaveAttribute("data-status", "cut");
-  await page.getByTestId("language-switch").locator('[data-language="en"]').click();
-  await expect(page.getByTestId("language-switch").locator('[data-language="en"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByTestId("language-switch")).toHaveCount(0);
   await expect(page.getByTestId("plan-status")).toContainText("What's in your plan, and why");
   const onlineStops = await page.locator(".line .stop").count();
   const onlineBars = await page.locator(".time__row").count();
@@ -18,7 +18,7 @@ test("the learner demo survives an offline visit and replays progress", async ({
     return snapshot?.version === 2 && snapshot.view.plan.stops.length > 0 && snapshot.view.plan.plannedMin > 0 && Object.keys(snapshot.view.plan.topicTitles).length > 0;
   })).toBeTruthy();
   await expect.poll(() => page.evaluate(async () => {
-    const response = await (await caches.open("back-on-track-learner-pages-v1")).match(location.href);
+    const response = await (await caches.open("back-on-track-learner-pages-v2")).match(location.href);
     return (await response?.text())?.includes("Your week") ?? false;
   })).toBeTruthy();
   await page.setViewportSize({ width: 375, height: 812 });
@@ -30,17 +30,16 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await expect(page.locator(".line .stop")).toHaveCount(onlineStops);
   await expect(page.locator(".time__row")).toHaveCount(onlineBars);
   await expect(page.getByTestId("offline-note")).toContainText("saved on this phone");
-  await page.getByTestId("language-switch").locator('[data-language="pcm"]').click();
-  await expect(page.getByTestId("language-switch").locator('[data-language="pcm"]')).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("plan-status")).toContainText("Wetin");
+  await expect(page.getByTestId("plan-status")).toContainText("What's in your plan, and why");
+  await expect(page.getByTestId("language-switch")).toHaveCount(0);
   await page.getByTestId("session-done").click();
-  await expect(page.getByTestId("offline-note")).toContainText("this phone save");
-  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("back-on-track:student:amaka:queue") ?? "[]").length)).toBe(2);
+  await expect(page.getByTestId("offline-note")).toContainText("saved on this phone");
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("back-on-track:student:amaka:queue") ?? "[]").length)).toBe(1);
 
   const clock = await request.post("/api/clock", { data: { jumpDays: 3 } });
   expect(clock.ok()).toBeTruthy();
   await context.setOffline(false);
-  await expect(page.getByTestId("offline-note")).toContainText("earlier study day wey don sync");
+  await expect(page.getByTestId("offline-note")).toContainText("Check-ins synced after their study day");
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("back-on-track:student:amaka:queue") ?? "[]").length)).toBe(0);
   await expect(page.getByTestId("change-summary")).toBeVisible();
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -73,7 +72,7 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await page.locator(".delete-data__actions button").first().click();
   await expect(page).toHaveURL(/\?deleted=1$/);
   expect(await page.evaluate(() => localStorage.getItem("back-on-track:student:amaka:snapshot"))).toBeNull();
-  expect(await page.evaluate(async () => (await (await caches.open("back-on-track-learner-pages-v1")).keys()).some((request) => new URL(request.url).pathname === "/learner/amaka"))).toBeFalsy();
+  expect(await page.evaluate(async () => (await (await caches.open("back-on-track-learner-pages-v2")).keys()).some((request) => new URL(request.url).pathname === "/learner/amaka"))).toBeFalsy();
   await page.getByTestId("start-demo").click();
   await expect(page).toHaveURL(/\/learner\/amaka$/);
   await expect(page.getByTestId("build-plan")).toBeVisible();
@@ -104,15 +103,18 @@ test("mobile clock controls open and close from the Clock button", async ({ page
   await expect(plusThree).toBeHidden();
 });
 
-test("language switch keeps the busy slider above its description", async ({ page, context }) => {
-  await context.addCookies([{ name: "lang", value: "en", url: "http://127.0.0.1:3100" }]);
+test("English-only mode ignores a saved Pidgin cookie and keeps loading copy below the slider", async ({ page, context }) => {
+  await context.addCookies([{ name: "lang", value: "pcm", url: "http://127.0.0.1:3100" }]);
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
-  await page.route("**/?_rsc=*", async (route) => {
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByTestId("language-switch")).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/catch-up plan/i);
+  await page.route("**/api/demo/reset", async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 5000));
     await route.continue();
   });
-  await page.getByTestId("language-switch").locator('[data-language="pcm"]').click();
+  await page.getByTestId("start-demo").click();
   const overlay = page.locator("dialog.busy-overlay");
   await expect(overlay).toBeVisible();
   await expect(overlay.locator(".busy-overlay__content > .travel")).toHaveCount(1);

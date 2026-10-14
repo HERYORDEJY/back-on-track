@@ -1,7 +1,8 @@
-import type { Language } from "@/lib/i18n";
+import { activeContent, PIDGIN_ENABLED, type Language } from "@/lib/i18n";
 import type { PlanView } from "@/lib/types";
 
-export const LEARNER_PAGE_CACHE = "back-on-track-learner-pages-v1";
+export const LEARNER_PAGE_CACHE = "back-on-track-learner-pages-v2";
+const LEGACY_LEARNER_PAGE_CACHE = "back-on-track-learner-pages-v1";
 const STORAGE_PREFIX = "back-on-track:student:";
 
 export type OfflineRisk = {
@@ -31,7 +32,7 @@ function storageKey(studentId: string, suffix: "snapshot" | "queue") {
 
 export function savePlanSnapshot(studentId: string, view: PlanView, risk: OfflineRisk | null): boolean {
   try {
-    localStorage.setItem(storageKey(studentId, "snapshot"), JSON.stringify({ version: 2, studentId, view, risk } satisfies PlanSnapshot));
+    localStorage.setItem(storageKey(studentId, "snapshot"), JSON.stringify({ version: 2, studentId, view: activeContent(view), risk } satisfies PlanSnapshot));
     return true;
   } catch { return false; }
 }
@@ -46,7 +47,7 @@ export function readPlanSnapshot(studentId: string): PlanSnapshot | null {
     const plan = value.view.plan;
     if (!record(student) || student.id !== studentId || (student.language !== "en" && student.language !== "pcm") || typeof value.view.today !== "string") return null;
     if (plan !== null && (!record(plan) || !Array.isArray(plan.sessions) || !Array.isArray(plan.weekSessions) || !Array.isArray(plan.items) || !Array.isArray(plan.warnings) || !Array.isArray(plan.unscheduled) || !Array.isArray(plan.reminders) || !Array.isArray(plan.stops) || !record(plan.topicTitles) || typeof plan.plannedMin !== "number" || !plan.items.every((item) => record(item) && typeof item.estimateMin === "number"))) return null;
-    return value as PlanSnapshot;
+    return activeContent(value) as PlanSnapshot;
   } catch { return null; }
 }
 
@@ -57,13 +58,18 @@ function validMutation(value: unknown): value is OfflineMutation {
 }
 
 /** `null` means the saved queue is corrupt or storage is unavailable; never overwrite it. */
-export function readMutationQueue(studentId: string): OfflineMutation[] | null {
+function readStoredMutationQueue(studentId: string): OfflineMutation[] | null {
   try {
     const raw = localStorage.getItem(storageKey(studentId, "queue"));
     if (!raw) return [];
     const value: unknown = JSON.parse(raw);
     return Array.isArray(value) && value.every(validMutation) ? value : null;
   } catch { return null; }
+}
+
+export function readMutationQueue(studentId: string): OfflineMutation[] | null {
+  const queue = readStoredMutationQueue(studentId);
+  return queue && (PIDGIN_ENABLED ? queue : queue.filter((item) => item.kind !== "language"));
 }
 
 export function queuedLanguage(studentId: string): Language | null {
@@ -73,7 +79,8 @@ export function queuedLanguage(studentId: string): Language | null {
 }
 
 export function enqueueMutation(studentId: string, mutation: PendingOfflineMutation): OfflineMutation | null {
-  const queue = readMutationQueue(studentId);
+  if (!PIDGIN_ENABLED && mutation.kind === "language") return null;
+  const queue = readStoredMutationQueue(studentId);
   if (!queue) return null;
   const next: OfflineMutation = { ...mutation, id: crypto.randomUUID() } as OfflineMutation;
   const kept = queue.filter((item) => mutation.kind === "language"
@@ -86,7 +93,7 @@ export function enqueueMutation(studentId: string, mutation: PendingOfflineMutat
 }
 
 export function removeMutation(studentId: string, mutationId: string): boolean {
-  const queue = readMutationQueue(studentId);
+  const queue = readStoredMutationQueue(studentId);
   if (!queue) return false;
   try {
     localStorage.setItem(storageKey(studentId, "queue"), JSON.stringify(queue.filter(({ id }) => id !== mutationId)));
@@ -156,7 +163,12 @@ export async function clearAllDemoLocalData(): Promise<boolean> {
       }
     }
   } catch { cleared = false; }
-  try { if ("caches" in window) await caches.delete(LEARNER_PAGE_CACHE); }
+  try {
+    if ("caches" in window) {
+      await caches.delete(LEARNER_PAGE_CACHE);
+      await caches.delete(LEGACY_LEARNER_PAGE_CACHE);
+    }
+  }
   catch { cleared = false; }
   window.dispatchEvent?.(new Event("back-on-track:reset"));
   return cleared;

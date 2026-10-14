@@ -50,6 +50,8 @@ Fixed ids, no plan at the demo start (the demo builds it). Progress rows for the
 | `tunde` | Tunde Adeyemi | Civil servant in Abuja | A policy analyst role | `en` | Week 1 | `a1` missed | 20 every day | 2026-09-13 | `infeasible` |
 | `zainab` | Zainab Bello | Software developer in Kano | A move into product management | `en` | Weeks 1-5 | `a1` submitted 2026-10-02 | 60 every day | 2026-10-17 | `fit` |
 
+During the maintainer's 2026-10-13 English-only pause, these seeded language values remain intact, including Amaka's `pcm`; the UI and new outreach resolve them to English. Reset still restores the original seeded values so the Pidgin work can resume after review.
+
 If a persona test fails, propose tuning topic `estMinutes`, `examWeight` or prerequisite links and ask first, as required by the engine spec. Never tune rules or personas to force the result without approval.
 
 ## Intake and completion provenance
@@ -87,6 +89,8 @@ Implemented transaction in `prisma/load-seed.ts`, invoked by the CLI runner with
 ## Demo reset (`lib/services/demo.ts`, `POST /api/demo/reset`)
 
 Restores the personas from `personas.ts` (language, goal, context and availability included), deletes their plans, plan items, sessions and reminders and any Progress or Submission rows not in their seed, deletes every Outreach row, clears their `escalatedAt`, and sets the clock to the demo start. Cohort study data and AiCache are untouched; all Outreach rows are cleared as specified above. ClockControl's Reset calls it; Start demo will use the same endpoint when the learner destination exists.
+
+Historical outreach rows have no language/version marker. Reset removes old drafts before the English-only scripted demo; an existing draft in a session that has not been reset remains a private saved working note until reset or Delete my data. The pause does not rewrite those messages or change the schema.
 
 Implemented as one transaction holding the clock row lock, serialised with forward jumps. Exact academic seed rows are restored, including missing or altered seed records, and persona plans cascade to their items/sessions. The endpoint accepts an empty body or strict empty object, rejects extra scope fields, returns no-store responses and generic retryable errors. `scripts/demo-reset-verify.ts` verified two identical resets on Neon after temporary changes to persona attributes, academic records, application plans and outreach; cohort study rows and an isolated cache fixture remained identical. The fixture was removed. D5 clears current-device learner snapshots, queues and cached pages after a successful Reset; if the device refuses cleanup, it shows a warning while the server reset remains complete.
 

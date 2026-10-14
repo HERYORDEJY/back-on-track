@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { IntakeForm } from "@/components/learner/IntakeForm";
 import { PlanScreen } from "@/components/learner/PlanScreen";
 import { DeleteMyData } from "@/components/learner/DeleteMyData";
-import { t, type Language } from "@/lib/i18n";
+import { activeLanguage, t, type Language } from "@/lib/i18n";
 import type { PlanView, SessionView } from "@/lib/types";
 import { prepareLearnerPage, readMutationQueue, readPlanSnapshot, savePlanSnapshot, syncMutationQueue, type OfflineMutation, type OfflineRisk, type SyncResult } from "@/lib/offline";
 
@@ -66,7 +66,7 @@ export function LearnerContent({ initialView, initialRisk }: { initialView: Plan
       const snapshot = readPlanSnapshot(studentId);
       if (snapshot) {
         const pendingLanguage = readMutationQueue(studentId)?.findLast((item) => item.kind === "language");
-        const language = pendingLanguage?.kind === "language" ? pendingLanguage.language : snapshot.view.student.language;
+        const language = activeLanguage(pendingLanguage?.kind === "language" ? pendingLanguage.language : snapshot.view.student.language);
         setSaved({ view: { ...snapshot.view, student: { ...snapshot.view.student, language } }, risk: snapshot.risk });
       }
     }
@@ -78,7 +78,7 @@ export function LearnerContent({ initialView, initialRisk }: { initialView: Plan
       const detail = (event as CustomEvent<{ studentId: string; language: Language }>).detail;
       if (detail?.studentId !== studentId) return;
       setSaved((current) => ({
-        view: { ...(current?.view ?? initialView), student: { ...(current?.view ?? initialView).student, language: detail.language } },
+        view: { ...(current?.view ?? initialView), student: { ...(current?.view ?? initialView).student, language: activeLanguage(detail.language) } },
         risk: current?.risk ?? initialRisk,
       }));
       setQueue(readMutationQueue(studentId) ?? []);
@@ -109,7 +109,7 @@ export function LearnerContent({ initialView, initialRisk }: { initialView: Plan
     setQueue(readMutationQueue(studentId) ?? []);
   }
 
-  const language = view.student.language;
+  const language = activeLanguage(view.student.language);
   const pending = queue.length;
   const quietOfflineStatus = Boolean(view.plan && !pending && !issue && !lateSynced && (!offline || saved));
   return <main id="main" className={`learner-page${view.plan ? " learner-page--plan" : " learner-page--intake"}`}>

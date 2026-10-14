@@ -155,7 +155,7 @@ Figures and the word "Done" are `lamp`; other text is `paper`, with `night-soft`
 
 ## Screens
 
-Every page starts with the demo bar, then a header with the mark on the left. Learner pages and the landing have the language switch on the right; the advisor page has a `text` link "Student view" to `/`.
+Every page starts with the demo bar, then a header with the mark on the left. Learner pages and the landing reserve the language switch for after the Pidgin review; the 2026-10-13 English-only pause hides it. The advisor page has a `text` link "Student view" to `/`.
 
 ### Landing (`#f-landing`, `#f-landing-w`)
 

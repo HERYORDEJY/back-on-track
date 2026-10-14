@@ -11,7 +11,8 @@ vi.mock("@/lib/ai/cache", async (importOriginal) => {
 });
 
 const context: TriageContext = { today: "2026-10-19", week: 7, examDate: "2026-12-01", status: "fit", nextCoursework: null, student: {}, capacityMin: 100, requiredMin: 80, deficitMin: 0, topics: [] };
-const output = { items: [], summary: { en: "Everything fits.", pcm: "Everything fit." } };
+const output = { items: [], summary: { en: "Everything fits." } };
+const expanded = { items: [], summary: { en: "Everything fits.", pcm: "Everything fits." } };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -23,6 +24,10 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe("AI cache and fallback contract", () => {
+  it("does not serve an old bilingual triage cache while English-only mode is active", async () => {
+    vi.mocked(readCache).mockResolvedValue({ items: [], summary: { en: "Everything fits.", pcm: "Everything fit." } });
+    expect(await triage(context)).toBeNull();
+  });
   it("never constructs a network client on a demo cache miss", async () => {
     expect(await triage(context)).toBeNull();
     expect(await outreach({ reasons: [], planStatus: "cut", language: "pcm" })).toBeNull();
@@ -30,7 +35,7 @@ describe("AI cache and fallback contract", () => {
   });
   it("returns a validated cached response without a network call", async () => {
     vi.mocked(readCache).mockResolvedValue(output);
-    expect(await triage(context, [], undefined, "amaka")).toEqual({ output, source: "cache" });
+    expect(await triage(context, [], undefined, "amaka")).toEqual({ output: expanded, source: "cache" });
     expect(readCache).toHaveBeenCalledWith(expect.any(String), "amaka");
     expect(sdk.constructed).not.toHaveBeenCalled();
   });
@@ -48,7 +53,7 @@ describe("AI cache and fallback contract", () => {
   it("caches a valid live structured response", async () => {
     vi.stubEnv("DEMO_MODE", "false");
     sdk.parse.mockResolvedValue({ output_parsed: output });
-    expect(await triage(context, [], undefined, "amaka")).toEqual({ output, source: "ai" });
+    expect(await triage(context, [], undefined, "amaka")).toEqual({ output: expanded, source: "ai" });
     expect(writeCache).toHaveBeenCalledWith(expect.any(String), output, "amaka");
   });
 });

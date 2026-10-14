@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { getNow } from "@/lib/clock";
 import { Prisma } from "@/lib/generated/prisma/client";
 import { getPersonaSeed } from "@/prisma/personas";
+import { activeLanguage, PIDGIN_ENABLED } from "@/lib/i18n";
 
 const availabilitySchema = z.strictObject({
   mon: z.number().int().min(0).max(1440),
@@ -15,7 +16,7 @@ const availabilitySchema = z.strictObject({
 }).refine((hours) => Math.max(...Object.values(hours)) >= 20);
 
 export const studentPatchSchema = z.strictObject({
-  language: z.enum(["en", "pcm"]).optional(),
+  language: z.enum(PIDGIN_ENABLED ? ["en", "pcm"] : ["en"]).optional(),
   goal: z.string().max(80).nullable().optional(),
   context: z.string().max(120).nullable().optional(),
   availability: availabilitySchema.nullable().optional(),
@@ -30,7 +31,7 @@ export class StudentServiceError extends Error {
 
 export async function getStudentLanguage(id: string) {
   const student = await getDb().student.findUnique({ where: { id }, select: { language: true } });
-  return student?.language ?? null;
+  return student ? activeLanguage(student.language) : null;
 }
 
 export async function updateStudent(id: string, patch: StudentPatch) {
@@ -55,7 +56,7 @@ export async function updateStudent(id: string, patch: StudentPatch) {
     if (patch.availability !== undefined) data.availability = patch.availability ?? Prisma.DbNull;
     await tx.student.update({ where: { id }, data });
     if (changed) await tx.plan.updateMany({ where: { studentId: id, isCurrent: true }, data: { isCurrent: false } });
-    return { id, language: patch.language ?? student.language, planNeedsRefresh: changed };
+    return { id, language: activeLanguage(patch.language ?? student.language), planNeedsRefresh: changed };
   }, { timeout: 30_000 });
 }
 

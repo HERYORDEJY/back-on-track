@@ -56,7 +56,7 @@ describe("advisor privacy projection", () => {
     const db = fixture();
     vi.mocked(outreach).mockResolvedValue(null);
     const draft = await draftOutreach("amaka");
-    expect(outreach).toHaveBeenCalledWith(expect.objectContaining({ language: "pcm" }), undefined, "amaka");
+    expect(outreach).toHaveBeenCalledWith(expect.objectContaining({ language: "en" }), undefined, "amaka");
     expect(JSON.stringify(vi.mocked(outreach).mock.calls[0][0])).not.toContain("Amaka");
     expect(draft.message).toMatch(/^Amaka,/);
     expect(draft.source).toBe("fallback");
@@ -68,7 +68,7 @@ describe("advisor privacy projection", () => {
     db.$queryRaw.mockResolvedValue([{ ...student, escalatedAt: now }]);
     vi.mocked(outreach).mockResolvedValue(null);
     const draft = await draftOutreach("amaka");
-    expect(draft.message).toContain("your plan show say");
+    expect(draft.message).toContain("your plan says catching up before the exam isn't possible");
     expect(draft.message).not.toContain("Their plan");
   });
 

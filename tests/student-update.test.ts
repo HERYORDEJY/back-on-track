@@ -27,14 +27,14 @@ function mockStudent() {
 beforeEach(() => vi.resetAllMocks());
 
 describe("student preferences", () => {
-  it("uses the saved learner language for a direct learner visit", async () => {
+  it("uses English for a direct learner visit with a saved Pidgin preference", async () => {
     const findUnique = vi.fn().mockResolvedValue({ language: "pcm" });
     vi.mocked(getDb).mockReturnValue({ student: { findUnique } } as never);
-    expect(await getStudentLanguage("amaka")).toBe("pcm");
+    expect(await getStudentLanguage("amaka")).toBe("en");
     expect(findUnique).toHaveBeenCalledWith({ where: { id: "amaka" }, select: { language: true } });
   });
 
-  it("switches language without invalidating a saved plan", async () => {
+  it("accepts an English preference without invalidating a saved plan", async () => {
     const tx = mockStudent();
     const response = await PATCH(request('{"language":"en"}'), params);
     expect(response.status).toBe(200);
@@ -48,11 +48,12 @@ describe("student preferences", () => {
     const tx = mockStudent();
     const result = await updateStudent("amaka", { availability: { ...hours, mon: 60 }, hoursVary: true });
     expect(result.planNeedsRefresh).toBe(true);
+    expect(result.language).toBe("en");
     expect(tx.plan.updateMany).toHaveBeenCalledWith({ where: { studentId: "amaka", isCurrent: true }, data: { isCurrent: false } });
   });
 
   it.each([
-    "{}", '{"language":"fr"}', '{"goal":"x","extra":true}',
+    "{}", '{"language":"fr"}', '{"language":"pcm"}', '{"goal":"x","extra":true}',
     '{"availability":{"mon":10,"tue":0,"wed":0,"thu":0,"fri":0,"sat":0,"sun":0}}',
   ])("rejects invalid patches: %s", async (body) => {
     const response = await PATCH(request(body), params);

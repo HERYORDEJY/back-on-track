@@ -33,6 +33,8 @@ describe("AI privacy and payloads", () => {
   it("keeps outreach inputs anonymous and cache inputs canonical", () => {
     const prompt = outreachPrompt({ reasons: [{ code: "MISSED", params: { n: 2 } }], planStatus: "cut", language: "pcm" });
     expect(prompt).toContain("{firstName}");
+    expect(prompt).toContain("in English");
+    expect(prompt).not.toContain("Nigerian Pidgin");
     expect(prompt).not.toContain("Amaka");
     expect(canonicalJson({ b: 1, a: { y: 2, x: 1 } })).toBe(canonicalJson({ a: { x: 1, y: 2 }, b: 1 }));
     expect(cacheKey("triage", "model-a", { a: 1 })).toBe(cacheKey("triage", "model-a", { a: 1 }));
@@ -42,11 +44,13 @@ describe("AI privacy and payloads", () => {
   });
   it("rejects generated order and bounds text after parsing", () => {
     expect(TriageOutput.safeParse({ items: [], summary: { en: "Fine", pcm: "E fine" }, order: ["t01"] }).success).toBe(false);
+    expect(TriageOutput.safeParse({ items: [], summary: { en: "Fine", pcm: "E fine" } }).success).toBe(false);
+    expect(TriageOutput.safeParse({ items: [], summary: { en: "Fine" } }).success).toBe(true);
     expect(trimSentences("First sentence. Second sentence has too many words to fit now.", 3)).toBe("First sentence.");
     const long = Array(70).fill("word").join(" ");
-    const result = limitTriage({ items: [{ topicId: "t01", action: "skip", rationale: { en: long, pcm: long } }], summary: { en: long, pcm: long } });
+    const result = limitTriage({ items: [{ topicId: "t01", action: "skip", rationale: { en: long } }], summary: { en: long } });
     expect(result.items[0].rationale.en.split(" ")).toHaveLength(20);
-    expect(result.summary.pcm.split(" ")).toHaveLength(60);
+    expect(result.summary.en.split(" ")).toHaveLength(60);
     expect(limitOutreach({ message: long + " " + long, nextStep: long }).message.split(" ")).toHaveLength(80);
   });
   it("warns that matching displayed capacity can still leave work unplaced", () => {
@@ -69,6 +73,8 @@ describe("AI privacy and payloads", () => {
     expect(prompt).toContain("340 minutes of reductions");
     expect(prompt).toMatch(/at or below.*placementTargetMin/i);
     expect(prompt).toMatch(/sum the cutSavingsMin values/i);
+    expect(prompt).toContain("English summary");
+    expect(prompt).not.toContain("Nigerian Pidgin");
   });
 });
 

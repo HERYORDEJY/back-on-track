@@ -7,7 +7,7 @@ import { ServiceWorkerRegistration } from "@/components/shared/ServiceWorkerRegi
 import { ClockControl } from "@/components/shared/ClockControl";
 import { getClockView } from "@/lib/services/clock";
 import { getStudentLanguage } from "@/lib/services/students";
-import { resolveLanguage, t } from "@/lib/i18n";
+import { PIDGIN_ENABLED, resolveLanguage, t } from "@/lib/i18n";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <ClockControl clock={clock} language={language} studentId={learnerId} />
         <header className="site-header page-width">
           <Mark language={language} />
-          {!advisor && <LanguageSwitch language={language} studentId={savedLanguage ? learnerId : null} />}
+          {PIDGIN_ENABLED && !advisor && <LanguageSwitch language={language} studentId={savedLanguage ? learnerId : null} />}
         </header>
         {children}
       </body>

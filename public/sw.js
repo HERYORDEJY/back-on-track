@@ -1,8 +1,12 @@
-const LEARNER_PAGES = "back-on-track-learner-pages-v1";
-const STATIC_ASSETS = "back-on-track-static-v1";
+const LEARNER_PAGES = "back-on-track-learner-pages-v2";
+const STATIC_ASSETS = "back-on-track-static-v2";
+const OLD_CACHES = ["back-on-track-learner-pages-v1", "back-on-track-static-v1"];
 
 self.addEventListener("install", (event) => event.waitUntil(self.skipWaiting()));
-self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
+self.addEventListener("activate", (event) => event.waitUntil((async () => {
+  await Promise.all(OLD_CACHES.map((name) => caches.delete(name)));
+  await self.clients.claim();
+})()));
 
 function learnerPath(pathname) {
   return /^\/learner\/[^/]+\/?$/.test(pathname);

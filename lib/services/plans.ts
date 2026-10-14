@@ -8,7 +8,7 @@ import { buildStops } from "@/lib/engine/display";
 import type { PlanInput, PlanResult, TriageFn } from "@/lib/engine/types";
 import { triage } from "@/lib/ai/client";
 import { Localized } from "@/lib/ai/schemas";
-import { formatDate } from "@/lib/i18n";
+import { activeContent, activeLanguage, formatDate } from "@/lib/i18n";
 import type { PlanView, SessionView } from "@/lib/types";
 import type { Prisma } from "@/lib/generated/prisma/client";
 
@@ -104,7 +104,7 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
   const plan = student.plans[0];
   const availability = availabilitySchema.safeParse(student.availability);
   const today = calendarDate(now);
-  const studentView = { id: student.id, name: student.name, goal: student.goal, context: student.context, language: student.language, availability: availability.success ? availability.data : null, hoursVary: student.hoursVary, isSimulated: student.isSimulated };
+  const studentView = { id: student.id, name: student.name, goal: student.goal, context: student.context, language: activeLanguage(student.language), availability: availability.success ? availability.data : null, hoursVary: student.hoursVary, isSimulated: student.isSimulated };
   if (!plan || !availability.success) return { today, student: studentView, plan: null };
   if (needsReplan({ status: plan.status, focusDueDate: plan.focusDueDate ? calendarDate(plan.focusDueDate) : undefined, sessions: plan.sessions }, now)) {
     return createPlan(studentId);
@@ -133,7 +133,7 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
     id: reminder.id, atLabel: reminderLabel(reminder.at), text: Localized.parse(reminder.text),
   })));
   const items = plan.items.map((item) => ({ topicId: item.topicId, title: item.topic.title, action: item.action, minutes: item.minutes, estimateMin: item.topic.estMinutes, rationale: Localized.parse(item.rationale), basis: Localized.parse(item.basis), sourceUrl: z.array(z.object({ url: z.string() })).parse(item.topic.sourceRefs)[0]?.url ?? null }));
-  return { today, student: studentView, plan: {
+  return activeContent({ today, student: studentView, plan: {
     id: plan.id, version: plan.version, status: plan.status, source: plan.source, summary: Localized.parse(plan.summary),
     changeSummary: plan.changeSummary ? Localized.parse(plan.changeSummary) : null,
     requiredMin: plan.requiredMin, capacityMin: plan.capacityMin,
@@ -156,7 +156,7 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
         sessions: previous.sessions.map((session) => ({ ...session, pieces: piecesSchema.parse(session.pieces) })),
       })),
     }),
-  } };
+  } });
 }
 
 export async function createPlan(studentId: string): Promise<PlanView> {

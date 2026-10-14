@@ -13,11 +13,15 @@ describe("language messages", () => {
       expect(parameters(pcm[key]), key).toEqual(parameters(en[key]));
     }
   });
-  it("uses the landing cookie only when it is a supported language", () => {
-    expect(resolveLanguage("pcm")).toBe("pcm");
+  it("ignores saved Pidgin and unsupported landing cookies during the English-only pause", () => {
+    expect(resolveLanguage("pcm")).toBe("en");
     for (const value of [undefined, null, "en", "fr", "PCM", ""]) {
       expect(resolveLanguage(value)).toBe("en");
     }
+  });
+  it("keeps the active demo in English when an old Pidgin preference remains", () => {
+    expect(resolveLanguage("pcm")).toBe("en");
+    expect(t("landing.title", "pcm")).toBe(t("landing.title", "en"));
   });
   it("interpolates zero and refuses an incomplete template", () => {
     expect(t("time.minutes", "pcm", { minutes: 0 })).toBe("0 min");

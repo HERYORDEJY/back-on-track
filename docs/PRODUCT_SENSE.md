@@ -56,7 +56,7 @@ Every requirement in the brief maps to something built and shown.
 | Accessibility and inclusion | Plain language, read-aloud for the plan and infeasible screen, screen-reader labels elsewhere, large tap targets | [frontend](FRONTEND.md) |
 | Personalization without exclusion | Irregular hours still get a plan; "can't make it" gets a study-break route and an advisor | [engine](specs/engine.md) |
 | Privacy and security | Redacted AI inputs, limited free text, shared call-priority/reasons/activity/escalation, private advisor working notes, Delete my data retaining course records | [ai](specs/ai.md), [data](specs/data.md) |
-| Multilingual | English and Nigerian Pidgin learner UI/plan text; published course/topic titles remain English | [frontend](FRONTEND.md), [ai](specs/ai.md) |
+| Multilingual | English and Nigerian Pidgin learner UI/plan text is the retained target; the current demo temporarily shows English only while Pidgin is reviewed. Published course/topic titles remain English | [frontend](FRONTEND.md), [ai](specs/ai.md) |
 | Local relevance | A Nigerian open-university course structure, names and contexts | [data](specs/data.md) |
 
 ## In scope
@@ -65,9 +65,9 @@ Every requirement in the brief maps to something built and shown.
 - Three scripted personas and 300 simulated students in one cohort.
 - A simulated clock the presenter can move forward.
 - Learner flow: intake, plan, check-in, re-plan with a change summary, in-app reminders shown in the night block and session line, the infeasible screen.
-- Offline plan view and queued check-ins/language edits; English and Nigerian Pidgin; read-aloud on the plan and infeasible screen.
+- Offline plan view and queued check-ins; language edits and Pidgin display are temporarily paused. Read-aloud remains on the plan and infeasible screen.
 - Privacy: a "What your advisor sees" panel with call-priority band, reasons, last activity and escalation; numeric scores stay internal, goal/context stay learner-only and outreach drafts stay advisor-only. Delete my data removes app-collected data while retaining university course Progress/Submission.
-- Advisor view: risk-ranked list with reasons and drafted outreach in the student's language.
+- Advisor view: risk-ranked list with reasons and drafted outreach in English during the pause.
 - `DEMO_MODE` with cached AI responses and a deterministic fallback.
 
 Everything else is under "Never build" in `AGENTS.md` or in the Later list in `PLANS.md`.
@@ -81,9 +81,9 @@ Everything else is under "Never build" in `AGENTS.md` or in the Later list in `P
 
 ## The demo
 
-The build targets this 90-second path. Golden rules outrank the cut list, and the cut list outranks this script: required privacy, language, offline and read-aloud work is not excluded just because it is off-script. Three personas share one cohort and one clock, starting on Monday of Week 7: Amaka needs cuts, Tunde cannot catch up before the exam, and Zainab fits without cuts (kept for Q&A). Who they are and their exact data: [data spec](specs/data.md). No optional feature has been cut yet. If the change summary or advisor screen is cut, update these steps and the local demo test in the same change (`PLANS.md`).
+The build targets this 90-second path. Golden rules outrank the cut list, and the cut list outranks this script; the maintainer explicitly paused Pidgin for the current English-only demo on 2026-10-13. Required privacy, offline and read-aloud work is not excluded just because it is off-script. Three personas share one cohort and one clock, starting on Monday of Week 7: Amaka needs cuts, Tunde cannot catch up before the exam, and Zainab fits without cuts (kept for Q&A). Who they are and their exact data: [data spec](specs/data.md). If the change summary or advisor screen is cut, update these steps and the local demo test in the same change (`PLANS.md`).
 
-1. Start demo. Amaka taps "Get me back on track": her plan appears in Pidgin with her goal on top, tonight's session, and what's skipped and why. Switch to English. (25 seconds)
+1. Start demo. Amaka taps "Get me back on track": her plan appears in English with her goal on top, tonight's session, and what's skipped and why. (25 seconds)
 2. Turn on airplane mode and mark tonight's session done; it's saved on the phone and syncs when she's back online. Jump 3 days: her 2 missed sessions reshape the plan, with a change summary. (25 seconds)
 3. Switch to Tunde. Catching up before the exam isn't possible: show what fits through the next assessment date, list what will not fit, and read the summary/next step aloud. His simulated advisor is flagged; he is prompted to ask about an extension or study break, with no promise of eligibility or approval. (20 seconds)
 4. Open the advisor view: Tunde at the top with his reasons, a drafted message, and the adherence metric. (20 seconds)

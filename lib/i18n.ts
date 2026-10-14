@@ -6,9 +6,26 @@ export type MessageKey = keyof typeof en;
 export type Localized = Record<Language, string>;
 
 const messages = { en, pcm };
+// Restore after the human Pidgin copy review. Keep the messages and stored fields intact.
+export const PIDGIN_ENABLED = false;
+
+export function activeLanguage(language: Language): Language {
+  return PIDGIN_ENABLED ? language : "en";
+}
+
+/** Keep the stored bilingual shape while sending only English copy to the current UI/cache. */
+export function activeContent<T>(value: T): T {
+  if (PIDGIN_ENABLED || value === null || typeof value !== "object") return value;
+  if (value instanceof Date) return value;
+  if (Array.isArray(value)) return value.map(activeContent) as T;
+  const next = Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, activeContent(entry)]));
+  if (typeof next.en === "string" && typeof next.pcm === "string") next.pcm = next.en;
+  if (next.language === "pcm") next.language = "en";
+  return next as T;
+}
 
 export function resolveLanguage(value: unknown): Language {
-  return value === "pcm" ? "pcm" : "en";
+  return activeLanguage(value === "pcm" ? "pcm" : "en");
 }
 
 export function t(
@@ -16,7 +33,7 @@ export function t(
   language: Language,
   params: Record<string, string | number> = {},
 ): string {
-  return messages[language][key].replace(/\{(\w+)\}/g, (_, name: string) => {
+  return messages[activeLanguage(language)][key].replace(/\{(\w+)\}/g, (_, name: string) => {
     if (!Object.hasOwn(params, name)) {
       throw new Error(`Missing translation parameter: ${key}.${name}`);
     }

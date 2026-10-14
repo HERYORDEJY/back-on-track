@@ -90,7 +90,7 @@ Service functions:
 
 ## Data model
 
-`Localized` is a Json column holding `{ "en": string, "pcm": string }`. Every learner-facing text stored on a plan is Localized, so switching language never changes the plan.
+`Localized` is a Json column holding `{ "en": string, "pcm": string }`. Every learner-facing text stored on a plan is Localized, so switching language never changes the plan. During the 2026-10-13 English-only pause, new AI text copies English into both fields and active view models resolve existing saved Pidgin fields to English; the schema remains ready for restoration.
 
 Published course and topic titles remain English. Each selected reading has a source reference; demo weeks, study estimates, prerequisites, assessments and exam weights are labelled simulated. The source selection and adaptation are tracked in `docs/RESEARCH.md`.
 
@@ -182,6 +182,8 @@ Prisma 7 generates into ignored `lib/generated/prisma`; postinstall/build regene
 ## Decisions and why
 
 Read these before "fixing" something that looks odd.
+
+Decisions 3, 4 and 8 describe the retained bilingual design. The maintainer paused Pidgin on 2026-10-13: current prompts and cache entries are English-only, while the schema and source paths remain for restoration ([pause plan](docs/plans/d7-english-only-pause.md)).
 
 1. **The AI judges, code calculates.** Language models miscount minutes and dates. Code computes and validates every plan, so a bad AI answer can never reach a student.
 2. **Postgres on Neon, not SQLite.** Vercel's serverless functions can't keep writes to a local database file.

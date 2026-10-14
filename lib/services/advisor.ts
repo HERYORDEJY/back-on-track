@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getDb } from "@/lib/db";
 import { getNow, calendarDate } from "@/lib/clock";
 import { outreach } from "@/lib/ai/client";
-import { formatRiskReason, t, type Language } from "@/lib/i18n";
+import { activeLanguage, formatRiskReason, t, type Language } from "@/lib/i18n";
 import { scoreRisk, sortRisk } from "@/lib/risk/score";
 import { doneThroughWeek } from "@/lib/engine/display";
 import { currentWeek } from "@/lib/engine/time";
@@ -106,7 +106,7 @@ function scoreStudent(student: StudentFact, facts: Facts) {
 
 function rowOf(student: StudentFact, result: ReturnType<typeof scoreRisk>, facts: Facts): AdvisorRow {
   const risk = projectRisk(result);
-  return { id: student.id, name: student.name, language: student.language, risk, planStatus: student.plans[0]?.status ?? null,
+  return { id: student.id, name: student.name, language: activeLanguage(student.language), risk, planStatus: student.plans[0]?.status ?? null,
     doneThroughWeek: doneThroughWeek(facts.topics, student.progress, facts.now), hasCurrentPlan: Boolean(student.plans[0]),
     escalated: risk.escalated, lastActive: risk.lastActivity };
 }
@@ -169,15 +169,16 @@ export async function draftOutreach(studentId: string) {
   const context = {
     reasons: result.reasons.map(({ code, params }) => ({ code, params })),
     planStatus: student.plans[0]?.status ?? "none",
-    language: student.language,
+    language: activeLanguage(student.language),
   };
   const generated = await outreach(context, undefined, studentId);
   const firstName = student.name.split(/\s+/)[0] ?? student.name;
   const top = result.reasons[0];
-  const reason = top?.code === "ESCALATED" ? t("outreach.fallback.reason.escalated", student.language)
-    : top ? formatRiskReason(top.code, top.params, student.language)
-      : t("outreach.fallback.reason.none", student.language);
-  const fallback = t("outreach.fallback.message", student.language, { firstName, reason });
+  const language = activeLanguage(student.language);
+  const reason = top?.code === "ESCALATED" ? t("outreach.fallback.reason.escalated", language)
+    : top ? formatRiskReason(top.code, top.params, language)
+      : t("outreach.fallback.reason.none", language);
+  const fallback = t("outreach.fallback.message", language, { firstName, reason });
   let message = generated?.output.message?.replaceAll("{firstName}", firstName).trim() || fallback;
   if (!message.toLocaleLowerCase().startsWith(firstName.toLocaleLowerCase())) message = `${firstName}, ${message}`;
   const nextStep = generated?.output.nextStep || t("outreach.fallback.nextStep", "en");

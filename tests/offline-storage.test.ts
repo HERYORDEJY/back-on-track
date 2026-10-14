@@ -20,10 +20,18 @@ function storage() {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("offline learner storage", () => {
-  it("keeps a versioned bilingual plan snapshot for one learner", () => {
+  it("opens an old Pidgin snapshot as English without exposing its Pidgin copy", () => {
+    const entries = storage();
+    const oldView = { ...view, plan: { ...view.plan!, summary: { en: "English plan", pcm: "Pidgin plan" } } } as PlanView;
+    entries.set(`${studentStoragePrefix("amaka")}snapshot`, JSON.stringify({ version: 2, studentId: "amaka", view: oldView, risk: null }));
+    const saved = readPlanSnapshot("amaka");
+    expect(saved?.view.student.language).toBe("en");
+    expect(saved?.view.plan?.summary).toEqual({ en: "English plan", pcm: "English plan" });
+  });
+  it("keeps a versioned English plan snapshot for one learner", () => {
     const entries = storage();
     expect(savePlanSnapshot("amaka", view, null)).toBe(true);
-    expect(readPlanSnapshot("amaka")?.view).toEqual(view);
+    expect(readPlanSnapshot("amaka")?.view).toEqual({ ...view, student: { ...view.student, language: "en" } });
     expect(readPlanSnapshot("tunde")).toBeNull();
     entries.set(`${studentStoragePrefix("amaka")}snapshot`, JSON.stringify({ version: 1, studentId: "amaka", view, risk: null }));
     expect(readPlanSnapshot("amaka")).toBeNull();
@@ -31,37 +39,40 @@ describe("offline learner storage", () => {
     expect(readPlanSnapshot("amaka")).toBeNull();
   });
 
-  it("coalesces unsent reversals and language choices without losing other actions", () => {
+  it("coalesces unsent reversals while language changes are paused", () => {
     storage();
     expect(enqueueMutation("amaka", { kind: "checkin", sessionId: "s1", sessionDate: "2026-10-19", status: "done" })).toMatchObject({ id: "m1" });
-    expect(enqueueMutation("amaka", { kind: "language", language: "en" })).toMatchObject({ id: "m2" });
-    expect(enqueueMutation("amaka", { kind: "checkin", sessionId: "s1", sessionDate: "2026-10-19", status: "missed" })).toMatchObject({ id: "m3" });
+    expect(enqueueMutation("amaka", { kind: "language", language: "pcm" })).toBeNull();
+    expect(enqueueMutation("amaka", { kind: "checkin", sessionId: "s1", sessionDate: "2026-10-19", status: "missed" })).toMatchObject({ id: "m2" });
     expect(readMutationQueue("amaka")).toEqual([
-      { id: "m2", kind: "language", language: "en" },
-      { id: "m3", kind: "checkin", sessionId: "s1", sessionDate: "2026-10-19", status: "missed" },
+      { id: "m2", kind: "checkin", sessionId: "s1", sessionDate: "2026-10-19", status: "missed" },
     ]);
     expect(removeMutation("amaka", "m2")).toBe(true);
-    expect(readMutationQueue("amaka")).toHaveLength(1);
+    expect(readMutationQueue("amaka")).toHaveLength(0);
   });
 
   it("preserves a corrupt queue rather than replacing or silently dropping it", () => {
     const entries = storage();
     entries.set(`${studentStoragePrefix("amaka")}queue`, "corrupt");
     expect(readMutationQueue("amaka")).toBeNull();
-    expect(enqueueMutation("amaka", { kind: "language", language: "en" })).toBeNull();
+    expect(enqueueMutation("amaka", { kind: "checkin", sessionId: "s1", sessionDate: "2026-10-19", status: "done" })).toBeNull();
     expect(entries.get(`${studentStoragePrefix("amaka")}queue`)).toBe("corrupt");
   });
 
-  it("replays queued actions in order and retains a failed action for retry", async () => {
-    storage();
+  it("replays check-ins but leaves old queued language edits inactive", async () => {
+    const entries = storage();
+    entries.set(`${studentStoragePrefix("amaka")}queue`, JSON.stringify([
+      { id: "old-language", kind: "language", language: "pcm" },
+    ]));
     enqueueMutation("amaka", { kind: "checkin", sessionId: "s1", sessionDate: "2026-10-19", status: "done" });
-    enqueueMutation("amaka", { kind: "language", language: "en" });
-    const send = vi.fn().mockResolvedValueOnce({ ok: true, clone: () => ({ json: async () => ({ today: "2026-10-20" }) }) }).mockResolvedValueOnce({ ok: false, status: 503 });
-    expect(await syncMutationQueue("amaka", send as typeof fetch)).toEqual({ synced: 1, late: 1, pending: 1, issue: "network" });
+    const send = vi.fn().mockResolvedValueOnce({ ok: true, clone: () => ({ json: async () => ({ today: "2026-10-20" }) }) });
+    expect(await syncMutationQueue("amaka", send as typeof fetch)).toEqual({ synced: 1, late: 1, pending: 0, issue: null });
     expect(send.mock.calls[0]).toEqual(["/api/sessions/s1", expect.objectContaining({ body: JSON.stringify({ status: "done", offlineSessionDate: "2026-10-19" }) })]);
-    expect(readMutationQueue("amaka")).toEqual([{ id: "m2", kind: "language", language: "en" }]);
-    send.mockResolvedValueOnce({ ok: true });
-    expect(await syncMutationQueue("amaka", send as typeof fetch)).toEqual({ synced: 1, late: 0, pending: 0, issue: null });
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(readMutationQueue("amaka")).toEqual([]);
+    expect(JSON.parse(entries.get(`${studentStoragePrefix("amaka")}queue`) ?? "[]")).toEqual([
+      { id: "old-language", kind: "language", language: "pcm" },
+    ]);
   });
 
   it("clears all demo learners on Reset but leaves unrelated browser data", async () => {
