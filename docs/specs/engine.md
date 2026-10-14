@@ -4,6 +4,8 @@ Builds and re-builds a student's catch-up plan. Pure: no Prisma, no fetch, no cl
 
 Implemented pure D2 dependency for D1's recovering cohort: tests cover calendar/as-of work, protection, labelled basis, code-owned deadline inheritance, rounded placement, sparse validation, fallback, retries, focused infeasible results and change summaries. Null-triage persona fixtures pass cut/infeasible/fit without metadata tuning. The D2 service enforces the elapsed-time budget; a live Amaka `ai` cut validated and scheduled within 20 seconds. D3 adds today-only check-in/provenance and next-day re-planning after missed work, with browser verification. Controlled course input is expected to have valid unique topics and acyclic prerequisites; integrity checks reject a cycle rather than generating an invalid plan.
 
+The D7 learner display orders scheduled topics by their first session date within actionable groups and leaves skipped work last. This is a pure display transform in `display.ts` applied by the plan service; it does not change scheduling, minutes or action decisions.
+
 ## Terms
 
 | Term | Definition |

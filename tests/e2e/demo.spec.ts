@@ -8,6 +8,9 @@ test("the learner demo survives an offline visit and replays progress", async ({
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByTestId("language-switch")).toHaveCount(0);
   await expect(page.getByTestId("plan-status")).toContainText("What's in your plan, and why");
+  const topicGroups = page.locator('section[aria-labelledby="work-title"] .group__head');
+  await expect(topicGroups.first()).toContainText(/Kept in full|Shortened/);
+  await expect(topicGroups.last()).toContainText("Skipped");
   const onlineStops = await page.locator(".line .stop").count();
   const onlineBars = await page.locator(".time__row").count();
   expect(onlineStops).toBeGreaterThan(0);
@@ -144,6 +147,12 @@ test("advisor can draft again after contact, then sees the weekly limit and save
   await expect(drawer).toBeVisible();
   await drawer.getByRole("button", { name: "Draft message" }).click();
   await expect(drawer.getByLabel("Message to learner")).not.toBeEmpty();
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { await new Promise((resolve) => setTimeout(resolve, 800)); } } });
+  });
+  await drawer.getByRole("button", { name: "Copy edited message" }).click();
+  await expect(page.locator("dialog.busy-overlay")).toBeVisible();
+  await expect(page.locator("dialog.busy-overlay")).toHaveCount(0);
   await drawer.getByRole("button", { name: "Mark contacted" }).click();
   await expect(drawer.getByRole("button", { name: "Draft another message" })).toBeEnabled();
   await drawer.getByRole("button", { name: "Draft another message" }).click();
@@ -193,14 +202,50 @@ test("advisor shows loading feedback for next and previous pages", async ({ page
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.advisorBusySeen)).toBe("yes");
 });
 
-test("advisor keeps the loading state until a slow learner drawer is ready", async ({ page }) => {
+test("advisor shows loading feedback when changing priority filters", async ({ page }) => {
   await page.goto("/advisor");
   await page.route("**/advisor?*", async (route) => {
-    if (route.request().url().includes("student=") && route.request().url().includes("_rsc=")) await new Promise((resolve) => setTimeout(resolve, 800));
+    if (route.request().url().includes("band=high") && route.request().url().includes("_rsc=")) await new Promise((resolve) => setTimeout(resolve, 800));
+    await route.continue();
+  });
+  await page.getByRole("link", { name: /High priority \d+/ }).click();
+  await expect(page.locator("dialog.busy-overlay")).toBeVisible();
+  await expect(page).toHaveURL(/band=high/);
+  await expect(page.locator("dialog.busy-overlay")).toHaveCount(0);
+});
+
+test("advisor opens a learner from row facts before slow detail data arrives", async ({ page }) => {
+  await page.goto("/advisor");
+  await page.route("**/api/advisor/students/*", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1200));
     await route.continue();
   });
   await page.getByTestId("advisor-row").getByRole("link").click();
-  await expect(page.locator("dialog.busy-overlay")).toBeVisible();
-  await expect(page.getByRole("dialog", { name: /Call notes for/ })).toBeVisible();
-  await expect(page.locator("dialog.busy-overlay")).toHaveCount(0);
+  const drawer = page.getByRole("dialog", { name: /Call notes for/ });
+  await expect(drawer).toBeVisible({ timeout: 500 });
+  await expect(drawer.getByText("Loading learner history…")).toBeVisible();
+  await expect(drawer.getByText(/priority for a call/)).toBeVisible();
+  await expect(drawer.getByRole("heading", { name: "Recent activity" })).toBeVisible();
+  await expect(drawer.getByText("Loading learner history…")).toHaveCount(0);
+});
+
+test("advisor rows have separate priority rules, reason copy and visible drawer bullets", async ({ page, request }) => {
+  await page.goto("/advisor");
+  const rows = page.getByTestId("advisor-list").locator(":scope > li");
+  await expect(rows.nth(1)).toBeVisible();
+  const first = await rows.nth(0).boundingBox();
+  const second = await rows.nth(1).boundingBox();
+  expect(first && second && second.y - (first.y + first.height)).toBeGreaterThanOrEqual(8);
+  await expect(page.getByText("Reasons", { exact: true })).toBeVisible();
+  expect((await request.post("/api/clock", { data: { toWeek: 10 } })).ok()).toBeTruthy();
+  await page.goto("/advisor?band=low");
+  await expect(page.getByText("No current call-priority concerns.").first()).toBeVisible();
+  await page.goto("/advisor?band=high");
+  await page.getByTestId("advisor-list").locator(":scope > li").first().getByRole("link").click();
+  const drawer = page.getByRole("dialog", { name: /Call notes for/ });
+  await expect(drawer).toBeVisible();
+  const reason = drawer.locator("#risk-reasons + ul li").first();
+  await expect(reason).toBeVisible();
+  expect(await reason.evaluate((item) => getComputedStyle(item).listStyleType)).toBe("disc");
+  expect((await request.post("/api/demo/reset")).ok()).toBeTruthy();
 });

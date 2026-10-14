@@ -39,13 +39,14 @@ app/
   page.tsx                         landing: PersonaSwitcher, Start demo, advisor link
   loading.tsx error.tsx not-found.tsx  shared route wait, retry and missing-page states
   learner/[studentId]/page.tsx     intake, plan, check-in, infeasible screen
-  advisor/page.tsx                 ranked list (?band=), student drawer (?student=)
+  advisor/page.tsx                 ranked list (?band=); row-seeded student drawer (?student=)
   api/
     clock/route.ts                 GET now; POST { jumpDays } | { toWeek }
     demo/reset/route.ts            POST: restore personas, reset the clock
     plan/route.ts                  POST { studentId }: build and save a new plan version
     sessions/[id]/route.ts         PATCH { status: "done" | "missed" }
     students/[id]/route.ts         PATCH { language | goal | context | availability | hoursVary }; DELETE: Delete my data
+    advisor/students/[id]/route.ts GET advisor-only detail after the drawer opens
     advisor/outreach/route.ts      POST { studentId }: draft and save a message
     advisor/outreach/[id]/route.ts PATCH { contacted: true, message }: save final edited message
 components/
@@ -68,10 +69,10 @@ AGENTS.md  ARCHITECTURE.md  CAPSTONE_PROJECT_BRIEF.md  CODEX_LOG.md  README.md  
 
 ## Where code goes
 
-- Pages read data through `lib/services` in Server Components. API routes exist only for mutations and the clock.
+- Pages read list data through `lib/services` in Server Components. The advisor drawer opens from row facts and then reads advisor-only detail through a no-store GET route. Other API routes serve mutations and the clock.
 - Route handlers validate input with zod, call one service function, and return JSON. Errors return `{ "error": { "code": string, "message": string } }` with a 4xx or 5xx status, never a stack trace.
 - Components render; they never compute plans, scores or dates.
-- Read-only display calculations such as completed-through week, bar widths and session stops live in pure `lib/engine/display.ts`; services add their results to view models without changing plan arithmetic or risk scoring.
+- Read-only display calculations such as completed-through week, bar widths, session stops and topic order by first scheduled session live in pure `lib/engine/display.ts`; services add their results to view models without changing plan arithmetic or risk scoring.
 - Pages and routes that read the clock or the database are dynamic (`export const dynamic = "force-dynamic"`). Never cache them.
 - After a mutation or a clock change, client components call `router.refresh()`.
 - UI copy comes only from `messages/*.json`; no hard-coded strings in components.

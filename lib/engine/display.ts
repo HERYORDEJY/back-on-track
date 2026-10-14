@@ -27,6 +27,19 @@ export function timeBarWidths(values: number[]): number[] {
   return values.map((value) => max ? Math.max(0, Math.min(1, value / max)) : 0);
 }
 
+/** Read-only display order from the plan's actual scheduled topic sequence. */
+export function orderTopicsBySchedule<T extends { topicId: string }>(
+  items: T[], sessions: { date: string; pieces: { topicId: string }[] }[],
+): T[] {
+  const first = new Map<string, number>();
+  for (const session of [...sessions].sort((a, b) => a.date.localeCompare(b.date))) {
+    for (const piece of session.pieces) if (!first.has(piece.topicId)) first.set(piece.topicId, first.size);
+  }
+  return [...items].sort((a, b) =>
+    (first.get(a.topicId) ?? Number.MAX_SAFE_INTEGER) - (first.get(b.topicId) ?? Number.MAX_SAFE_INTEGER)
+    || a.topicId.localeCompare(b.topicId));
+}
+
 export type Stop =
   | { kind: "session"; date: string; id: string; minutes: number; topicIds: string[]; state: "planned" | "tonight" | "done" | "missed"; editable: boolean }
   | { kind: "rest"; date: string }

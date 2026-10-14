@@ -1,20 +1,19 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { t } from "@/lib/i18n";
+import type { AdvisorOutreach } from "@/lib/types";
 import { BusyOverlay } from "@/components/shared/BusyOverlay";
 import { Button } from "@/components/ui/button";
 import styles from "./AdvisorView.module.css";
 
-type Draft = { id: string; message: string; nextStep: string; contacted: boolean; createdAt: string; source?: string };
+type Draft = AdvisorOutreach & { source?: string };
 
-export function OutreachEditor({ studentId, initialDraft, initialDraftsUsed }: { studentId: string; initialDraft: Draft | null; initialDraftsUsed: number }) {
-  const router = useRouter();
+export function OutreachEditor({ studentId, initialDraft, initialDraftsUsed, onChange }: { studentId: string; initialDraft: Draft | null; initialDraftsUsed: number; onChange?: (draft: AdvisorOutreach, created: boolean) => void }) {
   const [draft, setDraft] = useState<Draft | null>(initialDraft);
   const [draftsUsed, setDraftsUsed] = useState(initialDraftsUsed);
   const [message, setMessage] = useState(initialDraft?.message ?? "");
-  const [busy, setBusy] = useState<"draft" | "contact" | null>(null);
+  const [busy, setBusy] = useState<"draft" | "contact" | "copy" | null>(null);
   const [status, setStatus] = useState<"copied" | "saved" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +25,7 @@ export function OutreachEditor({ studentId, initialDraft, initialDraftsUsed }: {
       if (response.status === 429) { setDraftsUsed(2); throw new Error("weekly-limit"); }
       if (!response.ok) throw new Error();
       const next = await response.json() as Draft;
-      setDraft(next); setMessage(next.message); if (next.source !== "saved") setDraftsUsed((used) => used + 1); router.refresh();
+      setDraft(next); setMessage(next.message); if (next.source !== "saved") setDraftsUsed((used) => used + 1); onChange?.(next, next.source !== "saved");
     } catch (caught) { setError(t(caught instanceof Error && caught.message === "weekly-limit" ? "advisor.outreach.weeklyLimit" : "advisor.outreach.failed", "en")); }
     finally { setBusy(null); }
   }
@@ -38,18 +37,20 @@ export function OutreachEditor({ studentId, initialDraft, initialDraftsUsed }: {
       const response = await fetch(`/api/advisor/outreach/${encodeURIComponent(draft.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contacted: true, message }), cache: "no-store" });
       if (!response.ok) throw new Error();
       const next = await response.json() as Draft;
-      setDraft(next); setMessage(next.message); setStatus("saved"); router.refresh();
+      setDraft(next); setMessage(next.message); setStatus("saved"); onChange?.(next, false);
     } catch { setError(t("advisor.outreach.contactFailed", "en")); }
     finally { setBusy(null); }
   }
 
   async function copy() {
+    setBusy("copy");
     try { await navigator.clipboard.writeText(message); setStatus("copied"); setError(null); }
     catch { setError(t("advisor.outreach.copyFailed", "en")); }
+    finally { setBusy(null); }
   }
 
   return <div>
-    <BusyOverlay active={busy !== null} language="en" message={t(busy === "contact" ? "advisor.outreach.saving" : "advisor.outreach.drafting", "en")} />
+    <BusyOverlay active={busy !== null} language="en" message={t(busy === "contact" ? "advisor.outreach.saving" : busy === "copy" ? "advisor.outreach.copying" : "advisor.outreach.drafting", "en")} />
     <h3>{t("advisor.outreach.title", "en")}</h3>
     <p>{t("advisor.outreach.description", "en")}</p>
     <p className={styles.draftCount}>{t("advisor.outreach.weeklyCount", "en", { count: draftsUsed })}</p>

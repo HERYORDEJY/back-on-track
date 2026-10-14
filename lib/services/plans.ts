@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 import { getNow, calendarDate } from "@/lib/clock";
 import { buildPlan } from "@/lib/engine/plan";
 import { effectiveStatus, needsReplan } from "@/lib/engine/time";
-import { buildStops } from "@/lib/engine/display";
+import { buildStops, orderTopicsBySchedule } from "@/lib/engine/display";
 import type { PlanInput, PlanResult, TriageFn } from "@/lib/engine/types";
 import { triage } from "@/lib/ai/client";
 import { Localized } from "@/lib/ai/schemas";
@@ -132,7 +132,7 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
   const reminders = plan.sessions.flatMap((session) => session.reminders.filter(() => pendingIds.has(session.id)).map((reminder) => ({
     id: reminder.id, atLabel: reminderLabel(reminder.at), text: Localized.parse(reminder.text),
   })));
-  const items = plan.items.map((item) => ({ topicId: item.topicId, title: item.topic.title, action: item.action, minutes: item.minutes, estimateMin: item.topic.estMinutes, rationale: Localized.parse(item.rationale), basis: Localized.parse(item.basis), sourceUrl: z.array(z.object({ url: z.string() })).parse(item.topic.sourceRefs)[0]?.url ?? null }));
+  const items = orderTopicsBySchedule(plan.items.map((item) => ({ topicId: item.topicId, title: item.topic.title, action: item.action, minutes: item.minutes, estimateMin: item.topic.estMinutes, rationale: Localized.parse(item.rationale), basis: Localized.parse(item.basis), sourceUrl: z.array(z.object({ url: z.string() })).parse(item.topic.sourceRefs)[0]?.url ?? null })), sessions);
   return activeContent({ today, student: studentView, plan: {
     id: plan.id, version: plan.version, status: plan.status, source: plan.source, summary: Localized.parse(plan.summary),
     changeSummary: plan.changeSummary ? Localized.parse(plan.changeSummary) : null,
@@ -142,7 +142,7 @@ export async function getPlanView(studentId: string): Promise<PlanView> {
     focusDueDate: plan.focusDueDate ? calendarDate(plan.focusDueDate) : null,
     focusDateLabel: plan.focusDueDate ? dateLabel(calendarDate(plan.focusDueDate)) : null,
     warnings: z.array(Localized).parse(plan.warnings),
-    unscheduled: unscheduledSchema.parse(plan.unscheduled).map((item) => ({ ...item, title: titleById.get(item.topicId) ?? item.topicId })),
+    unscheduled: orderTopicsBySchedule(unscheduledSchema.parse(plan.unscheduled).map((item) => ({ ...item, title: titleById.get(item.topicId) ?? item.topicId })), sessions),
     items, sessions, featuredSession: sessions.find((session) => session.date === today) ?? sessions.find((session) => session.date > today && session.status === "pending") ?? null,
     weekSessions: sessions.filter((session) => session.date >= monday && session.date < nextMonday),
     counts: { kept: items.filter((item) => item.action === "keep").length, shortened: items.filter((item) => item.action === "compress_light" || item.action === "compress_heavy").length, skipped: items.filter((item) => item.action === "skip").length },

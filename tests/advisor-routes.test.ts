@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ draft: vi.fn(), contact: vi.fn() }));
+const mocks = vi.hoisted(() => ({ draft: vi.fn(), contact: vi.fn(), detail: vi.fn() }));
 vi.mock("@/lib/services/advisor", () => ({
   draftOutreach: mocks.draft,
   markContacted: mocks.contact,
+  getStudentDetail: mocks.detail,
   AdvisorServiceError: class AdvisorServiceError extends Error {
     constructor(public code: string) { super(code); }
   },
@@ -11,13 +12,26 @@ vi.mock("@/lib/services/advisor", () => ({
 
 import { POST } from "@/app/api/advisor/outreach/route";
 import { PATCH } from "@/app/api/advisor/outreach/[id]/route";
+import { GET as GET_DETAIL } from "@/app/api/advisor/students/[id]/route";
 
 function request(path: string, method: string, body: unknown) {
   return new Request(`http://localhost${path}`, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 }
 
 describe("advisor outreach routes", () => {
-  beforeEach(() => { mocks.draft.mockReset(); mocks.contact.mockReset(); });
+  beforeEach(() => { mocks.draft.mockReset(); mocks.contact.mockReset(); mocks.detail.mockReset(); });
+
+  it("loads advisor-only details without caching or leaking private learner fields", async () => {
+    const detail = { id: "tunde", name: "Tunde Adeyemi", risk: { band: "high", reasons: [] }, events: [], missedSessions: [], outreach: null };
+    mocks.detail.mockResolvedValue(detail);
+    const params = { params: Promise.resolve({ id: "tunde" }) };
+    const response = await GET_DETAIL(new Request("http://localhost/api/advisor/students/tunde"), params);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(await response.json()).toEqual(detail);
+    expect(JSON.stringify(detail)).not.toMatch(/"goal"|"context"|"score"/);
+    expect(mocks.detail).toHaveBeenCalledWith("tunde");
+  });
 
   it("rejects extra draft fields and never calls the service", async () => {
     const response = await POST(request("/api/advisor/outreach", "POST", { studentId: "tunde", goal: "private" }));

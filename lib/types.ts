@@ -4,6 +4,13 @@ import type { Stop } from "@/lib/engine/display";
 export type ClockJump = { jumpDays: number; toWeek?: never } | { toWeek: number; jumpDays?: never };
 export type ClockView = { now: string; week: number; date: Localized; atLimit: boolean; futureWeeks: number[] };
 
+export type AdvisorBand = "high" | "medium" | "low";
+export type PublicRisk = { band: AdvisorBand; reasons: { code: string; params: Record<string, string | number> }[]; lastActivity: string | null; escalated: boolean };
+export type AdvisorRow = { id: string; name: string; language: Language; risk: PublicRisk; planStatus: "fit" | "cut" | "infeasible" | null; doneThroughWeek: number; hasCurrentPlan: boolean; escalated: boolean; lastActive: string | null };
+export type AdvisorEvent = { at: string; type: "done" | "sessionMissed" | "submitted" | "topicDone" | "seen"; title?: string };
+export type AdvisorOutreach = { id: string; message: string; nextStep: string; contacted: boolean; createdAt: string };
+export type AdvisorDetail = AdvisorRow & { events: AdvisorEvent[]; missedSessions: string[]; draftsUsedThisWeek: number; outreach: AdvisorOutreach | null };
+
 export type Availability = Record<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun", number>;
 export type SessionView = {
   id: string; date: string; dateLabel: Localized; minutes: number;

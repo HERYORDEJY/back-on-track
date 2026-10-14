@@ -80,7 +80,7 @@ One family, the system stack: `system-ui, -apple-system, "Segoe UI", Roboto, "No
 | Flags, tags, the checkbox | Radius 4 px |
 | Stops, chips, signal dots | Circle or full pill |
 | Night block below 600 px | Full bleed, radius 0 |
-| Rules | 1 px `rail` between rows; 2 px `night` to open a group or a table |
+| Rules | 1 px `rail` between ordinary rows; separated advisor rows each have their own `rail` outline; 2 px `night` to open a group or a table |
 | Demo equipment | 2 px dashed `slate` |
 | Tap targets | 44 px minimum; primary buttons 48 px tall |
 | Spacing | 4 px steps; gutter 16 px (40 px wide); 28 px between blocks |
@@ -108,7 +108,7 @@ Build each block once in `components/shared` and use it everywhere. Port the ref
 | Time bars | `.time` | Up to three bars on one scale, the largest value at full width: the course as written (hatched `slate`), the time you have (`night`), this plan (lamp with a `night` outline). The value sits in text beside each bar |
 | Meter | `.meter` | What happened to a topic: full, 70%, 50% or empty |
 | Signal | `.signal` | Call priority: three dots, filled 3, 2 or 1 for high, medium or low, always followed by the word |
-| Travel and BusyOverlay | `.travel`, `.busy-overlay` | The shared animated stop is a separate child centered above its action description in a light, whole-screen modal overlay for major requests. BusyOverlay sets its critical vertical layout and track size in the component so the order holds during a language refresh before CSS finishes applying. The page stays visible under an 18% night tint but cannot receive pointer or keyboard actions until the request settles. Copy gives inline success/error feedback without an overlay |
+| Travel and BusyOverlay | `.travel`, `.busy-overlay` | The shared animated stop is a separate child centered above its action description in a light, whole-screen modal overlay for major requests. BusyOverlay sets its critical vertical layout and track size in the component so the order holds during a language refresh before CSS finishes applying. The page stays visible under an 18% night tint but cannot receive pointer or keyboard actions until the request settles. Advisor Copy also shows this overlay while clipboard work is pending and then gives inline success/error feedback |
 
 The tab icon, `app/icon.svg`:
 
@@ -185,7 +185,7 @@ Top to bottom. This order replaces the list in `FRONTEND.md`.
 4. "Your time before the exam": the plan summary, then the time bars.
 5. "Your week": the line.
 6. Deadline warnings, each a notice.
-7. "What's in your plan, and why": native `<details>` groups in this order: Skipped (open), Shortened (open), Kept in full (closed). A group head has a meter, the name and the count. A topic has its name in 700, "{minutes} of {estimate} min" at the right, the rationale, then the basis as detail with a 3 px `rail` rule on its left. Omit empty groups; if "Kept in full" is the only group, open it.
+7. "What's in your plan, and why": native `<details>` groups put actionable work (Kept in full and Shortened) before Skipped. The actionable group with the earliest scheduled topic appears first; both open. Skipped is last and closed. Topics within each actionable group follow their first scheduled session. A group head has a meter, the name and the count. A topic has its name in 700, "{minutes} of {estimate} min" at the right, the rationale, then the basis as detail with a 3 px `rail` rule on its left. Omit empty groups.
 8. "What your advisor sees": an outlined panel with the signal and "{Level} priority for a call", then the reasons and "Last active {when}" as a dash list.
 9. A `text` button, "Delete my data". Its confirmation is a dialog plate (paper, 2 px `night` border, no shadow) with `plain` "Delete my data" and `text` "Cancel".
 
@@ -212,18 +212,18 @@ English only.
 
 1. Display "Who to call this week", then the adherence sentence from `specs/risk.md` as the lede.
 2. Filter plates: Everyone, High, Medium, Low, each with its count. The current one is filled `night`.
-3. The table, with a 2 px `night` rule under the header and 1 px `rail` rules between rows:
+3. The table, with a 2 px `night` rule under the header and a 12 px vertical gutter between individually outlined rows:
 
 | Column | Content |
 | --- | --- |
 | Student | The name in 800, linking to the drawer (the whole row is clickable too); "Last active {when}" as detail; the "Call first" tag on escalated students |
 | Where they are | A mini line; "Week {n} of 12", plus ", on a catch-up plan" when they have one |
 | Priority | The signal and the word |
-| Why | The top two reasons |
+| Reasons | The top two reasons, or "No current call-priority concerns" |
 
 There is no score column and no status colour. Priority uses the shared signal and a weight/line shape; plan status has its own outlined marker. The selected row is `mist` with a 6 px `night` bar on its left edge.
 
-4. The drawer: up to 590 px wide with a 2 px `night` left border and a pale, noninteractive scrim. It holds the name and visible `quiet` "Close details" button; the signal and "{Level} priority for a call"; editable outreach, Copy, Mark contacted and the weekly draft count; reasons; missed sessions; and dated activity including the latest saved outreach note. Escape and scrim clicks do not close it. Opening from any row preserves the list's scroll position, and the loading state lasts until the selected learner's details render. The close button hides it and updates the URL immediately; selecting the same learner reopens it. Next/Previous pages show the shared loading state. After Mark contacted, offer "Draft another message" until the two-per-learner weekly limit is reached. The draft creation date is labelled as such because contact time is not stored yet.
+4. The drawer: up to 590 px wide with a 2 px `night` left border and a pale, noninteractive scrim. It opens immediately with the selected row's name, signal, last activity, plan status and bulleted priority reasons, while an inline Travel state precedes the slower outreach, missed-session and activity data. Failed detail reads offer Retry in the drawer. The rest holds editable outreach, Copy, Mark contacted and the weekly draft count, plus dated activity including the latest saved outreach note. Escape and scrim clicks do not close it. Opening from any row preserves the list's scroll position. The close button hides it and updates the URL immediately; selecting the same learner reopens it. Filter and Next/Previous navigation show the shared loading state. After Mark contacted, offer "Draft another message" until the two-per-learner weekly limit is reached. The draft creation date is labelled as such because contact time is not stored yet.
 
 Write "they" for students; the app holds no gender. An empty filter shows "No students at this priority." Below 768 px each row stacks its cells; nothing more is needed at that width. Keep `data-testid="advisor-row"` on each row.
 

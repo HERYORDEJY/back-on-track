@@ -9,12 +9,9 @@ import { doneThroughWeek } from "@/lib/engine/display";
 import { currentWeek } from "@/lib/engine/time";
 import { adherenceMetric } from "@/lib/risk/metric";
 import { Prisma } from "@/lib/generated/prisma/client";
+import type { AdvisorBand, AdvisorDetail, AdvisorEvent, AdvisorRow, PublicRisk } from "@/lib/types";
 
-export type AdvisorBand = "high" | "medium" | "low";
-export type PublicRisk = { band: AdvisorBand; reasons: { code: string; params: Record<string, string | number> }[]; lastActivity: string | null; escalated: boolean };
-export type AdvisorRow = { id: string; name: string; language: Language; risk: PublicRisk; planStatus: "fit" | "cut" | "infeasible" | null; doneThroughWeek: number; hasCurrentPlan: boolean; escalated: boolean; lastActive: string | null };
-export type AdvisorEvent = { at: string; type: "done" | "sessionMissed" | "submitted" | "topicDone" | "seen"; title?: string };
-export type AdvisorDetail = AdvisorRow & { events: AdvisorEvent[]; missedSessions: string[]; draftsUsedThisWeek: number; outreach: { id: string; message: string; nextStep: string; contacted: boolean; createdAt: string } | null };
+export type { AdvisorBand, AdvisorDetail, AdvisorRow, PublicRisk } from "@/lib/types";
 
 export class AdvisorServiceError extends Error {
   constructor(public readonly code: "STUDENT_NOT_FOUND" | "OUTREACH_NOT_FOUND" | "OUTREACH_WEEKLY_LIMIT") { super(code); }

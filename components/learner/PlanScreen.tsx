@@ -47,10 +47,15 @@ function CourseDecisions({ plan, language }: { plan: CurrentPlan; language: Lang
   const skipped = plan.items.filter((item) => item.action === "skip");
   const shortened = plan.items.filter((item) => item.action === "compress_light" || item.action === "compress_heavy");
   const kept = plan.items.filter((item) => item.action === "keep");
+  const actionable = [
+    { key: "kept", title: t("plan.groups.kept", language), items: kept, action: "keep" as const },
+    { key: "shortened", title: t("plan.groups.shortened", language), items: shortened, action: "compress_light" as const },
+  ].filter((group) => group.items.length).sort((a, b) =>
+    plan.items.findIndex((item) => item.topicId === a.items[0].topicId)
+    - plan.items.findIndex((item) => item.topicId === b.items[0].topicId));
   return <section className="block" aria-labelledby="work-title"><h2 id="work-title" className="heading">{t("plan.groups.title", language)}</h2>
-    <TopicGroup title={t("plan.groups.skipped", language)} items={skipped} language={language} open action="skip" />
-    <TopicGroup title={t("plan.groups.shortened", language)} items={shortened} language={language} open action="compress_light" />
-    <TopicGroup title={t("plan.groups.kept", language)} items={kept} language={language} open={!skipped.length && !shortened.length} action="keep" />
+    {actionable.map((group) => <TopicGroup key={group.key} title={group.title} items={group.items} language={language} open action={group.action} />)}
+    <TopicGroup title={t("plan.groups.skipped", language)} items={skipped} language={language} open={false} action="skip" />
   </section>;
 }
 

@@ -1,10 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { buildStops, doneThroughWeek, miniPositions, timeBarWidths } from "@/lib/engine/display";
+import { buildStops, doneThroughWeek, miniPositions, orderTopicsBySchedule, timeBarWidths } from "@/lib/engine/display";
 
 const now = new Date("2026-10-08T12:00:00+01:00");
 const availability = { mon: 20, tue: 0, wed: 30, thu: 40, fri: 0, sat: 20, sun: 0 };
 
 describe("read-only progress and line helpers", () => {
+  it("puts topics in first scheduled order even when saved items arrive shuffled", () => {
+    const items = [{ topicId: "t09" }, { topicId: "t03" }, { topicId: "t02" }, { topicId: "t01" }];
+    const sessions = [
+      { date: "2026-10-20", pieces: [{ topicId: "t03" }, { topicId: "t09" }] },
+      { date: "2026-10-19", pieces: [{ topicId: "t02" }, { topicId: "t03" }] },
+    ];
+    expect(orderTopicsBySchedule(items, sessions).map((item) => item.topicId)).toEqual(["t02", "t03", "t09", "t01"]);
+    expect(items.map((item) => item.topicId)).toEqual(["t09", "t03", "t02", "t01"]);
+  });
   it("counts only consecutive fully completed weeks as of now", () => {
     const topics = [{ id: "a", week: 1 }, { id: "b", week: 1 }, { id: "c", week: 2 }, { id: "d", week: 3 }];
     const progress = [{ topicId: "a", completedAt: now }, { topicId: "b", completedAt: new Date("2026-10-08T13:00:00+01:00") }, { topicId: "c", completedAt: now }];
